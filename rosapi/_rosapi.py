@@ -53,7 +53,8 @@ class rosapi:
 					i += 1
 					last = (i == count)
 					#write name and value (if bool is present convert to api equivalent) cast rest as string
-					self.write('={0}={1}'.format(name, str(mapping.get(value, value))), last)
+					value = str(mapping.get(value, value))
+					self.write('={0}={1}'.format(name, value), last)
 			if isinstance(attrs, list):
 				for string in attrs:
 					i += 1
