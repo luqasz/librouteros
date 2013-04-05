@@ -263,8 +263,7 @@ class rosapi:
 
 	def __del__( self ):
 		"""disconnect garbage collecting"""
-		if not self.sock._closed:
-			self.close()
+		self.close()
 
 	def close( self ):
 		'''
