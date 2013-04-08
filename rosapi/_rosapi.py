@@ -16,18 +16,27 @@
 import socket
 import logging
 from time import time
+from struct import pack, unpack
 
 from rosapi._exceptions import readError, writeError, apiError, cmdError
 
 class rosapi:
 
-	def __init__( self, sock ):
+	def __init__( self, sock, parent_logger = None ):
 		self.sock = sock
 		self.rw_timeout = 15
 		self.sock_timeout = 10
 		self.r_buffer = 1024
 		self.w_buffer = 1024
-		self.log = logging.getLogger( 'mcm.configurator.{0}'.format( self.__class__.__name__ ) )
+		# prepare logging defaults to suppress all logging
+		if parent_logger:
+			# create logger with parent
+			self.log = logging.getLogger( '{0}.{1}'.format( parent_logger, self.__class__.__name__ ) )
+		else:
+			# just create basic logger with our class name
+			self.log = logging.getLogger( self.__class__.__name__ )
+			# add null handler to suppress all messages
+			self.log.addHandler( logging.NullHandler() )
 
 	def talk( self, cmd, attrs = None ):
 		"""
@@ -64,61 +73,55 @@ class rosapi:
 
 	def writeLen( self, length ):
 		"""
-		takes:
-			(int) length of a string as parameter
-		returns:
-			nothing
+		encodes and writes int(length)  
 		"""
 
 		if length < 0x80:
-			self.writeSock( chr( length ).encode( 'raw_unicode_escape' ) )
+			offset = -1
 		elif length < 0x4000:
 			length |= 0x8000
-			self.writeSock( chr( ( length >> 8 ) & 0xFF ).encode( 'raw_unicode_escape' ) )
-			self.writeSock( chr( length & 0xFF ).encode( 'raw_unicode_escape' ) )
+			offset = -2
 		elif length < 0x200000:
 			length |= 0xC00000
-			self.writeSock( chr( ( length >> 16 ) & 0xFF ).encode( 'raw_unicode_escape' ) )
-			self.writeSock( chr( ( length >> 8 ) & 0xFF ).encode( 'raw_unicode_escape' ) )
-			self.writeSock( chr( length & 0xFF ).encode( 'raw_unicode_escape' ) )
+			offset = -3
 		elif length < 0x10000000:
 			length |= 0xE0000000
-			self.writeSock( chr( ( length >> 24 ) & 0xFF ).encode( 'raw_unicode_escape' ) )
-			self.writeSock( chr( ( length >> 16 ) & 0xFF ).encode( 'raw_unicode_escape' ) )
-			self.writeSock( chr( ( length >> 8 ) & 0xFF ).encode( 'raw_unicode_escape' ) )
-			self.writeSock( chr( length & 0xFF ).encode( 'raw_unicode_escape' ) )
+			offset = -4
 		else:
-			raise apiError( 'message too long to encode' )
-		return
+			raise apiError( 'unable to encode length of {0}'.format( length ) )
+
+		length = pack( '!I', length )[offset:]
+		# write actual length in bytes to socket
+		self.writeSock( length )
 
 	def readLen( self ):
 		"""
-		read length.
-		return int(length) read
-		
-		to do:
-		add try except for TypeError: ord may raise
+		read length and	return it as integer
 		"""
+		controll_byte = self.readSock( 1 )
+		controll_byte_int = unpack( 'B', controll_byte )[0]
 
-		LENGTH = 0
-		BYTE = ord( self.readSock( 1 ) )
-		if ( BYTE & 128 ):
-			if ( ( BYTE & 192 ) == 128 ):
-					LENGTH = ( ( BYTE & 63 ) << 8 ) + ord( self.readSock( 1 ) )
-			else:
-				if ( ( BYTE & 224 ) == 192 ):
-					LENGTH = ( ( BYTE & 31 ) << 8 ) + ord( self.readSock( 1 ) )
-					LENGTH = ( LENGTH << 8 ) + ord( self.readSock( 1 ) )
-				else:
-					if ( ( BYTE & 240 ) == 224 ):
-						LENGTH = ( ( BYTE & 15 ) << 8 ) + ord( self.readSock( 1 ) )
-						LENGTH = ( LENGTH << 8 ) + ord( self.readSock( 1 ) )
-						LENGTH = ( LENGTH << 8 ) + ord( self.readSock( 1 ) )
-					else:
-						raise apiError( 'message too long to read' )
+		if controll_byte_int < 128:
+			return controll_byte_int
+		elif controll_byte_int < 192:
+			offset = b'\x00\x00'
+			additional_bytes = self.readSock( 1 )
+			XOR = 0x8000
+		elif controll_byte_int < 224:
+			offset = b'\x00'
+			additional_bytes = self.readSock( 2 )
+			XOR = 0xC00000
+		elif controll_byte_int < 240:
+			offset = b''
+			additional_bytes = self.readSock( 3 )
+			XOR = 0xE0000000
 		else:
-			LENGTH = BYTE
-		return LENGTH
+			raise apiError( 'unknown controll byte received {0}'.format( repr( controll_byte ) ) )
+
+		length = offset + controll_byte + additional_bytes
+		length = unpack( '!I', length )[0]
+		length ^= XOR
+		return length
 
 	def mkBuffLst ( self, len, buffer ):
 		"""
@@ -193,6 +196,7 @@ class rosapi:
 
 		# if end is set to bool(true) send ending character chr(0)
 		if end:
+			self.log.debug( 'writing EOS' )
 			self.writeSock( chr( 0 ).encode( 'UTF-8', 'strict' ) )
 		return
 

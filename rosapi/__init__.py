@@ -21,7 +21,7 @@ import socket
 import rosapi._rosapi
 from rosapi._exceptions import *
 
-def login( address, username, password, port = 8728 ):
+def login( address, username, password, port = 8728, parent_logger = None ):
 	"""
 	login to RouterOS via api
 	takes:
@@ -37,7 +37,7 @@ def login( address, username, password, port = 8728 ):
 
 	# self.log = logging.getLogger('mcm.configurator.{0}'.format(self.__class__.__name__))
 	sock = socket.create_connection( ( address, port ), 10 )
-	api = _rosapi.rosapi( sock )
+	api = _rosapi.rosapi( sock, parent_logger = parent_logger )
 	api.write( '/login' )
 	response = api.read( parse = False )
 	# check for valid response.
