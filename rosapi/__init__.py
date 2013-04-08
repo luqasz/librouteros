@@ -35,7 +35,6 @@ def login( address, username, password, port = 8728, parent_logger = None ):
 		loginError. raised when failed to log in
 	"""
 
-	# self.log = logging.getLogger('mcm.configurator.{0}'.format(self.__class__.__name__))
 	sock = socket.create_connection( ( address, port ), 10 )
 	api = _rosapi.rosapi( sock, parent_logger = parent_logger )
 	api.write( '/login' )
