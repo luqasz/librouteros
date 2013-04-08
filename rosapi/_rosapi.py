@@ -197,7 +197,7 @@ class rosapi:
 		# if end is set to bool(true) send ending character chr(0)
 		if end:
 			self.log.debug( 'writing EOS' )
-			self.writeSock( chr( 0 ).encode( 'UTF-8', 'strict' ) )
+			self.writeSock( b'\x00' )
 		return
 
 	def read( self, parse = True ):
