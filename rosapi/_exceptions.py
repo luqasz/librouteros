@@ -13,23 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class writeError(Exception):
-	def __init__(self, msg):
-		Exception.__init__(self, msg)
+class writeError( Exception ):
+    def __init__( self, msg ):
+        Exception.__init__( self, msg )
 
-class readError(Exception):
-	def __init__(self, msg):
-		Exception.__init__(self, msg)
+class readError( Exception ):
+    def __init__( self, msg ):
+        Exception.__init__( self, msg )
 
-class cmdError(Exception):
-	def __init__(self, msg):
-		Exception.__init__(self, msg)
+class cmdError( Exception ):
+    def __init__( self, msg ):
+        Exception.__init__( self, msg )
 
-class apiError(Exception):
-	def __init__(self, msg):
-		Exception.__init__(self, msg)
+class apiError( Exception ):
+    def __init__( self, msg ):
+        Exception.__init__( self, msg )
 
-class loginError(Exception):
-	def __init__(self, msg):
-		Exception.__init__(self, msg)
-
+class loginError( Exception ):
+    def __init__( self, msg ):
+        Exception.__init__( self, msg )

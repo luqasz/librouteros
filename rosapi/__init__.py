@@ -16,56 +16,56 @@
 
 from binascii import unhexlify, hexlify
 from hashlib import md5
+from rosapi._exceptions import *
+import rosapi._rosapi
 import socket
 
-import rosapi._rosapi
-from rosapi._exceptions import *
 
 def login( address, username, password, port = 8728, parent_logger = None ):
-	"""
-	login to RouterOS via api
-	takes:
-		(string) address = may be fqdn or ip/ipv6 address
-		(string) username = username to login
-		(string) password = password to login
-		(int) port = port to witch to login. defaults to 8728
-	returns:
-		rosapi class
-	exceptions:
-		loginError. raised when failed to log in
-	"""
+    """
+    login to RouterOS via api
+    takes:
+        (string) address = may be fqdn or ip/ipv6 address
+        (string) username = username to login
+        (string) password = password to login
+        (int) port = port to witch to login. defaults to 8728
+    returns:
+        rosapi class
+    exceptions:
+        loginError. raised when failed to log in
+    """
 
-	sock = socket.create_connection( ( address, port ), 10 )
-	api = _rosapi.rosapi( sock, parent_logger = parent_logger )
-	api.write( '/login' )
-	response = api.read( parse = False )
-	# check for valid response.
-	# response must contain !done (as frst reply word), =ret=32 characters long response hash (as second reply word))
-	if len( response ) != 2 or len( response[1] ) != 37:
-		raise loginError( 'did not receive challenge response' )
-	chal = response[1].split( '=', 2 )[2]
-	chal = chal.encode( 'UTF-8', 'strict' )
-	chal = unhexlify( chal )
-	password = password.encode( 'UTF-8', 'strict' )
-	md = md5()
-	md.update( b'\x00' + password + chal )
-	password = hexlify( md.digest() )
-	password = password.decode( 'UTF-8', 'strict' )
-	api.write( '/login', False )
-	api.write( '=name=' + username, False )
-	api.write( '=response=00' + password )
-	response = api.read( parse = False )
-	try:
-		result = response[0]
-	except IndexError:
-		raise loginError( 'could not log in. unknown error' )
-	else:
-		if result == '!done':
-			return api
-		elif result == '!trap':
-			raise loginError( 'wrong username and/or password' )
-		else:
-			raise loginError( 'unknown error {0}'.format( response ) )
+    sock = socket.create_connection( ( address, port ), 10 )
+    api = _rosapi.rosapi( sock, parent_logger = parent_logger )
+    api.write( '/login' )
+    response = api.read( parse = False )
+    # check for valid response.
+    # response must contain !done (as frst reply word), =ret=32 characters long response hash (as second reply word))
+    if len( response ) != 2 or len( response[1] ) != 37:
+        raise loginError( 'did not receive challenge response' )
+    chal = response[1].split( '=', 2 )[2]
+    chal = chal.encode( 'UTF-8', 'strict' )
+    chal = unhexlify( chal )
+    password = password.encode( 'UTF-8', 'strict' )
+    md = md5()
+    md.update( b'\x00' + password + chal )
+    password = hexlify( md.digest() )
+    password = password.decode( 'UTF-8', 'strict' )
+    api.write( '/login', False )
+    api.write( '=name=' + username, False )
+    api.write( '=response=00' + password )
+    response = api.read( parse = False )
+    try:
+        result = response[0]
+    except IndexError:
+        raise loginError( 'could not log in. unknown error' )
+    else:
+        if result == '!done':
+            return api
+        elif result == '!trap':
+            raise loginError( 'wrong username and/or password' )
+        else:
+            raise loginError( 'unknown error {0}'.format( response ) )
 
 
 __all__ = [k for k in list( locals().keys() ) if not k.startswith( '_' )]
