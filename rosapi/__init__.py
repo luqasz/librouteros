@@ -16,7 +16,7 @@
 
 from binascii import unhexlify, hexlify
 from hashlib import md5
-from rosapi._exceptions import *
+from rosapi._exceptions import cmdError, apiError, loginError
 import rosapi._rosapi
 import socket
 
@@ -35,7 +35,12 @@ def login( address, username, password, port = 8728, parent_logger = None ):
         loginError. raised when failed to log in
     """
 
-    sock = socket.create_connection( ( address, port ), 10 )
+    try:
+        # try to open socket connection to given address and port with timeout
+        sock = socket.create_connection( ( address, port ), 10 )
+    except socket.error as estr:
+        raise loginError( 'failed to login: {reason}'.format( reason = estr ) )
+
     api = _rosapi.rosapi( sock, parent_logger = parent_logger )
     api.write( '/login' )
     response = api.read( parse = False )

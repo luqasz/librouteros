@@ -17,8 +17,7 @@ import socket
 import logging
 from time import time
 from struct import pack, unpack
-
-from rosapi._exceptions import readError, writeError, apiError, cmdError
+from rosapi._exceptions import apiError, cmdError
 
 class rosapi:
 
@@ -26,8 +25,7 @@ class rosapi:
         self.sock = sock
         self.rw_timeout = 15
         self.sock_timeout = 10
-        self.r_buffer = 1024
-        self.w_buffer = 1024
+        self.rw_buffer = 1024
         # prepare logging defaults to suppress all logging
         if parent_logger:
             # create logger with parent
@@ -153,14 +151,14 @@ class rosapi:
         str_len = len( string )
         timeout = time() + self.rw_timeout
 
-        for buffer in self.mkBuffLst( str_len, self.w_buffer ):
+        for buffer in self.mkBuffLst( str_len, self.rw_buffer ):
             if time() > timeout:
-                raise writeError( 'write timeout' )
+                raise apiError( 'write timeout' )
             buf_string = string[i:i + buffer]
             self.log.debug( '<<< {0}'.format( repr( buf_string ) ) )
             b_sent = self.sock.send( buf_string )
             if b_sent == 0:
-                raise writeError( 'failed to write to socket.' )
+                raise apiError( 'failed to write to socket.' )
             i += buffer
 
         return
@@ -174,9 +172,9 @@ class rosapi:
         ret_str = []
         timeout = time() + self.rw_timeout
 
-        for buffer in self.mkBuffLst( length, self.r_buffer ):
+        for buffer in self.mkBuffLst( length, self.rw_buffer ):
             if time() > timeout:
-                raise readError( 'read timeout' )
+                raise apiError( 'read timeout' )
             buf_string = self.sock.recv( buffer )
             self.log.debug( '>>> {0}'.format( repr( buf_string ) ) )
             ret_str.append( buf_string )
