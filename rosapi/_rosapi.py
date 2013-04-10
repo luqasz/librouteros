@@ -14,27 +14,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import socket
-import logging
 from time import time
 from struct import pack, unpack
 from rosapi._exceptions import apiError, cmdError
 
 class rosapi:
 
-    def __init__( self, sock, parent_logger = None ):
+    def __init__( self, sock, logger ):
+        # socket object
         self.sock = sock
         self.rw_timeout = 15
-        self.sock_timeout = 10
+        # indicate that by default we are not logged in. after successful login this value is set to True
+        self._logged = False
+        # how much bytes of buffer will be available
         self.rw_buffer = 1024
-        # prepare logging defaults to suppress all logging
-        if parent_logger:
-            # create logger with parent
-            self.log = logging.getLogger( '{0}.{1}'.format( parent_logger, self.__class__.__name__ ) )
-        else:
-            # just create basic logger with our class name
-            self.log = logging.getLogger( self.__class__.__name__ )
-            # add null handler to suppress all messages
-            self.log.addHandler( logging.NullHandler() )
+        # logger object
+        self.log = logger
 
     def talk( self, cmd, attrs = None ):
         """
@@ -273,14 +268,15 @@ class rosapi:
         '''
         if self.sock._closed:
             return
-        try:
+
+        if self._logged:
             # send /quit command
             self.write( '/quit' )
             # read response without parsing
             self.read( parse = False )
-        except socket.error:
-            pass
-        finally:
-            # shutdown socket
-            self.sock.shutdown( socket.SHUT_RDWR )
-            self.sock.close()
+            # set logged flag to False
+            self._logged = False
+
+        # shutdown socket
+        self.sock.shutdown( socket.SHUT_RDWR )
+        self.sock.close()
