@@ -44,7 +44,7 @@ def login( address, username, password, port = 8728, timeout = 10 ):
         # try to open socket connection to given address and port with timeout
         sock = socket.create_connection( ( address, port ), timeout )
     except socket.error as estr:
-        raise loginError( 'failed to login: {reason}'.format( reason = estr ) )
+        raise loginError( estr )
 
 
     # set up logger
@@ -68,18 +68,13 @@ def login( address, username, password, port = 8728, timeout = 10 ):
     api.write( '=response=00' + password )
     response = api.read( parse = False )
 
-    try:
-        result = response[0]
-    except IndexError:
-        raise loginError( 'could not log in. unknown error' )
+    if response[0] == '!done':
+        api._logged = True
+        return api
+    elif response[0] == '!trap':
+        raise loginError( 'wrong username and/or password' )
     else:
-        if result == '!done':
-            api._logged = True
-            return api
-        elif result == '!trap':
-            raise loginError( 'wrong username and/or password' )
-        else:
-            raise loginError( 'unknown error {0}'.format( response ) )
+        raise loginError( 'unknown error {0}'.format( response ) )
 
 def _pw_enc( chal, password ):
     '''

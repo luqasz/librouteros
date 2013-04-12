@@ -56,7 +56,7 @@ class rosapi:
                     last = ( i == count )
                     # write name and value (if bool is present convert to api equivalent) cast rest as string
                     value = str( mapping.get( value, value ) )
-                    self.write( '={0}={1}'.format( name, value ), last )
+                    self.write( '={name}={value}'.format( name = name, value = value ), last )
             if isinstance( attrs, list ):
                 for string in attrs:
                     i += 1
@@ -89,7 +89,7 @@ class rosapi:
 
     def readLen( self ):
         """
-        read length and    return it as integer
+        read length and return it as integer
         """
         controll_byte = self.readSock( 1 )
         controll_byte_int = unpack( 'B', controll_byte )[0]
