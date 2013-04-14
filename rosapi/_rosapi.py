@@ -14,7 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import socket
-from time import time
 from struct import pack, unpack
 from rosapi._exceptions import apiError, cmdError
 
@@ -116,26 +115,23 @@ class rosapi:
         length ^= XOR
         return length
 
-    def mkBuffLst ( self, len, buffer ):
+    def mkBuffLst ( self, length ):
         """
-        make buffer list of integers based on given int(length) and int(buffer) > 0
+        make buffer list of integers based on given int(length) and int(self.rw_buffer)
         """
 
-        # how many full buffers
-        tf_buffers = int( len / buffer )
-        # full buffers summary
-        tf_buff_sum = buffer * tf_buffers
-        buff_lst = []
+        if length < self.rw_buffer:
+            return [length]
 
-        for x in range( 0, tf_buffers ):
-            buff_lst.append( buffer )
+        # create a list of full buffers
+        buf_lst = [self.rw_buffer for x in range( 0, int( length / self.rw_buffer ) )]
+        # get rest of division
+        mod = length % self.rw_buffer
+        if mod:
+            # add the rest if > 0 to list
+            buf_lst.append( mod )
 
-        if len > tf_buff_sum:
-            buff_lst.append( len - tf_buff_sum )
-        elif len < buffer:
-            buff_lst.append( len )
-
-        return buff_lst
+        return buf_lst
 
     def writeSock( self, string ):
         """
@@ -143,12 +139,8 @@ class rosapi:
         """
 
         i = 0
-        str_len = len( string )
-        timeout = time() + self.rw_timeout
 
-        for buffer in self.mkBuffLst( str_len, self.rw_buffer ):
-            if time() > timeout:
-                raise apiError( 'write timeout' )
+        for buffer in self.mkBuffLst( len( string ) ):
             buf_string = string[i:i + buffer]
             self.log.debug( '<<< {0}'.format( repr( buf_string ) ) )
             b_sent = self.sock.send( buf_string )
@@ -165,11 +157,8 @@ class rosapi:
         """
 
         ret_str = []
-        timeout = time() + self.rw_timeout
 
-        for buffer in self.mkBuffLst( length, self.rw_buffer ):
-            if time() > timeout:
-                raise apiError( 'read timeout' )
+        for buffer in self.mkBuffLst( length ):
             buf_string = self.sock.recv( buffer )
             self.log.debug( '>>> {0}'.format( repr( buf_string ) ) )
             ret_str.append( buf_string )
