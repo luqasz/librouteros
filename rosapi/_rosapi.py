@@ -22,11 +22,8 @@ class rosapi:
     def __init__( self, sock, logger ):
         # socket object
         self.sock = sock
-        self.rw_timeout = 15
         # indicate that by default we are not logged in. after successful login this value is set to True
         self._logged = False
-        # how much bytes of buffer will be available
-        self.rw_buffer = 1024
         # logger object
         self.log = logger
 
@@ -35,7 +32,7 @@ class rosapi:
         this is a shortcut (wrapper) not to use write(), read() methods one after another. simply "talk" with RouterOS.
         takes:
             (string) cmd. eg /ip/address/print
-            (dict) or (list) attrs default {}.
+            (dict) or (list) attrs default None.
                 dictionary with attribute -> value. every key value pair will be passed to api in form of =name=value
                 list if order matters. eg. querry, every element in list is a word in api
         returns:
@@ -45,7 +42,7 @@ class rosapi:
         # map bollean types to string equivalents in routeros api
         mapping = {False: 'false', True: 'true', None: ''}
         # write level and if attrs is empty pass True to self.write, else False
-        self.write( cmd, end = ( not bool( attrs ) ) )
+        self.writeWord( cmd, end = not attrs )
         if attrs:
             count = len( attrs )
             i = 0
@@ -55,17 +52,29 @@ class rosapi:
                     last = ( i == count )
                     # write name and value (if bool is present convert to api equivalent) cast rest as string
                     value = str( mapping.get( value, value ) )
-                    self.write( '={name}={value}'.format( name = name, value = value ), last )
+                    self.writeWord( '={name}={value}'.format( name = name, value = value ), last )
             if isinstance( attrs, list ):
                 for string in attrs:
                     i += 1
                     last = ( i == count )
-                    self.write( str( string ), last )
-        return self.read()
+                    self.writeWord( str( string ), last )
 
-    def writeLen( self, length ):
+        response = self.read()
+
+        # when adding elements, api returns in response .id of added element
+        if cmd.endswith( '/add' ):
+            return response[0]['ret']
+        else:
+            return response
+
+    def encLen( self, length ):
         """
-        encodes and writes int(length)  
+        Encode given length in mikrotik format.
+        
+        **Note** if :param length: is >= 268435456 ``apiError`` will be raised.
+        
+        :param length: Integer < 268435456.
+        :returns: Encoded length in bytes. 
         """
 
         if length < 0x80:
@@ -83,8 +92,7 @@ class rosapi:
             raise apiError( 'unable to encode length of {0}'.format( length ) )
 
         length = pack( '!I', length )[offset:]
-        # write actual length in bytes to socket
-        self.writeSock( length )
+        return length
 
     def readLen( self ):
         """
@@ -108,109 +116,153 @@ class rosapi:
             additional_bytes = self.readSock( 3 )
             XOR = 0xE0000000
         else:
-            raise apiError( 'unknown controll byte received {0}'.format( repr( controll_byte ) ) )
+            raise apiError( 'unknown controll byte received {0!r}'.format( controll_byte ) )
 
         length = offset + controll_byte + additional_bytes
         length = unpack( '!I', length )[0]
         length ^= XOR
+
         return length
 
-    def mkBuffLst ( self, length ):
+    def writeSock( self, bstring ):
         """
-        make buffer list of integers based on given int(length) and int(self.rw_buffer)
-        """
-
-        if length < self.rw_buffer:
-            return [length]
-
-        # create a list of full buffers
-        buf_lst = [self.rw_buffer for x in range( 0, int( length / self.rw_buffer ) )]
-        # get rest of division
-        mod = length % self.rw_buffer
-        if mod:
-            # add the rest if > 0 to list
-            buf_lst.append( mod )
-
-        return buf_lst
-
-    def writeSock( self, string ):
-        """
-        bytes(string) string. must be bytes object
+        Write given string to socket. Loop as long as every byte in string is written unless exception is raised.
+        
+        **Note** When timeout or socket error occurs ``apiError`` is raised with description of error. 
+        
+        :param bstring: bytes string to write
+        :ivar sock: socket object
         """
 
-        i = 0
+        # initialize total bytes sent count
+        tb_sent = 0
+        # count how long the string is
+        bstring_len = len( bstring )
 
-        for buffer in self.mkBuffLst( len( string ) ):
-            buf_string = string[i:i + buffer]
-            self.log.debug( '<<< {0}'.format( repr( buf_string ) ) )
-            b_sent = self.sock.send( buf_string )
-            if b_sent == 0:
-                raise apiError( 'failed to write to socket.' )
-            i += buffer
+        try:
 
-        return
+            while tb_sent < bstring_len:
+                b_sent = self.sock.send( bstring[tb_sent:] )
+                if not b_sent:
+                    raise apiError( 'connection unexpectedly closed. sent {sent}/{total} bytes.'
+                                    .format( sent = tb_sent, total = bstring_len ) )
+                tb_sent += b_sent
+
+        except socket.error as estr:
+            raise apiError( 'failed to write to socket: {reason}'.format( reason = estr ) )
+        except socket.timeout:
+            raise apiError( 'socket timed out. sent {sent}/{total} bytes.'
+                            .format( sent = tb_sent, total = bstring_len ) )
+
 
     def readSock( self, length ):
         """
-        int(length) how many bytes to read
-        returns bytes object string
+        Read as many bytes from socket as specified in :param length:. Loop as long as every byte is read unless exception is raised
+        Returns bytes string read. 
+        
+        **Note** When timeout or socket error occurs ``apiError`` is raised with description of error. 
+        
+        :param length: how many bytes to read
+        :returns: Bytes string read. 
         """
 
+        # initialize empty list that will hold every bytes read
         ret_str = []
+        # initialize how many bytes have been read so far
+        b_read = 0
 
-        for buffer in self.mkBuffLst( length ):
-            buf_string = self.sock.recv( buffer )
-            self.log.debug( '>>> {0}'.format( repr( buf_string ) ) )
-            ret_str.append( buf_string )
+        try:
 
+            while b_read < length:
+                ret = self.sock.recv( length - b_read )
+                if not ret:
+                    raise apiError( 'connection unexpectedly closed. read {read}/{total} bytes.'
+                                    .format( read = b_read, total = length ) )
+                # add read bytes to list
+                ret_str.append( ret )
+                b_read += len( ret )
+
+        except socket.timeout:
+            raise apiError( 'socket timed out. read {read}/{total} bytes.'
+                            .format( read = b_read, total = length ) )
+        except socket.error as estr:
+            raise apiError( 'failed to read from socket: {reason}'.format( reason = estr ) )
+
+
+        # return joined bytes as one byte string
         return b''.join( ret_str )
 
-    def write( self, string, end = True ):
+    def writeWord( self, word, end = True ):
         """
-        takes:
-            str(string) string to write
-            (bool) end. True = send sentence end, False = wait for more data to write
-        returns:
+        Encodes and writes word.
+        
+        :param word: String to encode and write.  
+        :param end: Boolean value if end of sentence.
         """
+        length = len( word )
+        enc_len = self.encLen( length )
+        self.writeSock( enc_len )
 
-        self.writeLen( len( string ) )
-        self.writeSock( string.encode( 'UTF-8', 'strict' ) )
+        word = word.encode( 'UTF-8', 'strict' )
+        self.log.debug( '<<< {word!r} ({length})'.format( word = word, length = length ) )
+        self.writeSock( word )
 
         # if end is set to bool(true) send ending character chr(0)
         if end:
-            self.log.debug( 'writing EOS' )
+            self.log.debug( '<<< EOS' )
             self.writeSock( b'\x00' )
-        return
 
-    def read( self, parse = True ):
+
+    def read( self ):
         """
         takes:
             (bool) parse. whether to parse the response or not
         returns:
-            (list) response. parsed or not depending on parse=
+            (list) parsed response
         """
 
         response = []
-        EOS = False
-        while True:
+        sentence = []
+        error = False
+        # EOR end of response
+        EOR = False
+        # DONE !done reply word
+        DONE = False
+        while not EOR:
             # read encoded length
             length = self.readLen()
-            retword = ''
+            if not length:
+                self.log.debug( '>>> EOS' )
+                if sentence:
+                    # add conde for .tag support here. if tag exists in sentence ....
+                    # decode (from bytes) every element in sentence
+                    sentence = [elem.decode( 'UTF-8', 'strict' ) for elem in sentence]
+                    # push the sentence into response
+                    response.append( sentence )
+                    # reset the sentence
+                    sentence = []
 
-            if length > 0:
-                retword = self.readSock( length )
-                retword = retword.decode( 'UTF-8', 'strict' )
-                response.append( retword )
-                # make a note when got !done or !fatal this marks end of sentence
-                if retword in ['!done', '!fatal']:
-                    EOS = True
-            if ( not length and EOS ):
-                break
-        if parse:
-            response = self.parseResponse( response )
-        return response
+            if length:
+                # read as many bytes as we decoded from readLen
+                word = self.readSock( length )
+                self.log.debug( '>>> {word!r} ({length})'.format( word = word, length = length ) )
+                # add all words to sentence that do not start with !.
+                if not word.startswith( b'!' ):
+                    sentence.append( word )
+                # mark an error when it occurs
+                elif word == b'!trap':
+                    error = True
+                # mark end of reply
+                elif word == b'!done':
+                    DONE = True
+            # make a note when got !done and EOS this marks end of response
+            if ( DONE and not length ):
+                EOR = True
+                self.log.debug( '>>> EOR' )
 
-    def parseResponse( self, response ):
+        return self.parseResponse( response, error )
+
+    def parseResponse( self, response, error ):
         """
         takes:
             (list) response. response to be parsed
@@ -220,27 +272,24 @@ class rosapi:
             cmdError
         """
         parsed_response = []
-        index = -1
-        for word in response:
-            if word in ['!trap', '!re']:
-                index += 1
-                parsed_response.append( {} )
-            elif word == '!done':
-                break
-            else:
-                # split word by second occurence of '='
-                word = word.split( '=', 2 )
-                kw = word[1]
-                val = word[2]
-                parsed_response[index][kw] = self.typeCast( val )
-        if '!trap' in response:
+
+        for sentence in response:
+            # every element in sentence will be split by second occurrence of '='
+            # ['=name=ssh', '=port=22'] will be [['name', 'ssh'], ['port', '22']]
+            sentence = [item.split( '=', 2 )[1:] for item in sentence]
+            # construct a dictionary with key and value casted to python objects by self.typeCast
+            sentence = dict( map( self.typeCast, item ) for item in sentence )
+            parsed_response.append( sentence )
+
+        if error:
             msg = ', '.join( ' '.join( '{0}="{1}"'.format( k, v ) for ( k, v ) in inner.items() ) for inner in parsed_response )
             raise cmdError( msg )
+
         return parsed_response
 
     def typeCast( self, string ):
         """cast strings into possibly int, boollean"""
-        mapping = {'true': True, 'false': False}
+        mapping = {'true': True, 'false': False, '': None}
         try:
             ret = int( string )
         except ValueError:
@@ -248,21 +297,43 @@ class rosapi:
         return ret
 
     def __del__( self ):
-        """disconnect garbage collecting"""
+        """
+        Disconnect while garbage collecting.
+        """
+
         self.close()
 
+    def send_quit( self ):
+        """
+        Send /quit command to logout properly. This has to be done in a separate method because we instead of !done we will receive !fatal as end of response mark. 
+        """
+
+        self.writeWord( '/quit' )
+        END = False
+        while not END:
+            # read length
+            length = self.readLen()
+            if length:
+                # read word
+                word = self.readSock( length )
+                self.log.debug( '>>> {word!r} ({length})'.format( word = word, length = length ) )
+            else:
+                self.log.debug( '>>> EOS' )
+                END = True
+
     def close( self ):
-        '''
-        disconnect and cleanup
-        '''
+        """
+        Logout and close the connection.
+        
+        :ivar sock: socket object.
+        :ivar _logged: Flag to hold login status. 
+        """
+
         if self.sock._closed:
             return
 
         if self._logged:
-            # send /quit command
-            self.write( '/quit' )
-            # read response without parsing
-            self.read( parse = False )
+            self.send_quit()
             # set logged flag to False
             self._logged = False
 

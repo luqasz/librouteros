@@ -49,32 +49,30 @@ def login( address, username, password, port = 8728, timeout = 10 ):
 
     # set up logger
     logger = _set_logger()
-
     api = _rosapi.rosapi( sock, logger = logger )
-    api.write( '/login' )
-    response = api.read( parse = False )
-    # check for valid response.
-    # response must contain !done (as frst reply word), =ret=32 characters long response hash (as second reply word))
-    if len( response ) != 2 or len( response[1] ) != 37:
+
+    try:
+        response = api.talk( '/login' )
+    except apiError as estr:
+        api.close()
+        raise loginError( estr )
+
+    # response must contain !done (as first reply word), =ret=32 characters long response hash (as second reply word))
+    chal = response[0].get( 'ret' )
+    if not chal:
         raise loginError( 'did not receive challenge response' )
 
-    # split response and get challenge response hash
-    chal = response[1].split( '=', 2 )[2]
     # encode given password
-    password = _pw_enc( chal, password )
+    password = '00' + _pw_enc( chal, password )
 
-    api.write( '/login', False )
-    api.write( '=name=' + username, False )
-    api.write( '=response=00' + password )
-    response = api.read( parse = False )
-
-    if response[0] == '!done':
-        api._logged = True
-        return api
-    elif response[0] == '!trap':
+    try:
+        response = api.talk( '/login', {'name': username, 'response': password} )
+    except cmdError:
+        api.close()
         raise loginError( 'wrong username and/or password' )
-    else:
-        raise loginError( 'unknown error {0}'.format( response ) )
+
+    api._logged = True
+    return api
 
 def _pw_enc( chal, password ):
     '''
