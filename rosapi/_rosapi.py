@@ -29,14 +29,10 @@ class rosapi:
 
     def talk( self, cmd, attrs = None ):
         """
-        this is a shortcut (wrapper) not to use write(), read() methods one after another. simply "talk" with RouterOS.
-        takes:
-            (string) cmd. eg /ip/address/print
-            (dict) or (list) attrs default None.
-                dictionary with attribute -> value. every key value pair will be passed to api in form of =name=value
-                list if order matters. eg. querry, every element in list is a word in api
-        returns:
-            returns parsed response from self.read()
+        Send a command and receive response.
+        
+        :param cmd: String with command word. '/ip/service/print' etc.
+        :param attrs: Additional attributes to pass. This can be a dictionary or a list. In case of a list   
         """
 
         # map bollean types to string equivalents in routeros api
@@ -96,7 +92,7 @@ class rosapi:
 
     def readLen( self ):
         """
-        read length and return it as integer
+        Read encoded length and return it as integer
         """
         controll_byte = self.readSock( 1 )
         controll_byte_int = unpack( 'B', controll_byte )[0]
@@ -215,10 +211,7 @@ class rosapi:
 
     def read( self ):
         """
-        takes:
-            (bool) parse. whether to parse the response or not
-        returns:
-            (list) parsed response
+        Read response after writing sentence.
         """
 
         response = []
@@ -264,12 +257,10 @@ class rosapi:
 
     def parseResponse( self, response, error ):
         """
-        takes:
-            (list) response. response to be parsed
-        returns:
-            (list) in list every data reply is a dictionary with key value pair
-        exceptions:
-            cmdError
+        Parse read response. A list is created in witch every element (sentence) is a dictionary.
+        
+        :param repsonse: Given response
+        :param error: Error flag. If this is set to True then cmdError exception is raised with response as message.
         """
         parsed_response = []
 
@@ -288,7 +279,11 @@ class rosapi:
         return parsed_response
 
     def typeCast( self, string ):
-        """cast strings into possibly int, boollean"""
+        """
+        Cast strings into possibly integer, boollean.
+        
+        :param string: String to cast to python equivalent
+        """
         mapping = {'true': True, 'false': False, '': None}
         try:
             ret = int( string )
@@ -305,7 +300,7 @@ class rosapi:
 
     def send_quit( self ):
         """
-        Send /quit command to logout properly. This has to be done in a separate method because we instead of !done we will receive !fatal as end of response mark. 
+        Send /quit command to logout properly. This has to be done in a separate method because, instead of !done we will receive !fatal as end of response mark. 
         """
 
         self.writeWord( '/quit' )

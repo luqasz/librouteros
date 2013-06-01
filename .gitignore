@@ -10,5 +10,6 @@ sdist
 .project
 
 
-#eclipse files
+#eclipse files and directories
 .pydevproject
+.settings
