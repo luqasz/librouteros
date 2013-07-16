@@ -70,6 +70,10 @@ def login( address, username, password, port = 8728, timeout = 10 ):
     except cmdError:
         api.close()
         raise loginError( 'wrong username and/or password' )
+    except apiError as estr:
+        api.close()
+        raise loginError( estr )
+
 
     api._logged = True
     return api
