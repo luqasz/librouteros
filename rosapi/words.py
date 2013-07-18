@@ -2,6 +2,7 @@
 
 class genericWord:
 
+
     def __init__( self, word ):
         self.word = word
 
@@ -14,25 +15,29 @@ class genericWord:
         return self.word
 
 
+    def __repr__( self ):
+        return '<self.__class__.__name__ {self.word!r}>'.format( self = self )
+
+
 ###################
 # Key value words
 ###################
 
-class KvWord( genericWord ):
-    pass
 
-
-class attributeWord( KvWord ):
+class AttrWord( genericWord ):
     '''
     This class represent word that starts with '='
-    Available for reading and writing
+    Available for reading and writing.
     '''
 
-    def __repr__( self ):
-        return '<attributeWord WORD={self.word!r}>'.format( self = self )
+
+    def __init__( self, word, key, value ):
+        self.word = word
+        self.key = key
+        self.value = value
 
 
-class apiAttributeWord( KvWord ):
+class ApiAttrWord( genericWord ):
     '''
     Class that represents an api attribute word.
     Available for reading and writing.
@@ -40,11 +45,18 @@ class apiAttributeWord( KvWord ):
     '''
 
 
-    def __repr__( self ):
-        return '<apiAttributeWord WORD={self.word!r}>'.format( self = self )
+    def __init__( self, word, key, value ):
+        self.word = word
+        self.key = key
+        self.value = value
 
 
-class queryWord( KvWord ):
+###################
+# No key value words
+###################
+
+
+class queryWord( genericWord ):
     '''
     Class that represents a query word.
     Query words start with '?' character.
@@ -84,22 +96,13 @@ class queryWord( KvWord ):
         return queryWord( '?>{0}={1}'.format( self.name, other ) )
 
 
-    def __repr__( self ):
-        return '<queryWord WORD={self.word!r}>'.format( self = self )
-
-###################
-# No key value words
-###################
-
 class commandWord( genericWord ):
     '''
     Class that represents a command word.
     For example '/ip/service/print'
+    This word is available for writing only.
     '''
 
-
-    def __repr__( self ):
-        return '<commandWord WORD={self.word!r}>'.format( self = self )
 
 class replyWord( genericWord ):
     '''
@@ -107,10 +110,6 @@ class replyWord( genericWord ):
     For example: !tag, !done, !re, !fatal.
     This word is available for reading only.
     '''
-
-
-    def __repr__( self ):
-        return '<replyWord WORD={self.word!r}>'.format( self = self )
 
 
 ###################
@@ -124,10 +123,15 @@ class unknownWord( genericWord ):
     '''
 
 
-    def __repr__( self ):
-        return '<unknownWord WORD={self.word!r}>'.format( self = self )
+class WordProducer:
+    pass
 
 
+def mkAttrWord():
+    pass
+
+def mkApiAttrWord():
+    pass
 
 
 
@@ -136,6 +140,6 @@ def getWordType( word ):
     Return an object word class based on leading characters. 
     '''
 
-    maping = {'=':attributeWord, '!': replyWord, '.':apiAttributeWord, '?':queryWord, '/':commandWord }
+    maping = {'=':AttrWord, '!': replyWord, '.':ApiAttrWord, '?':queryWord, '/':commandWord }
     return maping.get( word[0], unknownWord )
 

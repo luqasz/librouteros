@@ -4,33 +4,15 @@ import socket
 from exc import ConnError, RwError
 from struct import pack, unpack
 from sentences import readableSentence
-from words import getWordType, replyWord
+from words import getWordType
 
 
-class conSync:
+class ReaderWriter:
 
 
     def __init__( self, logger ):
         self.logger = logger
         self.sock = None
-
-
-    def sendAndReceive( self, sentence ):
-        '''
-        Write sentence and read as long as EOR (end of response).
-        EOR is a combination of two words. Either !done or !fatal and a EOS
-        Passed sentence is a writeableSentence object.
-        
-        Returns list of read sentences.
-        '''
-
-        sentences = []
-        self.writeSentence( sentence )
-        while True:
-            read_sentence = self.readSentence()
-            sentences.append( read_sentence )
-            if '!done' in read_sentence:
-                return sentences
 
 
     def writeSentence( self, sentence ):
@@ -39,17 +21,21 @@ class conSync:
         Passed sentence is a writeableSentence object.
         '''
 
-        # encode every word in sentence
-        encoded = map( self.encWord, sentence )
-        # join encoded words together forming a bytes string
-        encoded = b''.join( encoded )
-        # add an EOS byte
-        encoded += b'\x00'
-
         for word in sentence:
-            self.log.info( '<--- {word!s}'.format( word = word ) )
-        self.log.info( '<--- EOS' )
+            self.writeWord( word )
 
+        self.logger.info( '<--- EOS' )
+        self.writeSock( b'\x00' )
+
+
+    def writeWord( self, word ):
+        '''
+        Write a single word to socket
+        '''
+
+        # encode word in api format
+        encoded = self.encWord( word )
+        self.logger.info( '<--- {word!s}'.format( word = word ) )
         self.writeSock( encoded )
 
 
@@ -57,9 +43,6 @@ class conSync:
         '''
         Read as long as EOS (end of sentence, 0 byte length b'\x00'). 
         This method may return an empty sentence.
-        
-        **Note** If '!fatal' is found in sentence, connection is closed 
-        and ``ConnError`` exception is raised with a description. 
         
         :returns: readableSentence object.
         '''
@@ -71,12 +54,6 @@ class conSync:
             sentence += word
             word = self.readWord()
 
-        if '!fatal' in sentence:
-            # !fatal closes connection
-            self.close()
-            # join every word (that is not an replyWord) forming an error string
-            estr = ', '.join( wr for wr in sentence if not isinstance( wr, replyWord ) )
-            raise ConnError( 'connection closed: {0!r}'.format( estr ) )
         return sentence
 
 
@@ -90,7 +67,7 @@ class conSync:
         # when getLen() returns 0 it means an EOS
         to_read = self.getLen()
         if not to_read:
-            self.log.info( '---> EOS' )
+            self.logger.info( '---> EOS' )
             return
         else:
             # read as many bytes as decoded previously
@@ -98,7 +75,7 @@ class conSync:
             word = word.decode( 'UTF-8', 'strict' )
             word_obj = getWordType( word )
             word = word_obj( word )
-            self.log.info( '---> {word!s}'.format( word = word ) )
+            self.logger.info( '---> {word!s}'.format( word = word ) )
             return word
 
 
@@ -119,7 +96,7 @@ class conSync:
         try:
             while to_read:
                 ret = self.sock.recv( to_read )
-                self.log.debug( '---> {bstr!r}'.format( bstr = ret ) )
+                self.logger.debug( '---> {bstr!r}'.format( bstr = ret ) )
                 if not ret:
                     raise RwError( 'connection unexpectedly closed. read {read}/{total} bytes.'
                                     .format( read = ( length - len( ret_str ) ), total = length ) )
@@ -151,7 +128,7 @@ class conSync:
                 if not sent:
                     raise RwError( 'connection unexpectedly closed. sent {sent}/{total} bytes.'
                                     .format( sent = ( str_len - len( string ) ), total = str_len ) )
-                self.log.debug( '<--- {bstr!r}'.format( bstr = string[:sent] ) )
+                self.logger.debug( '<--- {bstr!r}'.format( bstr = string[:sent] ) )
                 string = string[sent:]
         except socket.timeout:
             raise RwError( 'socket timed out. sent {sent}/{total} bytes.'
@@ -180,7 +157,7 @@ class conSync:
 
         additional_bytes = self.readSock( additional_bytes )
         decoded = self.decLen( first_byte, additional_bytes )
-        self.log.debug( 'read length = {length!r}'.format( decoded ) )
+        self.logger.debug( 'read length = {length!r}'.format( decoded ) )
 
         return decoded
 

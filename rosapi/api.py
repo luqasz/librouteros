@@ -24,9 +24,4 @@ class RouterOsApi:
         pass
 
 
-    def _mkSnt( self, cmd_word, args = {} ):
-        pass
 
-
-    def _prepResponse( self, sentences, tag ):
-        pass

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from words import apiAttributeWord, genericWord
+from words import genericWord, ApiAttrWord
 
 class genericSentence:
     '''
@@ -8,37 +8,12 @@ class genericSentence:
     '''
 
 
-    def _getTagVal( self, tag ):
-        '''
-        Parse given tag object and retrieve its value
-        '''
-        splitted = tag.word.split( '=', 1 )
-        try:
-            casted = int( splitted[1] )
-        except ValueError:
-            casted = splitted[1]
-        return casted
-
-
     def _set_tag( self, value ):
-        try:
-            tag = [word for word in self if isinstance( word, apiAttributeWord )][0]
-        except IndexError:
-            self +=apiAttributeWord( '.tag={0}'.format( value ) )
-        else:
-            if value:
-                tag.word = '.tag={0}'.format( value )
-            else:
-                self -=tag
+        pass
 
 
     def _get_tag( self ):
-
-        try:
-            tag = [word for word in self if isinstance( word, apiAttributeWord )][0]
-            return self._getTagVal( tag )
-        except IndexError:
-            return None
+        pass
 
 
     tag = property( _get_tag, _set_tag )

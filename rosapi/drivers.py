@@ -8,6 +8,30 @@ class ApiSocketDriver:
         pass
 
 
+    def mkSnt( self, cmd_word, args ):
+        pass
+
+
+    def parseSnt( self, sentence ):
+        pass
+
+
+    def sendAndReceive( self, sentence ):
+        '''
+        Write sentence and read as long as EOR (end of response).
+        EOR is a combination of two words. Either !done or !fatal and a EOS
+        Passed sentence is a writeableSentence object.
+        
+        Returns list of read sentences.
+        '''
+
+        sentences = []
+        self.writeSentence( sentence )
+        while True:
+            read_sentence = self.readSentence()
+            sentences.append( read_sentence )
+            if '!done' in read_sentence:
+                return sentences
 
 
 
