@@ -32,7 +32,7 @@ class ApiAttrWord( GenericWord ):
 ###################
 
 
-class queryWord( genericWord ):
+class QueryWord( GenericWord ):
     '''
     Class that represents a query word.
     Query words start with '?' character.
