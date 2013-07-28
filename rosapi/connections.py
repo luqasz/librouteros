@@ -1,82 +1,52 @@
 # -*- coding: UTF-8 -*-
 
 import socket
-from exc import ConnError, RwError
 from struct import pack, unpack
-from sentences import readableSentence
-from words import getWordType
+
+from exc import RwError, RwTimeout, ConnError
+
 
 
 class ReaderWriter:
 
 
-    def __init__( self, logger ):
+    def __init__( self, sock, logger ):
         self.logger = logger
-        self.sock = None
+        self.sock = sock
 
 
-    def writeSentence( self, sentence ):
+    def writeSnt( self, snt ):
         '''
         Write sentence to socket.
-        Passed sentence is a writeableSentence object.
+        Whole sentence is encoded and sent at once.
+        
+        :param snt: Iterable with words.
         '''
 
-        for word in sentence:
-            self.writeWord( word )
-
-        self.logger.info( '<--- EOS' )
-        self.writeSock( b'\x00' )
-
-
-    def writeWord( self, word ):
-        '''
-        Write a single word to socket
-        '''
-
-        # encode word in api format
-        encoded = self.encWord( word )
-        self.logger.info( '<--- {word!s}'.format( word = word ) )
+        encoded = map( self.encWord, snt )
+        encoded += b'\x00'
         self.writeSock( encoded )
 
 
-    def readSentence( self ):
+    def readSnt( self ):
         '''
         Read as long as EOS (end of sentence, 0 byte length b'\x00'). 
-        This method may return an empty sentence.
         
-        :returns: readableSentence object.
+        :returns: List with decoded words.
         '''
 
-        sentence = readableSentence()
-        word = self.readWord()
-        while word:
-            # add word to sentence
-            sentence += word
-            word = self.readWord()
+        sentence = []
 
-        return sentence
-
-
-    def readWord( self ):
-        '''
-        Read a single word.
-        
-        :returns: Word object.
-        '''
-
-        # when getLen() returns 0 it means an EOS
         to_read = self.getLen()
-        if not to_read:
-            self.logger.info( '---> EOS' )
-            return
-        else:
-            # read as many bytes as decoded previously
+        while to_read:
             word = self.readSock( to_read )
-            word = word.decode( 'UTF-8', 'strict' )
-            word_obj = getWordType( word )
-            word = word_obj( word )
-            self.logger.info( '---> {word!s}'.format( word = word ) )
-            return word
+            # add word to sentence
+            sentence.append( word )
+            # read another length of word
+            to_read = self.getLen()
+
+        sentence = [ word.decode( 'UTF-8', 'strict' ) for word in sentence ]
+        return sentence
 
 
     def readSock( self, length ):
@@ -191,7 +161,7 @@ class ReaderWriter:
         :returns: Encoded word length with word itself in bytes. 
         '''
         elen = self.encLen( len( word ) )
-        eword = str( word ).encode( encoding = 'utf_8', errors = 'strict' )
+        eword = word.encode( encoding = 'utf_8', errors = 'strict' )
         return elen + eword
 
 
@@ -221,7 +191,3 @@ class ReaderWriter:
 
         length = pack( '!I', length )[offset:]
         return length
-
-
-    def __repr__( self ):
-        return '<conSync {0[0]}:{0[1]}>'.format( self.sock.getpeername() )
