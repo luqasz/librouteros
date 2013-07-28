@@ -26,10 +26,6 @@ class CmdError( ApiError ):
     Exception raised when execution of a command has failed.
     '''
 
-#     reason
-#     cmd
-#     tag
-
 
 
 
