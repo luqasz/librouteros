@@ -27,12 +27,6 @@ class ApiAttrWord( GenericWord ):
     '''
 
 
-    def __init__( self, word, key, value ):
-        self.word = word
-        self.key = key
-        self.value = value
-
-
 ###################
 # No key value words
 ###################
