@@ -19,12 +19,6 @@ class AttrWord( GenericWord ):
     '''
 
 
-    def __init__( self, word, key, value ):
-        self.word = word
-        self.key = key
-        self.value = value
-
-
 class ApiAttrWord( genericWord ):
     '''
     Class that represents an api attribute word.
