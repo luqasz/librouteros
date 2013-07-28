@@ -11,6 +11,7 @@ class Error( Exception ):
 class ApiError( Error ):
     '''
     Exception raised when some internal api error occurred.
+    This is a base class for other api related errors.
     '''
 
 
