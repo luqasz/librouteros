@@ -48,3 +48,8 @@ class RwError( ConnError ):
 
 
 
+class ConnClosed( ConnError ):
+    '''
+    Exception raised when connection is unexpectedly closed.
+    While reading sentence !fatal word is received.
+    '''
