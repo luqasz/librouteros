@@ -19,7 +19,7 @@ class AttrWord( GenericWord ):
     '''
 
 
-class ApiAttrWord( genericWord ):
+class ApiAttrWord( GenericWord ):
     '''
     Class that represents an api attribute word.
     Available for reading and writing.
