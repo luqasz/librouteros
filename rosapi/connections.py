@@ -94,10 +94,10 @@ class ReaderWriter:
         try:
             while string:
                 sent = self.sock.send( string )
+                self.logger.debug( '<--- {sent_string!r}'.format( sent_string = string[:sent] ) )
                 if not sent:
                     raise RwError( 'connection unexpectedly closed. sent {sent}/{total} bytes.'
                                     .format( sent = ( str_len - len( string ) ), total = str_len ) )
-                self.logger.debug( '<--- {bstr!r}'.format( bstr = string[:sent] ) )
                 string = string[sent:]
         except socket.timeout:
             raise RwTimeout( 'socket timed out. sent {sent}/{total} bytes.'
