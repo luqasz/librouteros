@@ -45,7 +45,7 @@ class QueryWord( GenericWord ):
         self == other
         '''
         other = self.typeCast( other )
-        return queryWord( '?={0}={1}'.format( self.name, other ) )
+        return QueryWord( '?={0}={1}'.format( self.name, other ) )
 
     def __ne__( self, other ):
         '''
@@ -53,9 +53,9 @@ class QueryWord( GenericWord ):
         '''
         other = self.typeCast( other )
         if other:
-            return queryWord( '?={0}={1}'.format( self.name, other ) )
+            return QueryWord( '?={0}={1}'.format( self.name, other ) )
         else:
-            return queryWord( '?>{0}={1}'.format( self.name, other ) )
+            return QueryWord( '?>{0}={1}'.format( self.name, other ) )
 
     def __lt__( self, other ):
         '''
@@ -69,7 +69,7 @@ class QueryWord( GenericWord ):
         self > other
         '''
         other = self.typeCast( other )
-        return queryWord( '?>{0}={1}'.format( self.name, other ) )
+        return QueryWord( '?>{0}={1}'.format( self.name, other ) )
 
 
 class commandWord( genericWord ):
