@@ -65,7 +65,7 @@ class ReaderWriter:
         try:
             while to_read:
                 ret = self.sock.recv( to_read )
-                self.logger.debug( '---> {bstr!r}'.format( bstr = ret ) )
+                self.logger.debug( '---> {recv_string!r}'.format( recv_string = ret ) )
                 if not ret:
                     raise RwError( 'connection unexpectedly closed. read {read}/{total} bytes.'
                                     .format( read = ( length - len( ret_str ) ), total = length ) )
