@@ -99,17 +99,6 @@ class UnkWord( GenericWord ):
     '''
 
 
-class WordProducer:
-    pass
-
-
-def mkAttrWord():
-    pass
-
-def mkApiAttrWord():
-    pass
-
-
 
 def getWordType( word ):
     '''
