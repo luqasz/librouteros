@@ -72,7 +72,7 @@ class ReaderWriter:
                 ret_str += ret
                 to_read -= len( ret )
         except socket.timeout:
-            raise RwError( 'socket timed out. read {read}/{total} bytes.'
+            raise RwTimeout( 'socket timed out. read {read}/{total} bytes.'
                             .format( read = ( length - len( ret_str ) ), total = length ) )
         except socket.error as estr:
             raise RwError( 'failed to read from socket: {reason}'.format( reason = estr ) )
@@ -100,7 +100,7 @@ class ReaderWriter:
                 self.logger.debug( '<--- {bstr!r}'.format( bstr = string[:sent] ) )
                 string = string[sent:]
         except socket.timeout:
-            raise RwError( 'socket timed out. sent {sent}/{total} bytes.'
+            raise RwTimeout( 'socket timed out. sent {sent}/{total} bytes.'
                             .format( sent = ( str_len - len( string ) ), total = str_len ) )
         except socket.error as estr:
             raise RwError( 'failed to write to socket: {reason}'.format( reason = estr ) )
