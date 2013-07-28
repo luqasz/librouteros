@@ -102,7 +102,8 @@ class UnkWord( GenericWord ):
 
 def getWordType( word ):
     '''
-    Return an object word class based on leading characters. 
+    Return an object word class based on leading characters.
+    This method is used only when reading sentence.
     '''
 
     maping = {'=':AttrWord, '!': replyWord, '.':ApiAttrWord, '?':queryWord, '/':commandWord }
