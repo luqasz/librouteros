@@ -36,16 +36,16 @@ class ConnError( Error ):
     '''
 
 
+class RwTimeout( ConnError ):
+    '''
+    Exception raised when timeout is reached while reading/writing to/from socket.
+    '''
+
+
 class RwError( ConnError ):
     '''
     Exception raised when i/o operation on socket failed.
-    
-    :ivar msg: Message string with detailed reason.
     '''
-    def __init__( self, msg ):
-        self.msg = msg
-
-
 
 
 class ConnClosed( ConnError ):
