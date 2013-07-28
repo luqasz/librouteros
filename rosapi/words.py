@@ -12,7 +12,7 @@ class GenericWord( str ):
 ###################
 
 
-class AttrWord( genericWord ):
+class AttrWord( GenericWord ):
     '''
     This class represent word that starts with '='
     Available for reading and writing.
