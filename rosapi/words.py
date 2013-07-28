@@ -106,6 +106,6 @@ def getWordType( word ):
     This method is used only when reading sentence.
     '''
 
-    maping = {'=':AttrWord, '!': replyWord, '.':ApiAttrWord, '?':queryWord, '/':commandWord }
-    return maping.get( word[0], unknownWord )
+    maping = {'=':AttrWord, '!': ReplyWord, '.':ApiAttrWord}
+    return maping.get( word[0], UnkWord )
 
