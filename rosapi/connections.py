@@ -52,7 +52,6 @@ class ReaderWriter:
     def readSock( self, length ):
         """
         Read as many bytes from socket as specified in :param length:. Loop as long as every byte is read unless exception is raised
-        Returns bytes string read. 
         
         **Note** When timeout or socket error occurs ``RwError`` is raised with description of error. 
         
@@ -87,7 +86,7 @@ class ReaderWriter:
         
         **Note** When timeout or socket error occurs ``RwError`` is raised with description of error. 
         
-        :param bstring: bytes string to write
+        :param string: bytes string to write
         :ivar sock: socket object
         """
 
@@ -168,8 +167,6 @@ class ReaderWriter:
     def encLen( self, length ):
         """
         Encode given length in mikrotik format.
-        
-        **Note** if :param length: is >= 268435456 ``apiError`` will be raised.
         
         :param length: Integer < 268435456.
         :returns: Encoded length in bytes. 
