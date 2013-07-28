@@ -31,7 +31,8 @@ class CmdError( ApiError ):
 
 class ConnError( Error ):
     '''
-    This exception is a base class for other connection related exceptions.
+    Exception raised when some internal connection related error occoures.
+    This is a base class for other connection related exceptions.
     '''
 
 
