@@ -126,7 +126,6 @@ class ReaderWriter:
 
         additional_bytes = self.readSock( additional_bytes )
         decoded = self.decLen( first_byte, additional_bytes )
-        self.logger.debug( 'read length = {length!r}'.format( decoded ) )
 
         return decoded
 
