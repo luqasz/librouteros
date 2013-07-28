@@ -1,22 +1,10 @@
 # -*- coding: UTF-8 -*-
 
-class genericWord:
-
-
-    def __init__( self, word ):
-        self.word = word
-
-
-    def __len__( self ):
-        return len( self.word )
-
-
-    def __str__( self ):
-        return self.word
+class GenericWord( str ):
 
 
     def __repr__( self ):
-        return '<self.__class__.__name__ {self.word!r}>'.format( self = self )
+        return '<{clsname} \'{word}\'>'.format( clsname = self.__class__.__name__, word = self )
 
 
 ###################
