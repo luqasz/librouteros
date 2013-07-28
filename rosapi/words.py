@@ -72,7 +72,7 @@ class QueryWord( GenericWord ):
         return QueryWord( '?>{0}={1}'.format( self.name, other ) )
 
 
-class commandWord( genericWord ):
+class CmdWord( GenericWord ):
     '''
     Class that represents a command word.
     For example '/ip/service/print'
@@ -80,7 +80,7 @@ class commandWord( genericWord ):
     '''
 
 
-class replyWord( genericWord ):
+class ReplyWord( GenericWord ):
     '''
     Class that represents a reply word. This word starts with '!' character.
     For example: !tag, !done, !re, !fatal.
@@ -92,7 +92,7 @@ class replyWord( genericWord ):
 # Unknown word type
 ###################
 
-class unknownWord( genericWord ):
+class UnkWord( GenericWord ):
     '''
     This class represent a word that is an unknown type.
     Received on response to '/quit' command
