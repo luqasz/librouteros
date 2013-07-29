@@ -8,7 +8,7 @@ class RouterOsApi:
         pass
 
 
-    def remove( self, lvl, args ):
+    def remove( self, lvl, ids ):
         pass
 
 
