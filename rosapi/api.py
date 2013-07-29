@@ -16,7 +16,7 @@ class RouterOsApi:
         pass
 
 
-    def talk( self, lvl, args = {} ):
+    def talk( self, cmd, args = {}, cbk = None ):
         pass
 
 
