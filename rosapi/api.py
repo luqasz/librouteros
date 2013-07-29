@@ -4,10 +4,6 @@
 class RouterOsApi:
 
 
-    def __init__( self, logger ):
-        self.logger = logger
-
-
     def add( self, lvl, args ):
         pass
 
