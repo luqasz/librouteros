@@ -20,4 +20,7 @@ class RouterOsApi:
         pass
 
 
+    def cancel( self ):
+        pass
+
 
