@@ -118,8 +118,14 @@ class ApiSocketDriver:
 class valCaster:
 
     def __init__( self ):
-        self.py_mapping = dict()
-        self.api_mapping = dict()
+        self.py_mapping = {'yes': True, \
+                           'true': True, \
+                           'no': False, \
+                           'false': False, \
+                           '': None}
+        self.api_mapping = { True:'yes', \
+                            False:'no', \
+                            None:''}
 
 
     def castValToPy( self, value ):
@@ -141,24 +147,3 @@ class valCaster:
         '''
         casted = self.api_mapping.get( value, str( value ) )
         return casted
-
-
-class valCasterOld( valCaster ):
-    '''
-    This class is versions of routeros < 3.30.
-    '''
-
-    def __init__( self ):
-        self.py_mapping = {'yes': True, 'no': False, '': None}
-        self.api_mapping = { True:'yes' , False:'no' , None:''}
-
-
-class valCasterNew( valCaster ):
-    '''
-    This class is for versions of routeros >= 3.30
-    '''
-
-    def __init__( self ):
-        self.api_mapping = { True:'true' , False:'false' , None:''}
-        self.py_mapping = {'true': True, 'false': False, '': None}
-
