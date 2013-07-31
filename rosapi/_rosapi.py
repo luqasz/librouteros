@@ -36,7 +36,7 @@ class rosapi:
         """
 
         # map bollean types to string equivalents in routeros api
-        mapping = {False: 'false', True: 'true', None: ''}
+        mapping = {False: 'yes', True: 'no', None: ''}
         # write level and if attrs is empty pass True to self.write, else False
         self.writeWord( cmd, end = not attrs )
         if attrs:
@@ -284,7 +284,7 @@ class rosapi:
         
         :param string: String to cast to python equivalent
         """
-        mapping = {'true': True, 'false': False, '': None}
+        mapping = {'true': True, 'yes': True, 'no': False, 'false': False, '': None}
         try:
             ret = int( string )
         except ValueError:
