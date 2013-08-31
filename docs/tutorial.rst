@@ -1,7 +1,0 @@
-Tutorial
-=========
-
-
-jakis kod::
-
-	blabla
