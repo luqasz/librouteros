@@ -10,20 +10,20 @@ class Error( Exception ):
 
 class ApiError( Error ):
     '''
-    Exception raised when some internal api error occurred.
+    Api related errors.
     This is a base class for other api related errors.
     '''
 
 
 class LoginError( ApiError ):
     '''
-    Exception raised when login attempt failed.
+    Login attempt errors.
     '''
 
 
 class CmdError( ApiError ):
     '''
-    Exception raised when execution of a command has failed.
+    Execution of a command errors.
     '''
 
 
@@ -31,14 +31,15 @@ class CmdError( ApiError ):
 
 class ConnError( Error ):
     '''
-    Exception raised when some internal connection related error occoures.
+    Connection related errors.
     This is a base class for other connection related exceptions.
     '''
 
 
 class RwTimeout( ConnError ):
     '''
-    Exception raised when timeout is reached while reading/writing to/from socket.
+    Exception raised when timeout is reached while
+    reading/writing to/from socket.
     '''
 
 

@@ -3,7 +3,7 @@
 import socket
 from struct import pack, unpack
 
-from exc import RwError, RwTimeout, ConnError
+from rosapi.exc import RwError, RwTimeout, ConnError
 
 
 
@@ -19,19 +19,20 @@ class ReaderWriter:
         '''
         Write sentence to socket.
         Whole sentence is encoded and sent at once.
-        
+
         :param snt: Iterable with words.
         '''
 
         encoded = map( self.encWord, snt )
+        encoded = b''.join( encoded )
         encoded += b'\x00'
         self.writeSock( encoded )
 
 
     def readSnt( self ):
         '''
-        Read as long as EOS (end of sentence, 0 byte length b'\x00'). 
-        
+        Read as long as EOS (end of sentence, 0 byte length b'\x00').
+
         :returns: List with decoded words.
         '''
 
@@ -45,18 +46,20 @@ class ReaderWriter:
             # read another length of word
             to_read = self.getLen()
 
-        sentence = [ word.decode( 'UTF-8', 'strict' ) for word in sentence ]
+        sentence = tuple( word.decode( 'UTF-8', 'strict' ) for word in sentence )
         return sentence
 
 
     def readSock( self, length ):
         """
-        Read as many bytes from socket as specified in :param length:. Loop as long as every byte is read unless exception is raised
-        
-        **Note** When timeout or socket error occurs ``RwError`` is raised with description of error. 
-        
+        Read as many bytes from socket as specified in :param length:.
+        Loop as long as every byte is read unless exception is raised
+
+        **Note** When timeout or socket error occurs
+        ``RwError`` is raised with description of error.
+
         :param length: how many bytes to read
-        :returns: Bytes string read. 
+        :returns: Bytes string read.
         """
 
         ret_str = b''
@@ -82,10 +85,13 @@ class ReaderWriter:
 
     def writeSock( self, string ):
         """
-        Write given string to socket. Loop as long as every byte in string is written unless exception is raised.
-        
-        **Note** When timeout or socket error occurs ``RwError`` is raised with description of error. 
-        
+        Write given string to socket.
+        Loop as long as every byte in string is written
+        unless exception is raised.
+
+        **Note** When timeout or socket error occurs
+        ``RwError`` is raised with description of error.
+
         :param string: bytes string to write
         :ivar sock: socket object
         """
@@ -122,7 +128,8 @@ class ReaderWriter:
         elif first_byte_int < 240:
             additional_bytes = 3
         else:
-            raise ConnError( 'unknown controll byte received {0!r}'.format( first_byte ) )
+            raise ConnError( 'unknown controll byte received {0!r}'
+                            .format( first_byte ) )
 
         additional_bytes = self.readSock( additional_bytes )
         decoded = self.decLen( first_byte, additional_bytes )
@@ -154,9 +161,9 @@ class ReaderWriter:
     def encWord( self, word ):
         '''
         Encode every word.
-        
+
         :param word: Word object.
-        :returns: Encoded word length with word itself in bytes. 
+        :returns: Encoded word length with word itself in bytes.
         '''
         elen = self.encLen( len( word ) )
         eword = word.encode( encoding = 'utf_8', errors = 'strict' )
@@ -166,9 +173,9 @@ class ReaderWriter:
     def encLen( self, length ):
         """
         Encode given length in mikrotik format.
-        
+
         :param length: Integer < 268435456.
-        :returns: Encoded length in bytes. 
+        :returns: Encoded length in bytes.
         """
 
         if length < 0x80:
@@ -183,7 +190,24 @@ class ReaderWriter:
             length |= 0xE0000000
             offset = -4
         else:
-            raise ConnError( 'unable to encode length of {0}'.format( length ) )
+            raise ConnError( 'unable to encode length of {0}'
+                            .format( length ) )
 
         length = pack( '!I', length )[offset:]
         return length
+
+
+
+
+def mk_plain_sk( address, port = 8728, timeout = 10,
+                src_addr = '', src_port = 0 ):
+    try:
+        # open socket connection to given address
+        # and port with timeout
+        sock = socket.create_connection(
+                ( address, port ), timeout,
+                ( src_addr, src_port ) )
+    except socket.error as estr:
+        raise ConnError( estr )
+    else:
+        return sock
