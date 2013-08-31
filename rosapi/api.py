@@ -28,7 +28,7 @@ class Api:
         snt = self.drv.mkSnt( cmd, args )
         self.drv.writeSnt( snt )
         response = self.drv.readDone()
-        response = map(self.drv.parseSnt, response )
+        response = map( self.drv.parseSnt, response )
         #filter out empty sentences
         response = filter( None, response )
 
