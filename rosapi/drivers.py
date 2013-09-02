@@ -175,11 +175,14 @@ class ApiSocketDriver:
 class ValCaster:
 
     def __init__( self ):
+
+        # from api to python mapping
         self.py_mapping = {'yes': True, \
                            'true': True, \
                            'no': False, \
                            'false': False, \
                            '': None}
+        # from python to api mapping
         self.api_mapping = { True:'yes', \
                             False:'no', \
                             None:''}
