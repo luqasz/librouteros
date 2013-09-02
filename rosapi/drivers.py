@@ -139,7 +139,7 @@ class ApiSocketDriver:
             try:
                 snt = self.readSnt()
             except CmdError as e:
-                errors.append( e )
+                errors.append( str(e) )
             else:
                 if '!done' in snt:
                     break
