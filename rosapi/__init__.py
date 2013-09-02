@@ -21,7 +21,7 @@ def connect( host, username, password, port = 8728,
     else:
         logger = logger
 
-    sk = mk_plain_sk( (host, port) , timeout, (saddr, sport) )
+    sk = mk_plain_sk( host, port, timeout, saddr, sport )
 
     rwo = ReaderWriter( sk, logger )
     vc = ValCaster()
