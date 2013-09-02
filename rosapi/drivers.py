@@ -25,7 +25,7 @@ class ApiSocketDriver:
         :returns: Iterable with words.
         '''
 
-        snt = map( self.mkKvWord, args.items() )
+        snt = map( self.mkAttrWord, args.items() )
         snt = ( cmd_word, ) + tuple(snt)
         return snt
 
@@ -45,7 +45,7 @@ class ApiSocketDriver:
         return dict( attrs )
 
 
-    def mkKvWord( self, kv ):
+    def mkAttrWord( self, kv ):
         '''
         Make an attribute word. Values are automaticly casted
         to api equivalents. Uppercase keys are lowered and a
@@ -190,6 +190,7 @@ class ValCaster:
         Cast value into python type
         No float casting available
         '''
+
         try:
             casted = int( value )
         except ValueError:
@@ -202,5 +203,6 @@ class ValCaster:
         Cast from python type into api equivalent
         No float casting available
         '''
+
         casted = self.api_mapping.get( value, str( value ) )
         return casted
