@@ -33,7 +33,7 @@ class ReaderWriter:
         '''
         Read as long as EOS (end of sentence, 0 byte length b'\x00').
 
-        :returns: List with decoded words.
+        :returns: Tuple with decoded words.
         '''
 
         sentence = []
@@ -51,7 +51,7 @@ class ReaderWriter:
 
 
     def readSock( self, length ):
-        """
+        '''
         Read as many bytes from socket as specified in :param length:.
         Loop as long as every byte is read unless exception is raised
 
@@ -60,7 +60,7 @@ class ReaderWriter:
 
         :param length: how many bytes to read
         :returns: Bytes string read.
-        """
+        '''
 
         ret_str = b''
         # how many bytes to read
@@ -84,7 +84,7 @@ class ReaderWriter:
 
 
     def writeSock( self, string ):
-        """
+        '''
         Write given string to socket.
         Loop as long as every byte in string is written
         unless exception is raised.
@@ -94,7 +94,7 @@ class ReaderWriter:
 
         :param string: bytes string to write
         :ivar sock: socket object
-        """
+        '''
 
         str_len = len( string )
         try:
@@ -113,9 +113,10 @@ class ReaderWriter:
 
 
     def getLen( self ):
-        """
-        Read encoded length and return it as integer
-        """
+        '''
+        Read encoded length and return it as integer.
+        '''
+
         first_byte = self.readSock( 1 )
         first_byte_int = unpack( 'B', first_byte )[0]
 
@@ -138,6 +139,14 @@ class ReaderWriter:
 
 
     def decLen( self, first_byte, additional_bytes ):
+        '''
+        Decode length based on given bytes.
+
+        :param first_byte: First read byte.
+        :param additional_bytes: Additional bytes read earlier.
+        :returns: Decoded (as integer) length of word.
+        '''
+
 
         addit_len = len( additional_bytes )
 
@@ -163,20 +172,21 @@ class ReaderWriter:
         Encode every word.
 
         :param word: Word object.
-        :returns: Encoded word length with word itself in bytes.
+        :returns: Encoded word length with word itself in bytes object.
         '''
+
         elen = self.encLen( len( word ) )
         eword = word.encode( encoding = 'utf_8', errors = 'strict' )
         return elen + eword
 
 
     def encLen( self, length ):
-        """
+        '''
         Encode given length in mikrotik format.
 
         :param length: Integer < 268435456.
         :returns: Encoded length in bytes.
-        """
+        '''
 
         if length < 0x80:
             offset = -1
