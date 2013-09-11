@@ -209,8 +209,8 @@ class ReaderWriter:
 
 
 
-def mk_plain_sk( address, port = 8728, timeout = 10,
-                src_addr = '', src_port = 0 ):
+def mk_plain_sk( address, port, timeout,
+                src_addr, src_port ):
     try:
         # open socket connection to given address
         # and port with timeout
