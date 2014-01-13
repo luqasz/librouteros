@@ -1,61 +1,57 @@
 # -*- coding: UTF-8 -*-
 
 
-class ValCaster:
+to_py_mapping = {'yes': True, \
+                   'true': True, \
+                   'no': False, \
+                   'false': False, \
+                   '': None}
 
-    def __init__( self ):
-
-        self.to_py_mapping = {'yes': True, \
-                           'true': True, \
-                           'no': False, \
-                           'false': False, \
-                           '': None}
-
-        self.to_api_mapping = { True:'yes', \
-                            False:'no', \
-                            None:''}
+to_api_mapping = { True:'yes', \
+                    False:'no', \
+                    None:''}
 
 
-    def castValToPy( self, value ):
+def castValToPy( value ):
 
-        try:
-            casted = int( value )
-        except ValueError:
-            casted = self.to_py_mapping.get( value, value )
-        return casted
-
-
-    def castValToApi( self, value ):
-
-        casted = self.to_api_mapping.get( value, str( value ) )
-        return casted
+    try:
+        casted = int( value )
+    except ValueError:
+        casted = to_py_mapping.get( value, value )
+    return casted
 
 
-class KeyCaster:
+def castValToApi( value ):
+
+    casted = to_api_mapping.get( value, str( value ) )
+    return casted
+
+
+
+def castKeyToPy( key ):
     '''
-    This class casts keys from attribute words from/to api.
+    Any key that starts with . will be converted to uppercase.
     '''
-
-    def castKeyToPy( self, key ):
-        '''
-        Any key that starts with . will be converted to uppercase.
-        '''
-        if key[0] == '.':
-            return key[1:].upper()
-        else:
-            return key
+    if key[0] == '.':
+        return key[1:].upper()
+    else:
+        return key
 
 
-    def castKeyToApi( self, key ):
-        '''
-        Any key that is uppercase will be converted to lowercase and a . will be prefixed.
-        '''
-        if key.isupper():
-            return '.' + key.lower()
-        else:
-            return key
+def castKeyToApi( key ):
+    '''
+    Any key that is uppercase will be converted to lowercase and a . will be prefixed.
+    '''
+    if key.isupper():
+        return '.' + key.lower()
+    else:
+        return key
 
 
+def typeCheck( data, expected ):
+
+    if not isinstance( data, expected ):
+        raise TypeError('provided data type is not {TYPE}'.format( TYPE = expected ))
 
 
 
@@ -64,9 +60,8 @@ class DictData:
     This class represents dictionary data structure methods.
     '''
 
-    def __init__(self, valCaster, keyCaster):
-        self.valCaster = valCaster
-        self.keyCaster = keyCaster
+    def __init__(self):
+        self.data_type = dict
 
 
     def parseApiResp(self, sentences):
@@ -121,8 +116,8 @@ class DictData:
         '''
 
         key, value = kv
-        casted_value = self.valCaster.castValToApi( value )
-        casted_key = self.keyCaster.castKeyToApi( key )
+        casted_value = castValToApi( value )
+        casted_key = castKeyToApi( key )
 
         return '={0}={1}'.format( casted_key, casted_value )
 
@@ -137,9 +132,9 @@ class DictData:
 
         splitted = word.split( '=', 2 )
         key = splitted[1]
-        casted_key = self.keyCaster.castKeyToPy( key )
+        casted_key = castKeyToPy( key )
         value = splitted[2]
-        casted_value = self.valCaster.castValToPy( value )
+        casted_value = castValToPy( value )
 
         return ( casted_key, casted_value )
 

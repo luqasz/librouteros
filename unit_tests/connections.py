@@ -1,134 +1,158 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock, call
-from logging import Logger
+from mock import MagicMock, call, patch
 import socket
 
 
-from librouteros.connections import ReaderWriter
+import librouteros.connections as conn
 from librouteros.exc import ApiError, RwError, RwTimeout, ConnClosed
 
 
 
 class EncodeLengths(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        cls.ReaderWriter = ReaderWriter( sock, logger )
-
 
     def test_encode_length_less_than_128( self ):
-        self.assertEqual( self.ReaderWriter.encodeLength( 127 ), b'\x7f' )
+        self.assertEqual( conn.enclen( 127 ), b'\x7f' )
 
 
     def test_encode_length_less_than_16384( self ):
-        self.assertEqual( self.ReaderWriter.encodeLength( 130 ), b'\x80\x82' )
+        self.assertEqual( conn.enclen( 130 ), b'\x80\x82' )
 
 
     def test_encode_length_less_than_2097152( self ):
-        self.assertEqual( self.ReaderWriter.encodeLength( 2097140 ), b'\xdf\xff\xf4' )
+        self.assertEqual( conn.enclen( 2097140 ), b'\xdf\xff\xf4' )
 
 
     def test_encode_length_less_than_268435456( self ):
-        self.assertEqual( self.ReaderWriter.encodeLength( 268435440 ), b'\xef\xff\xff\xf0' )
+        self.assertEqual( conn.enclen( 268435440 ), b'\xef\xff\xff\xf0' )
 
 
     def test_encode_length_raises_exception_if_lenghth_exceeds_268435456( self ):
-        self.assertRaises( ApiError, self.ReaderWriter.encodeLength, 268435456 )
+        self.assertRaises( ApiError, conn.enclen, 268435456 )
 
 
 
 class DecodeLengths(unittest.TestCase):
 
 
-    @classmethod
-    def setUpClass(cls):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        cls.ReaderWriter = ReaderWriter( sock, logger )
-
-
     def test_decode_length_less_than_128( self ):
-        self.assertEqual( self.ReaderWriter.decodeLength( b'\x7f' ), 127 )
+        self.assertEqual( conn.declen( b'\x7f' ), 127 )
 
 
     def test_decode_length_less_than_16384( self ):
-        self.assertEqual( self.ReaderWriter.decodeLength( b'\x80\x82' ), 130 )
+        self.assertEqual( conn.declen( b'\x80\x82' ), 130 )
 
 
     def test_decode_length_less_than_2097152( self ):
-        self.assertEqual( self.ReaderWriter.decodeLength( b'\xdf\xff\xf4' ), 2097140 )
+        self.assertEqual( conn.declen( b'\xdf\xff\xf4' ), 2097140 )
 
 
     def test_decode_length_less_than_268435456( self ):
-        self.assertEqual( self.ReaderWriter.decodeLength( b'\xef\xff\xff\xf0'  ), 268435440 )
-
-
-    def test_decode_length_raises_exception_if_lenghth_exceeds_268435456( self ):
-        self.assertRaises( ApiError, self.ReaderWriter.decodeLength, b'\xf0\x00\x00\x00\x10' )
+        self.assertEqual( conn.declen( b'\xef\xff\xff\xf0'  ), 268435440 )
 
 
 
 class GetLengths(unittest.TestCase):
 
 
-    @classmethod
-    def setUpClass(cls):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        cls.ReaderWriter = ReaderWriter( sock, logger )
+    def setUp(self):
+        patcher = patch('librouteros.connections.declen')
+        self.rwo = conn.ReaderWriter( None, None )
+        self.dec_len_mock = patcher.start()
+        self.addCleanup(patcher.stop)
 
 
-    def test_get_length_less_than_128( self ):
-        self.ReaderWriter.readSock = MagicMock( side_effect = [ b'\x7f', b'' ] )
-        self.assertEqual( self.ReaderWriter.getLength(), 127 )
+    def test_calls_declen_less_than_128( self ):
+        side_eff = [b'\x7f', b'']
+        self.rwo.readSock = MagicMock( side_effect = side_eff )
+        self.rwo.getLength()
+
+        calls = self.rwo.readSock.mock_calls
+        expected_calls = [ call(1), call(0) ]
+        self.assertEqual( calls, expected_calls )
 
 
-    def test_get_length_less_than_16384( self ):
-        self.ReaderWriter.readSock = MagicMock( side_effect = [ b'\x80', b'\x82' ] )
-        self.assertEqual( self.ReaderWriter.getLength(), 130 )
+    def test_calls_declen_less_than_16384( self ):
+        side_eff = [ b'\x80', b'\x82' ]
+        self.rwo.readSock = MagicMock( side_effect = side_eff )
+        self.rwo.getLength()
+
+        calls = self.rwo.readSock.mock_calls
+        expected_calls = [ call(1), call(1) ]
+        self.assertEqual( calls, expected_calls )
 
 
-    def test_get_length_less_than_2097152( self ):
-        self.ReaderWriter.readSock = MagicMock( side_effect = [ b'\xdf', b'\xff\xf4' ] )
-        self.assertEqual( self.ReaderWriter.getLength(), 2097140 )
+    def test_calls_declen_less_than_2097152( self ):
+        side_eff = [ b'\xdf', b'\xff\xf4' ]
+        self.rwo.readSock = MagicMock( side_effect = side_eff )
+        self.rwo.getLength()
+
+        calls = self.rwo.readSock.mock_calls
+        expected_calls = [ call(1), call(2) ]
+        self.assertEqual( calls, expected_calls )
 
 
-    def test_get_length_less_than_268435456( self ):
-        self.ReaderWriter.readSock =  MagicMock( side_effect = [ b'\xef', b'\xff\xff\xf0' ] )
-        self.assertEqual( self.ReaderWriter.getLength(), 268435440 )
+    def test_calls_declen_less_than_268435456( self ):
+        side_eff = [ b'\xef', b'\xff\xff\xf0' ]
+        self.rwo.readSock =  MagicMock( side_effect = side_eff )
+        self.rwo.getLength()
+
+        calls = self.rwo.readSock.mock_calls
+        expected_calls = [ call(1), call(3) ]
+        self.assertEqual( calls, expected_calls )
 
 
-    def test_get_length_raises_exception_if_lenghth_exceeds_268435456( self ):
-        self.ReaderWriter.readSock = MagicMock( side_effect =  [ b'\xf0', b'' ] )
-        self.assertRaises( ApiError, self.ReaderWriter.getLength )
+    def test_raises_if_lenghth_exceeds_268435456( self ):
+        side_eff = [b'\xf0', b'']
+        self.rwo.readSock = MagicMock( side_effect = side_eff )
+        self.assertRaises( ApiError, self.rwo.getLength )
 
 
 
 
-class EncodeWordsAndSentences(unittest.TestCase):
+class EncodeWord(unittest.TestCase):
 
 
-    @classmethod
-    def setUpClass(cls):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        cls.ReaderWriter = ReaderWriter( sock, logger )
+    def setUp(self):
+        patcher = patch('librouteros.connections.enclen')
+        self.enc_len_mock = patcher.start()
+        self.enc_len_mock.return_value = b'len'
+        self.addCleanup(patcher.stop)
 
 
-    def test_encode_word( self ):
-        word = '/ip/address/print'
-        retval = b'\x11/ip/address/print'
-        self.assertEqual( self.ReaderWriter.encodeWord( word ), retval )
+    def test_calls_enclen( self ):
+        word = 'word'
+        conn.encword( word )
+        self.enc_len_mock.called_once_with( 4 )
 
 
-    def test_encode_sentence( self ):
-        sentence = ('/ip/address/set', '=.id=*6', '=disabled=true')
-        retval = b'\x0f/ip/address/set\x07=.id=*6\x0e=disabled=true\x00'
-        self.assertEqual( self.ReaderWriter.encodeSentence( sentence ), retval )
+    def test_returns_bytes_encoded(self):
+        retval = conn.encword( 'word' )
+        self.assertEqual( retval, b'lenword' )
+
+
+class EncodeSentence(unittest.TestCase):
+
+
+    def setUp(self):
+        patcher = patch('librouteros.connections.encword')
+        self.enc_word_mock = patcher.start()
+        self.enc_word_mock.side_effect = [ b'first', b'second' ]
+        self.addCleanup(patcher.stop)
+
+
+    def test_calls_encword( self ):
+        sentence = ('first', 'second')
+        conn.encsnt( sentence )
+        expected_calls = [ call(elem) for elem in sentence ]
+        self.assertEqual( self.enc_word_mock.mock_calls, expected_calls )
+
+
+    def test_returns_bytes_encoded_sentence(self):
+        retval = conn.encsnt(( 'first', 'second' ))
+        self.assertEqual( retval, b'firstsecond\x00' )
 
 
 
@@ -136,17 +160,10 @@ class EncodeWordsAndSentences(unittest.TestCase):
 class DecodeSentences(unittest.TestCase):
 
 
-    @classmethod
-    def setUpClass(cls):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        cls.ReaderWriter = ReaderWriter( sock, logger )
+    def test_return_decoded(self):
+        retval = conn.decsnt( (b'first', b'second') )
+        self.assertEqual( retval, ('first', 'second') )
 
-
-    def test_decode_sentence( self ):
-        encoded = (b'/ip/address/set', b'=.id=*6', b'=disabled=true')
-        decoded = ('/ip/address/set', '=.id=*6', '=disabled=true')
-        self.assertEqual( self.ReaderWriter.decodeSentence( encoded ), decoded )
 
 
 
@@ -154,39 +171,36 @@ class WriteSock(unittest.TestCase):
 
 
     def setUp(self):
-        logger = MagicMock( spec = Logger )
         sock = MagicMock( spec = socket.socket )
-        self.ReaderWriter = ReaderWriter( sock, logger )
+        self.rwo = conn.ReaderWriter( sock, None )
 
 
-    def test_writeSock_procedure( self ):
-        test_string = b'some_simple_string'
-        mock_return_seq = (5, 7, 6)
-        expected_call_list = [call(b'some_simple_string'), call(b'simple_string'), call(b'string')]
-
-        self.ReaderWriter.sock.send = MagicMock( side_effect = mock_return_seq )
-        self.ReaderWriter.writeSock( test_string )
-        self.assertEqual( self.ReaderWriter.sock.send.call_args_list, expected_call_list )
+    def test_partial_sending(self):
+        self.rwo.sock.send.side_effect = [ 2,2 ]
+        self.rwo.writeSock( 'word' )
+        expected_calls = [ call( 'word' ), call('rd') ]
+        self.assertEqual( self.rwo.sock.send.mock_calls, expected_calls )
 
 
-    def test_writeSock_does_not_write_anything_to_socket_if_called_with_empty_string( self ):
-        self.ReaderWriter.writeSock( b'' )
-        self.assertEqual( self.ReaderWriter.sock.send.call_count, 0 )
+    def test_sending_whole_string_at_once(self):
+        self.rwo.sock.send.side_effect = [ 4 ]
+        self.rwo.writeSock( 'word' )
+        self.rwo.sock.send.assert_called_once_with( 'word' )
 
 
-    def test_writeSock_raises_if_connection_gets_suddenly_terminated( self ):
-        self.ReaderWriter.sock.send = MagicMock( return_value = 0 )
-        self.assertRaises( RwError, self.ReaderWriter.writeSock, b'some_string' )
+    def test_sending_raises_when_no_bytes_sent(self):
+        self.rwo.sock.send.side_effect = [ 0 ]
+        self.assertRaises( RwError, self.rwo.writeSock, 'word' )
 
 
-    def test_writeSock_raises_if_timed_out( self ):
-        self.ReaderWriter.sock.send = MagicMock( side_effect = socket.timeout )
-        self.assertRaises( RwTimeout, self.ReaderWriter.writeSock, b'some_string' )
+    def test_sending_raises_socket_timeout(self):
+        self.rwo.sock.send.side_effect = socket.timeout
+        self.assertRaises( RwTimeout, self.rwo.writeSock, 'word' )
 
 
-    def test_writeSock_raises_if_other_error( self ):
-        self.ReaderWriter.sock.send = MagicMock( side_effect = socket.error )
-        self.assertRaises( RwError, self.ReaderWriter.writeSock, b'string' )
+    def test_sending_raises_socket_error(self):
+        self.rwo.sock.send.side_effect = socket.error
+        self.assertRaises( RwError, self.rwo.writeSock, 'word' )
 
 
 
@@ -194,40 +208,51 @@ class ReadSock(unittest.TestCase):
 
 
     def setUp(self):
-        logger = MagicMock( spec = Logger )
         sock = MagicMock( spec = socket.socket )
-        self.ReaderWriter = ReaderWriter( sock, logger )
+        self.rwo = conn.ReaderWriter( sock, None )
 
 
-    def test_readSock_procedure( self ):
-        mock_return_seq = [ b'first', b'second' ]
-        expected_result = b''.join( mock_return_seq )
-        call_length = sum(len(elem) for elem in mock_return_seq)
-
-        self.ReaderWriter.sock.recv = MagicMock( side_effect = mock_return_seq )
-        self.assertEqual( self.ReaderWriter.readSock( call_length ), expected_result )
+    def test_partial_sending(self):
+        self.rwo.sock.recv.side_effect = [ b'wo', b'rd' ]
+        self.rwo.readSock( 4 )
+        expected_calls = [ call(4), call(2) ]
+        self.assertEqual( self.rwo.sock.recv.mock_calls, expected_calls )
 
 
-    def test_readSock_returns_empty_if_called_with_0_length( self ):
-        self.assertEqual( self.ReaderWriter.readSock(0), b'' )
+    def test_sending_whole_string_at_once(self):
+        self.rwo.sock.recv.side_effect = [ b'word' ]
+        self.rwo.readSock( 4 )
+        self.rwo.sock.recv.assert_called_once_with( 4 )
 
 
-    def test_readSock_raises_if_connection_gets_suddenly_terminated( self ):
-        mock_return_seq = [ b'first', b'second', b'' ]
-        readSock_call_length = sum(len(elem) for elem in mock_return_seq) + 1
-
-        self.ReaderWriter.sock.recv = MagicMock( side_effect = mock_return_seq )
-        self.assertRaises( RwError, self.ReaderWriter.readSock, readSock_call_length )
+    def test_sending_raises_when_no_bytes_sent(self):
+        self.rwo.sock.recv.side_effect = [ b'' ]
+        self.assertRaises( RwError, self.rwo.readSock, 4 )
 
 
-    def test_readSock_raises_if_timed_out( self ):
-        self.ReaderWriter.sock.recv = MagicMock( side_effect = socket.timeout )
-        self.assertRaises( RwTimeout, self.ReaderWriter.readSock, 10 )
+    def test_sending_raises_socket_timeout(self):
+        self.rwo.sock.recv.side_effect = socket.timeout
+        self.assertRaises( RwTimeout, self.rwo.readSock, 4 )
 
 
-    def test_readSock_raises_if_other_error( self ):
-        self.ReaderWriter.sock.recv = MagicMock( side_effect = socket.error )
-        self.assertRaises( RwError, self.ReaderWriter.readSock, 10 )
+    def test_sending_raises_socket_error(self):
+        self.rwo.sock.recv.side_effect = socket.error
+        self.assertRaises( RwError, self.rwo.readSock, 4 )
+
+
+    def test_returns_bytes_object(self):
+        self.rwo.sock.recv.side_effect = [ b'wo', b'rd' ]
+        retval = self.rwo.readSock( 4 )
+        self.assertEqual( retval, b'word' )
+
+
+    def test_returns_empty_bytes_when_called_with_0(self):
+        retval = self.rwo.readSock( 0 )
+        self.assertEqual( retval, b'' )
+
+    def test_does_not_call_recv_when_called_with_0(self):
+        self.rwo.readSock(0)
+        self.assertEqual( self.rwo.sock.recv.call_count, 0 )
 
 
 
@@ -235,69 +260,99 @@ class WriteSentence(unittest.TestCase):
 
 
     def setUp(self):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        self.ReaderWriter = ReaderWriter( sock, logger )
-        self.ReaderWriter.logWriteSentence = MagicMock()
+        log_patcher = patch('librouteros.connections.log_sentence')
+        encsnt_patcher = patch('librouteros.connections.encsnt')
+        self.log_mock = log_patcher.start()
+        self.encsnt_mock = encsnt_patcher.start()
+        self.encsnt_mock.return_value = 'encoded'
+
+        self.rwo = conn.ReaderWriter( None, None )
+        self.rwo.writeSock = MagicMock()
+
+        self.addCleanup(log_patcher.stop)
+        self.addCleanup(encsnt_patcher.stop)
 
 
-    def test_whole_procedure( self ):
-        self.ReaderWriter.encodeSentence = MagicMock( return_value = 'encoded_string' )
-        self.ReaderWriter.writeSock = MagicMock()
+    def test_calls_log_sentence( self ):
+        sentence = ('first', 'second')
+        self.rwo.writeSentence( sentence )
+        self.log_mock.assert_called_once_with( None, sentence, 'write' )
 
-        self.ReaderWriter.writeSentence( 'string' )
-        self.ReaderWriter.logWriteSentence.assert_called_once_with( 'string' )
-        self.ReaderWriter.encodeSentence.assert_called_once_with( 'string' )
-        self.ReaderWriter.writeSock.assert_called_once_with( 'encoded_string' )
+
+    def test_calls_encode_sentence( self ):
+        sentence = ('first', 'second')
+        self.rwo.writeSentence( sentence )
+        self.encsnt_mock.assert_called_once_with( sentence )
+
+
+    def test_calls_write_to_socket( self ):
+        sentence = ('first', 'second')
+        self.rwo.writeSentence( sentence )
+        self.rwo.writeSock.assert_called_once_with( 'encoded' )
+
 
 
 class ReadSentence(unittest.TestCase):
 
 
     def setUp(self):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        self.ReaderWriter = ReaderWriter( sock, logger )
+        log_patcher = patch('librouteros.connections.log_sentence')
+        decsnt_patcher = patch('librouteros.connections.decsnt')
+        self.log_mock = log_patcher.start()
+        self.decsnt_mock = decsnt_patcher.start()
+        self.decsnt_mock.return_value = 'decoded'
+
+        self.rwo = conn.ReaderWriter( None, None )
+        self.rwo.readSock = MagicMock( side_effect = [ 'first', 'second' ] )
+        self.rwo.getLength = MagicMock( side_effect = [ 5,6,0 ] )
+        self.rwo.raiseIfFatal = MagicMock()
+
+        self.addCleanup(log_patcher.stop)
+        self.addCleanup(decsnt_patcher.stop)
 
 
-    def test_whole_procedure( self ):
-        get_length_return_seq = ( 10, 10, 0 )
-        read_sock_calls = list( call(elem) for elem in get_length_return_seq[:-1] )
-        read_sock_return_seq = [ 'first', 'second' ]
-        decode_sentence_calls = [ call( read_sock_return_seq ) ]
-        decoded_sentence = ( 'first', 'second' )
+    def test_calls_get_length( self ):
+        self.rwo.readSentence()
+        self.assertEqual( self.rwo.getLength.call_count, 3 )
 
-        self.ReaderWriter.getLength = MagicMock( side_effect = get_length_return_seq )
-        self.ReaderWriter.readSock = MagicMock( side_effect = read_sock_return_seq )
-        self.ReaderWriter.decodeSentence = MagicMock( return_value = decoded_sentence )
-        self.ReaderWriter.logReadSentence = MagicMock()
-        self.ReaderWriter.raiseIfFatal = MagicMock()
 
-        self.assertEqual( self.ReaderWriter.readSentence(), decoded_sentence )
-        self.ReaderWriter.logReadSentence.assert_called_once_with( decoded_sentence )
-        self.assertEqual( self.ReaderWriter.readSock.call_args_list, read_sock_calls )
-        self.assertEqual( self.ReaderWriter.decodeSentence.call_args_list, decode_sentence_calls )
-        self.ReaderWriter.raiseIfFatal.assert_called_once_with( decoded_sentence )
+    def test_calls_read_socket( self ):
+        self.rwo.readSentence()
+        self.assertEqual( self.rwo.readSock.mock_calls, [ call(5), call(6) ] )
+
+
+    def test_calls_decode_sentence( self ):
+        self.rwo.readSentence()
+        self.decsnt_mock.assert_called_once_with( [ 'first', 'second' ] )
+
+
+    def test_calls_log_sentence( self ):
+        self.rwo.readSentence()
+        self.log_mock.assert_called_once_with( None, 'decoded', 'read' )
+
+
+    def test_calls_check_for_fatal_condition( self ):
+        self.rwo.readSentence()
+        self.rwo.raiseIfFatal.called_once_with( 'decoded' )
+
+
+    def test_returns_decoded(self):
+        retval = self.rwo.readSentence()
+        self.assertEqual( retval, 'decoded' )
+
 
 
 
 class RaiseIfFatal(unittest.TestCase):
 
 
-    def setUp(self):
-        logger = MagicMock( spec = Logger )
-        sock = MagicMock( spec = socket.socket )
-        self.ReaderWriter = ReaderWriter( sock, logger )
-        self.ReaderWriter.close = MagicMock()
-
-
-    def test_raisesIfFatal(self):
+    def test_raises_when_fatal(self):
         sentence = ('!fatal', 'connection terminated by remote hoost')
-        self.assertRaises( ConnClosed,  self.ReaderWriter.raiseIfFatal, sentence )
+        self.assertRaises( ConnClosed,  conn.raiseIfFatal, sentence )
 
 
-    def test_raiseIfFatal_does_not_raises_if_no_error(self):
-        self.ReaderWriter.raiseIfFatal( 'some string without error' )
+    def test_does_not_raises_if_no_error(self):
+        conn.raiseIfFatal( 'some string without error' )
 
 
 
@@ -305,9 +360,8 @@ class ClosingProcedures(unittest.TestCase):
 
 
     def setUp(self):
-        logger = MagicMock( spec = Logger )
         sock = MagicMock( spec = socket.socket )
-        self.ReaderWriter = ReaderWriter( sock, logger )
+        self.ReaderWriter = conn.ReaderWriter( sock, None )
 
 
     def test_close_if_socket_closed(self):
@@ -316,14 +370,14 @@ class ClosingProcedures(unittest.TestCase):
         self.assertFalse( self.ReaderWriter.sock.shutdown.called )
 
 
-    def test_close_shutdowns_socket_if_socket_not_closed(self):
+    def test_shutdowns_socket_if_socket_not_closed(self):
         self.ReaderWriter.sock._closed = False
         self.ReaderWriter.close()
         self.assertTrue( self.ReaderWriter.sock.shutdown.called )
         self.assertTrue( self.ReaderWriter.sock.close.called )
 
 
-    def test_close_closes_socket_even_if_socket_error_is_raised(self):
+    def test_closes_socket_even_if_socket_error_is_raised(self):
         self.ReaderWriter.sock._closed = False
         self.ReaderWriter.sock.shutdown = MagicMock( side_effect = socket.error )
         self.ReaderWriter.close()

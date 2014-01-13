@@ -7,6 +7,116 @@ from librouteros.exc import RwError, RwTimeout, ConnClosed, ApiError
 
 
 
+
+def log_sentence( logger, sentence, direction ):
+
+    dstrs = { 'write':'<---', 'read':'--->' }
+    dstr = dstrs.get( direction )
+
+    for word in sentence:
+        logger.info( '{0} {1!s}'.format( dstr, word ) )
+
+    logger.info( '{0} EOS'.format( dstr ) )
+
+
+def enclen( length ):
+    '''
+    Encode given length in mikrotik format.
+
+    :param length: Integer < 268435456.
+    :returns: Encoded length in bytes.
+    '''
+
+    if length < 128:
+        ored_length = length
+        offset = -1
+    elif length < 16384:
+        ored_length = length | 0x8000
+        offset = -2
+    elif length < 2097152:
+        ored_length = length | 0xC00000
+        offset = -3
+    elif length < 268435456:
+        ored_length = length | 0xE0000000
+        offset = -4
+    else:
+        raise ApiError( 'unable to encode length of {0}'
+                        .format( length ) )
+
+    encoded_length = pack( '!I', ored_length )[offset:]
+    return encoded_length
+
+
+def declen( bytes_string ):
+    '''
+    Decode length based on given bytes.
+
+    :param bytes_string: Bytes string to decode.
+    :returns: Decoded as integer length.
+    '''
+
+    bytes_length = len( bytes_string )
+
+    if bytes_length < 2:
+        offset = b'\x00\x00\x00'
+        XOR = 0
+    elif bytes_length < 3:
+        offset = b'\x00\x00'
+        XOR = 0x8000
+    elif bytes_length < 4:
+        offset = b'\x00'
+        XOR = 0xC00000
+    elif bytes_length < 5:
+        offset = b''
+        XOR = 0xE0000000
+
+    combined_bytes = offset + bytes_string
+    decoded = unpack( '!I', combined_bytes )[0]
+    decoded ^= XOR
+
+    return decoded
+
+
+def decsnt( sentence ):
+
+    return tuple( word.decode( 'UTF-8', 'strict' ) for word in sentence )
+
+
+def encsnt( sentence ):
+    '''
+    Encode given sentence.
+    '''
+
+    encoded = map( encword, sentence )
+    encoded = b''.join( encoded )
+    # append EOS byte
+    encoded += b'\x00'
+
+    return encoded
+
+
+def encword( word ):
+
+    encoded_len = enclen( len( word ) )
+    encoded_word = word.encode( encoding = 'utf_8', errors = 'strict' )
+    return encoded_len + encoded_word
+
+
+def raiseIfFatal( sentence ):
+    '''
+    Check if a given sentence contains error message. If it does then raise an exception.
+    !fatal means that connection have been closed and no further transmission will work.
+    '''
+
+    if '!fatal' in sentence:
+        error = ', '.join( word for word in sentence if word != '!fatal' )
+        raise ConnClosed( error )
+
+
+
+
+
+
 class ReaderWriter:
 
 
@@ -22,9 +132,9 @@ class ReaderWriter:
         :param sentence: Iterable (tuple or list) with words.
         '''
 
-        self.logWriteSentence( sentence )
-        encoded = self.encodeSentence( sentence )
+        encoded = encsnt( sentence )
         self.writeSock( encoded )
+        log_sentence( self.logger, sentence, 'write' )
 
 
     def readSentence( self ):
@@ -42,38 +152,11 @@ class ReaderWriter:
             sentence.append( word )
             to_read = self.getLength()
 
-        decoded_sentence = self.decodeSentence( sentence )
-        self.logReadSentence( decoded_sentence )
-        self.raiseIfFatal( decoded_sentence )
+        decoded_sentence = decsnt( sentence )
+        log_sentence( self.logger, decoded_sentence, 'read' )
+        raiseIfFatal( decoded_sentence )
 
         return decoded_sentence
-
-
-    def raiseIfFatal( self, sentence ):
-        '''
-        Check if a given sentence contains error message. If it does then raise an exception.
-        !fatal means that connection have been closed and no further transmission will work.
-        '''
-
-        if '!fatal' in sentence:
-            error = ', '.join( word for word in sentence if word != '!fatal' )
-            raise ConnClosed( error )
-
-
-    def logWriteSentence( self, sentence ):
-
-        for word in sentence:
-            self.logger.info( '<--- {word!s}'.format( word = word ) )
-
-        self.logger.info( '<--- EOS' )
-
-
-    def logReadSentence( self, sentence ):
-
-        for word in sentence:
-            self.logger.info( '---> {word!s}'.format( word = word ) )
-
-        self.logger.info( '---> EOS' )
 
 
     def readSock( self, length ):
@@ -131,31 +214,6 @@ class ReaderWriter:
             raise RwError( 'failed to write to socket: {reason}'.format( reason = estr ) )
 
 
-
-    def decodeSentence( self, sentence ):
-
-        sentence = tuple( word.decode( 'UTF-8', 'strict' ) for word in sentence )
-
-        return sentence
-
-
-    def encodeSentence( self, sentence ):
-
-        encoded = map( self.encodeWord, sentence )
-        encoded = b''.join( encoded )
-        # append EOS byte
-        encoded += b'\x00'
-
-        return encoded
-
-
-    def encodeWord( self, word ):
-
-        encoded_len = self.encodeLength( len( word ) )
-        encoded_word = word.encode( encoding = 'utf_8', errors = 'strict' )
-        return encoded_len + encoded_word
-
-
     def getLength( self ):
         '''
         Read encoded length and return it as integer.
@@ -178,70 +236,9 @@ class ReaderWriter:
 
         additional_bytes = self.readSock( bytes_to_read )
         bytes_string = first_byte + additional_bytes
-        decoded = self.decodeLength( bytes_string )
+        decoded = declen( bytes_string )
 
         return decoded
-
-
-    def decodeLength( self, bytes_string ):
-        '''
-        Decode length based on given bytes.
-
-        :param bytes_string: Bytes string to decode.
-        :returns: Decoded as integer length.
-        '''
-
-        bytes_length = len( bytes_string )
-
-        if bytes_length < 2:
-            offset = b'\x00\x00\x00'
-            XOR = 0
-        elif bytes_length < 3:
-            offset = b'\x00\x00'
-            XOR = 0x8000
-        elif bytes_length < 4:
-            offset = b'\x00'
-            XOR = 0xC00000
-        elif bytes_length < 5:
-            offset = b''
-            XOR = 0xE0000000
-        else:
-            raise ApiError( 'unknown controll byte received {0!r}'
-                    .format( bytes_string[:1] ) )
-
-        combined_bytes = offset + bytes_string
-        decoded = unpack( '!I', combined_bytes )[0]
-        decoded ^= XOR
-
-        return decoded
-
-
-    def encodeLength( self, length ):
-        '''
-        Encode given length in mikrotik format.
-
-        :param length: Integer < 268435456.
-        :returns: Encoded length in bytes.
-        '''
-
-        if length < 128:
-            ored_length = length
-            offset = -1
-        elif length < 16384:
-            ored_length = length | 0x8000
-            offset = -2
-        elif length < 2097152:
-            ored_length = length | 0xC00000
-            offset = -3
-        elif length < 268435456:
-            ored_length = length | 0xE0000000
-            offset = -4
-        else:
-            raise ApiError( 'unable to encode length of {0}'
-                            .format( length ) )
-
-        encoded_length = pack( '!I', ored_length )[offset:]
-        return encoded_length
 
 
     def close( self ):
