@@ -1,56 +1,24 @@
 # -*- coding: UTF-8 -*-
 
-class Error( Exception ):
+class LibError( Exception ):
     '''
     This is a base exception for all other.
     '''
 
 
-
-
-class ApiError( Error ):
-    '''
-    Api related errors.
-    This is a base class for other api related errors.
-    '''
-
-
-class LoginError( ApiError ):
+class LoginError( LibError ):
     '''
     Login attempt errors.
     '''
 
 
-class CmdError( ApiError ):
+class CmdError( LibError ):
     '''
     Execution of a command errors.
     '''
 
 
-
-
-class ConnError( Error ):
+class ConnError( LibError ):
     '''
     Connection related errors.
-    This is a base class for other connection related exceptions.
-    '''
-
-
-class RwTimeout( ConnError ):
-    '''
-    Exception raised when timeout is reached while
-    reading/writing to/from socket.
-    '''
-
-
-class RwError( ConnError ):
-    '''
-    Exception raised when i/o operation on socket failed.
-    '''
-
-
-class ConnClosed( ConnError ):
-    '''
-    Exception raised when connection is unexpectedly closed.
-    While reading sentence !fatal word is received.
     '''

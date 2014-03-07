@@ -1,6 +1,9 @@
 # -*- coding: UTF-8 -*-
 
 from librouteros.drivers import trapCheck
+from librouteros.datastructures import mksnt, parsresp
+
+
 
 class Api:
 
@@ -10,12 +13,18 @@ class Api:
 
 
     def talk( self, cmd, args = dict() ):
+        '''
+        Run any arbitrary command. Returns parsed response.
 
-        args = self.drv.mkApiSnt( args )
+        cmd Command word eg. /ip/address/print.
+        args Dictionary with key, value pairs.
+        '''
+
+        args = mksnt( args )
         self.drv.writeSnt( cmd, args )
         response = self.drv.readDone()
         trapCheck( response )
-        parsed = self.drv.parseResp( response )
+        parsed = parsresp( response )
 
         return parsed
 

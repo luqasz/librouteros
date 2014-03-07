@@ -3,8 +3,7 @@
 from binascii import unhexlify, hexlify
 from hashlib import md5
 
-from librouteros.exc import CmdError, LoginError
-from librouteros.datastructures import typeCheck
+from librouteros.exc import CmdError, ConnError
 
 
 
@@ -37,23 +36,15 @@ def trapCheck( snts ):
         raise CmdError( msg )
 
 
-def getChal(sentence):
+def raiseIfFatal( sentence ):
     '''
-    Extract challenge argument from sentence.
-
-    :returns: Challenge argument
+    Check if a given sentence contains error message. If it does then raise an exception.
+    !fatal means that connection have been closed and no further transmission will work.
     '''
-    # get challenge key + value as one element tuple
-    chal = tuple( word for word in sentence if word.startswith( '=ret=' ) )
-    # get the first element
-    try:
-        chal = chal[0]
-    except IndexError:
-        raise LoginError( 'could not read challenge argument' )
 
-    # extract chall argument from key value pair
-    # =ret=xxxxxx
-    return chal[5:]
+    if '!fatal' in sentence:
+        error = ', '.join( word for word in sentence if word != '!fatal' )
+        raise ConnError( error )
 
 
 def encPass( chal, password ):
@@ -69,38 +60,43 @@ def encPass( chal, password ):
     return password
 
 
+def log_snt( logger, sentence, direction ):
+
+    dstrs = { 'write':'<---', 'read':'--->' }
+    dstr = dstrs.get( direction )
+
+    for word in sentence:
+        logger.debug( '{0} {1!r}'.format( dstr, word ) )
+
+    logger.debug( '{0} EOS'.format( dstr ) )
 
 
 
 
-class ApiSocketDriver:
 
 
-    def __init__( self, conn, data_struct ):
+class SocketDriver:
+
+
+    def __init__( self, conn, logger):
         self.conn = conn
-        self.data_struct = data_struct
+        self.logger = logger
 
 
-    def mkApiSnt( self, data ):
-
-        typeCheck( data, self.data_struct.data_type )
-        return self.data_struct.mkApiSnt( data )
-
-
-    def parseResp( self, response ):
-
-        return self.data_struct.parseApiResp( response )
-
-
-    def writeSnt( self, lvl, args = tuple() ):
+    def writeSnt( self, lvl, args ):
 
         snt = ( lvl, ) + args
         self.conn.writeSentence( snt )
+        log_snt( self.logger, snt, 'write' )
 
 
     def readSnt( self ):
 
-        return self.conn.readSentence()
+        snt = self.conn.readSentence()
+        log_snt( self.logger, snt, 'read' )
+        raiseIfFatal( snt )
+
+        return snt
 
 
     def readDone( self ):

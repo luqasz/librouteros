@@ -48,94 +48,80 @@ def castKeyToApi( key ):
         return key
 
 
-def typeCheck( data, expected ):
-
-    if not isinstance( data, expected ):
-        raise TypeError('provided data type is not {TYPE}'.format( TYPE = expected ))
 
 
-
-class DictData:
+def parsresp(sentences):
     '''
-    This class represents dictionary data structure methods.
+    Parse given response to set of dictionaries containing parsed sentences.
+
+    :praam sentences: Iterable (tuple,list) with each element as a sentence
     '''
 
-    def __init__(self):
-        self.data_type = dict
+    response = map( parsnt, sentences )
+    # filter out empty sentences
+    filtered = filter( None, response )
+    return tuple( filtered )
 
 
-    def parseApiResp(self, sentences):
-        '''
-        Parse given response to set of dictionaries containing parsed sentences.
+def mksnt( data ):
+    '''
+    Convert dictionary to attribute words.
 
-        :praam sentences: Iterable (tuple,list) with each element as a sentence
-        '''
+    :param args: Dictionary with key value attributes.
+    Those will be converted to attribute words.
 
-        response = map( self.parseApiSnt, sentences )
-        # filter out empty sentences
-        filtered = filter( None, response )
-        return tuple( filtered )
+    :returns: Tuple with attribute words.
+    '''
 
-
-    def mkApiSnt( self, data ):
-        '''
-        Convert dictionary to attribute words.
-
-        :param args: Dictionary with key value attributes.
-        Those will be converted to attribute words.
-
-        :returns: Tuple with attribute words.
-        '''
-
-        converted = map( self.mkAttrWord, data.items() )
-        return tuple( converted )
+    converted = map( mkattrwrd, data.items() )
+    return tuple( converted )
 
 
-    def parseApiSnt( self, snt ):
-        '''
-        Parse given sentence from attribute words to dictionary.
-        Only retrieve words that start with '='.
-        This method may return an empty dictionary.
+def parsnt( snt ):
+    '''
+    Parse given sentence from attribute words to dictionary.
+    Only retrieve words that start with '='.
+    This method may return an empty dictionary.
 
-        :param snt: Iterable sentence.
-        :returns: Dictionary with attributes.
-        '''
+    :param snt: Iterable sentence.
+    :returns: Dictionary with attributes.
+    '''
 
-        attrs = ( word for word in snt if word.startswith( '=' ) )
-        attrs = map( self.mkKvTuple, attrs )
+    attrs = ( word for word in snt if word.startswith( '=' ) )
+    attrs = map( convattrwrd, attrs )
 
-        return dict( attrs )
-
-
-    def mkAttrWord( self, kv ):
-        '''
-        Make an attribute word. Values and keys are automaticly casted
-        to api equivalents.
-
-        :param kv: Two element tuple. First key, second value.
-        '''
-
-        key, value = kv
-        casted_value = castValToApi( value )
-        casted_key = castKeyToApi( key )
-
-        return '={0}={1}'.format( casted_key, casted_value )
+    return dict( attrs )
 
 
-    def mkKvTuple( self, word ):
-        '''
-        Make an key value tuple out of attribute word. Values and keys
-        are automaticly casted to python equivalents.
+def mkattrwrd( kv ):
+    '''
+    Make an attribute word out of key value tuple. Values and keys are automaticly casted
+    to api equivalents.
 
-        :param word: Attribute word.
-        '''
+    :param kv: Two element tuple. First key, second value.
+    '''
 
-        splitted = word.split( '=', 2 )
-        key = splitted[1]
-        casted_key = castKeyToPy( key )
-        value = splitted[2]
-        casted_value = castValToPy( value )
+    key, value = kv
+    casted_value = castValToApi( value )
+    casted_key = castKeyToApi( key )
 
-        return ( casted_key, casted_value )
+    return '={0}={1}'.format( casted_key, casted_value )
+
+
+def convattrwrd( word ):
+    '''
+    Make an key value tuple out of attribute word. Values and keys
+    are automaticly casted to python equivalents.
+
+    :param word: Attribute word.
+    '''
+
+    splitted = word.split( '=', 2 )
+    key = splitted[1]
+    casted_key = castKeyToPy( key )
+    value = splitted[2]
+    casted_value = castValToPy( value )
+
+    return ( casted_key, casted_value )
 
 

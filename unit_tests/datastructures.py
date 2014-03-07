@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import patch, MagicMock, call
+from mock import patch, call
 
-from librouteros.datastructures import DictData, castKeyToApi, castKeyToPy, castValToPy, castValToApi, typeCheck
+from librouteros.datastructures import parsresp, parsnt, mksnt, mkattrwrd, convattrwrd, castKeyToApi, castKeyToPy, castValToPy, castValToApi
 
 
 class TestValCastingFromApi(unittest.TestCase):
@@ -84,22 +84,18 @@ def return_same( something ):
 
 
 
-class KeyValueTupleCreation(unittest.TestCase):
-
-
-    def setUp(self):
-        self.dd = DictData()
+class AttributeWordConversion(unittest.TestCase):
 
 
     @patch('librouteros.datastructures.castKeyToPy')
     @patch('librouteros.datastructures.castValToPy')
-    def test_mkKvTuple_returns_valid_tuple( self, key_mock, val_mock ):
+    def test_returns_valid_tuple( self, key_mock, val_mock ):
         key_mock.side_effect = return_same
         val_mock.side_effect = return_same
 
         word = '=key=value'
         expected_result = ( 'key', 'value' )
-        result = self.dd.mkKvTuple( word )
+        result = convattrwrd( word )
 
         self.assertEqual( result, expected_result )
 
@@ -108,42 +104,30 @@ class KeyValueTupleCreation(unittest.TestCase):
 class AttributeWordCreation(unittest.TestCase):
 
 
-    def setUp(self):
-        self.dd = DictData()
-
-
     @patch('librouteros.datastructures.castKeyToApi')
     @patch('librouteros.datastructures.castValToApi')
-    def test_mkAttrWord_returns_valid_word( self, key_mock, val_mock ):
+    def test_returns_valid_word( self, key_mock, val_mock ):
         key_mock.side_effect = return_same
         val_mock.side_effect = return_same
 
         call_tuple = ( 'key', 'value' )
         expected_result = '=key=value'
-        result = self.dd.mkAttrWord( call_tuple )
+        result = mkattrwrd( call_tuple )
 
         self.assertEqual( result, expected_result )
-
-
-    def test_data_type_attribute_existance(self):
-        self.assertIs( self.dd.data_type, dict )
 
 
 
 class ApiSentenceCreation(unittest.TestCase):
 
 
-    def setUp(self):
-        self.dd = DictData()
-        self.dd.mkAttrWord = MagicMock()
-
-
-    def test_calls_attribute_word_creation_method( self ):
+    @patch('librouteros.datastructures.mkattrwrd')
+    def test_calls_attribute_word_creation_method( self, mk_mock ):
         call_dict = { 'interface':'ether1', 'disabled':'false' }
         expected_calls = [ call(item) for item in call_dict.items() ]
 
-        self.dd.mkApiSnt( call_dict )
-        self.assertEqual( self.dd.mkAttrWord.mock_calls, expected_calls )
+        mksnt( call_dict )
+        self.assertEqual( mk_mock.mock_calls, expected_calls )
 
 
 
@@ -151,14 +135,16 @@ class ApiResponseParsing(unittest.TestCase):
 
 
     def setUp(self):
-        self.dd = DictData()
-        self.dd.parseApiSnt = MagicMock( return_value = () )
+        parsnt_patcher = patch('librouteros.datastructures.parsnt')
+        self.parsnt_mock = parsnt_patcher.start()
+        self.parsnt_mock.return_value = ()
+        self.addCleanup(parsnt_patcher.stop)
 
 
     def test_filters_out_empty_sentences( self ):
         sentences = ( (), () )
         expected_result = ()
-        result = self.dd.parseApiResp( sentences )
+        result = parsresp( sentences )
         self.assertEqual( expected_result, result )
 
 
@@ -166,40 +152,33 @@ class ApiResponseParsing(unittest.TestCase):
         sentences = ( (1,2), (1,2) )
         expected_calls = [ call(elem) for elem in sentences ]
 
-        self.dd.parseApiResp( sentences )
-        calls = self.dd.parseApiSnt.mock_calls
+        parsresp( sentences )
+        calls = self.parsnt_mock.mock_calls
         self.assertEqual( calls, expected_calls )
 
-
-class TypeCheck(unittest.TestCase):
-
-
-    def test_raises_if_wrong_data_type(self):
-        self.assertRaises( TypeError, typeCheck, ( dict(), tuple ) )
-
-    def test_does_not_raise_if_valid(self):
-        typeCheck( dict(), dict )
 
 
 class ApiSentenceParsing(unittest.TestCase):
 
 
     def setUp(self):
-        self.dd = DictData()
-        self.dd.mkKvTuple = MagicMock( return_value = (1,2) )
+        conv_patcher = patch('librouteros.datastructures.convattrwrd')
+        self.conv_mock = conv_patcher.start()
+        self.conv_mock.return_value = (1,2)
+        self.addCleanup(conv_patcher.stop)
 
 
     def test_calls_tuple_creation_method(self):
         call_snt = ( '=disabled=false', '=interface=ether1' )
 
-        self.dd.parseApiSnt( call_snt )
+        parsnt( call_snt )
         call_list = [ call(elem) for elem in call_snt ]
-        self.assertEqual( call_list, self.dd.mkKvTuple.mock_calls )
+        self.assertEqual( call_list, self.conv_mock.mock_calls )
 
 
     def test_filters_out_non_attribute_words(self):
         call_snt = ( '=disabled=false', '=interface=ether1', 'no_attr_word' )
 
-        self.dd.parseApiSnt( call_snt )
+        parsnt( call_snt )
         call_list = [ call(elem) for elem in call_snt[:2] ]
-        self.assertEqual( call_list, self.dd.mkKvTuple.mock_calls )
+        self.assertEqual( call_list, self.conv_mock.mock_calls )

@@ -4,87 +4,66 @@ import unittest
 from mock import MagicMock, patch
 
 import librouteros.drivers as drv
-from librouteros.datastructures import DictData
 from librouteros.connections import ReaderWriter
-from librouteros.exc import LoginError, ConnError, CmdError
+from librouteros.exc import CmdError, ConnError
+from librouteros.drivers import raiseIfFatal
 
-
-class PasswordMethods(unittest.TestCase):
+class PasswordEncoding(unittest.TestCase):
 
 
     def test_password_encoding(self):
         self.assertEqual( drv.encPass( '259e0bc05acd6f46926dc2f809ed1bba', 'test'), '00c7fd865183a43a772dde231f6d0bff13' )
 
 
-    def test_challenge_argument_extraction(self):
-        sentence = ( '=ret=xxx', '!done' )
-        self.assertEqual( drv.getChal( sentence ), 'xxx' )
+class RaiseIfFatal(unittest.TestCase):
 
 
-    def test_error_raiseing_if_no_ret_argument(self):
-        sentence = ( 'xxx', '!done' )
-        self.assertRaises( LoginError, drv.getChal, sentence )
+    def test_raises_when_fatal(self):
+        sentence = ('!fatal', 'connection terminated by remote hoost')
+        self.assertRaises( ConnError,  raiseIfFatal, sentence )
 
 
-class ApiSentenceCreation(unittest.TestCase):
-
-
-    def setUp(self):
-        patcher = patch('librouteros.drivers.typeCheck')
-        conn = MagicMock( spec = ReaderWriter )
-        ds = MagicMock( spec = DictData )
-        ds.data_type = dict
-        self.type_mock = patcher.start()
-        self.drv = drv.ApiSocketDriver( conn, ds )
-        self.addCleanup(patcher.stop)
-
-
-    def test_calls_data_structure_method(self):
-        self.drv.mkApiSnt( dict() )
-        self.drv.data_struct.mkApiSnt.assert_called_once_with( dict() )
-
-
-    def test_calls_typeCheck(self):
-        self.drv.mkApiSnt( 'string' )
-        self.type_mock.assert_called_once_with( 'string', dict )
-
-class ApiSentenceParsing(unittest.TestCase):
-
-
-    def setUp(self):
-        conn = MagicMock( spec = ReaderWriter )
-        ds = MagicMock( spec = DictData )
-        self.drv = drv.ApiSocketDriver( conn, ds )
-
-
-    def test_api_respone_parsing_calls_data_structure_method(self):
-        self.drv.parseResp( 'string' )
-        self.drv.data_struct.parseApiResp.assert_called_once_with( 'string' )
-
+    def test_does_not_raises_if_no_error(self):
+        raiseIfFatal( 'some string without error' )
 
 
 class WriteMethods(unittest.TestCase):
 
 
     def setUp(self):
+        log_patcher = patch('librouteros.drivers.log_snt')
         conn = MagicMock( spec = ReaderWriter )
-        ds = MagicMock( spec = DictData )
-        self.drv = drv.ApiSocketDriver( conn, ds )
+        self.drv = drv.SocketDriver( conn, None )
+        self.log_mock = log_patcher.start()
+        self.addCleanup(log_patcher.stop)
 
 
-    def test_write_calls_connection_method_with_valid_arguments( self ):
+    def test_calls_connection_method_with_valid_arguments( self ):
         self.drv.writeSnt( '/level', ('string1', 'string2') )
         self.drv.conn.writeSentence.assert_called_once_with( ('/level', 'string1', 'string2') )
 
 
+    def test_calls_log_sentence( self ):
+        self.drv.writeSnt( ('/level'), ('word', ) )
+        self.log_mock.assert_called_once_with( None, ('/level', 'word'), 'write' )
 
-class ReadMethods(unittest.TestCase):
+
+
+class ReadSentence(unittest.TestCase):
 
 
     def setUp(self):
+        log_patcher = patch('librouteros.drivers.log_snt')
+        fatal_patcher = patch('librouteros.drivers.raiseIfFatal')
+
+        self.log_mock = log_patcher.start()
+        self.fatal_patcher = fatal_patcher.start()
+
         conn = MagicMock( spec = ReaderWriter )
-        ds = MagicMock( spec = DictData )
-        self.drv = drv.ApiSocketDriver( conn, ds )
+        self.drv = drv.SocketDriver( conn, None )
+
+        self.addCleanup(log_patcher.stop)
+        self.addCleanup(fatal_patcher.stop)
 
 
     def test_read_calls_connection_method(self):
@@ -92,12 +71,37 @@ class ReadMethods(unittest.TestCase):
         self.drv.conn.readSentence.assert_called_once_with()
 
 
-    def test_readDone_returns_valid_tuple_and_breaks_when_done(self):
+    def test_calls_check_for_fatal_condition( self ):
+        readSentence_return_value = ('first', 'second')
+
+        self.drv.conn.readSentence.side_effect = readSentence_return_value
+        self.drv.readSnt()
+        self.fatal_patcher.called_once_with( readSentence_return_value )
+
+
+    def test_calls_log_sentence( self ):
+        readSentence_return_value = ( 'first', 'second' )
+
+        self.drv.conn.readSentence.return_value = readSentence_return_value
+        self.drv.readSnt()
+        self.log_mock.assert_called_once_with( None, readSentence_return_value, 'read' )
+
+
+
+class ReadDone(unittest.TestCase):
+
+
+    def setUp(self):
+        conn = MagicMock( spec = ReaderWriter )
+        self.drv = drv.SocketDriver( conn, None )
+        self.drv.readSnt = MagicMock()
+
+
+    def test_returns_valid_tuple_and_breaks_when_done(self):
         return_sequence = ( (), ('!done') )
-        self.drv.readSnt = MagicMock( side_effect = return_sequence )
+        self.drv.readSnt.side_effect = return_sequence
         retval = self.drv.readDone()
         self.assertEqual( retval, return_sequence )
-
 
 
 class ClosingProcedure(unittest.TestCase):
@@ -105,8 +109,7 @@ class ClosingProcedure(unittest.TestCase):
 
     def setUp(self):
         conn = MagicMock( spec = ReaderWriter )
-        ds = MagicMock( spec = DictData )
-        self.drv = drv.ApiSocketDriver( conn, ds )
+        self.drv = drv.SocketDriver( conn, None )
 
 
     def test_close_calls_conn_method(self):

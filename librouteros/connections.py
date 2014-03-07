@@ -3,28 +3,18 @@
 import socket
 from struct import pack, unpack
 
-from librouteros.exc import RwError, RwTimeout, ConnClosed, ApiError
+from librouteros.exc import ConnError, LibError
+from librouteros.api import Api
 
 
-
-
-def log_sentence( logger, sentence, direction ):
-
-    dstrs = { 'write':'<---', 'read':'--->' }
-    dstr = dstrs.get( direction )
-
-    for word in sentence:
-        logger.info( '{0} {1!s}'.format( dstr, word ) )
-
-    logger.info( '{0} EOS'.format( dstr ) )
 
 
 def enclen( length ):
     '''
     Encode given length in mikrotik format.
 
-    :param length: Integer < 268435456.
-    :returns: Encoded length in bytes.
+    length: Integer < 268435456.
+    returns: Encoded length in bytes.
     '''
 
     if length < 128:
@@ -40,7 +30,7 @@ def enclen( length ):
         ored_length = length | 0xE0000000
         offset = -4
     else:
-        raise ApiError( 'unable to encode length of {0}'
+        raise ConnError( 'unable to encode length of {0}'
                         .format( length ) )
 
     encoded_length = pack( '!I', ored_length )[offset:]
@@ -51,8 +41,8 @@ def declen( bytes_string ):
     '''
     Decode length based on given bytes.
 
-    :param bytes_string: Bytes string to decode.
-    :returns: Decoded as integer length.
+    bytes_string: Bytes string to decode.
+    returns: Length in integer.
     '''
 
     bytes_length = len( bytes_string )
@@ -84,7 +74,9 @@ def decsnt( sentence ):
 
 def encsnt( sentence ):
     '''
-    Encode given sentence.
+    Encode given sentence in API format.
+
+    returns: Encoded sentence in bytes object.
     '''
 
     encoded = map( encword, sentence )
@@ -96,21 +88,16 @@ def encsnt( sentence ):
 
 
 def encword( word ):
+    '''
+    Encode word in API format.
 
+    returns: Encoded word in bytes object.
+    '''
     encoded_len = enclen( len( word ) )
     encoded_word = word.encode( encoding = 'utf_8', errors = 'strict' )
     return encoded_len + encoded_word
 
 
-def raiseIfFatal( sentence ):
-    '''
-    Check if a given sentence contains error message. If it does then raise an exception.
-    !fatal means that connection have been closed and no further transmission will work.
-    '''
-
-    if '!fatal' in sentence:
-        error = ', '.join( word for word in sentence if word != '!fatal' )
-        raise ConnClosed( error )
 
 
 
@@ -120,8 +107,7 @@ def raiseIfFatal( sentence ):
 class ReaderWriter:
 
 
-    def __init__( self, sock, logger ):
-        self.logger = logger
+    def __init__( self, sock ):
         self.sock = sock
 
 
@@ -129,19 +115,18 @@ class ReaderWriter:
         '''
         Write sentence to connection.
 
-        :param sentence: Iterable (tuple or list) with words.
+        sentence: Iterable (tuple or list) with words.
         '''
 
         encoded = encsnt( sentence )
         self.writeSock( encoded )
-        log_sentence( self.logger, sentence, 'write' )
 
 
     def readSentence( self ):
         '''
         Read sentence from connection.
 
-        :returns: Sentence as tuple with words in it.
+        returns: Sentence as tuple with words in it.
         '''
 
         sentence = []
@@ -153,8 +138,6 @@ class ReaderWriter:
             to_read = self.getLength()
 
         decoded_sentence = decsnt( sentence )
-        log_sentence( self.logger, decoded_sentence, 'read' )
-        raiseIfFatal( decoded_sentence )
 
         return decoded_sentence
 
@@ -177,13 +160,13 @@ class ReaderWriter:
                 total_bytes_read = length - to_read
 
                 if not read:
-                    raise RwError( 'connection unexpectedly closed. read {read}/{total} bytes.'
+                    raise ConnError( 'connection unexpectedly closed. read {read}/{total} bytes.'
                                     .format( read = total_bytes_read, total = length ) )
         except socket.timeout:
-            raise RwTimeout( 'socket timed out. read {read}/{total} bytes.'
+            raise ConnError( 'socket timed out. read {read}/{total} bytes.'
                             .format( read = total_bytes_read, total = length ) )
         except socket.error as estr:
-            raise RwError( 'failed to read from socket: {reason}'.format( reason = estr ) )
+            raise ConnError( 'failed to read from socket: {reason}'.format( reason = estr ) )
 
         return return_string
 
@@ -205,13 +188,13 @@ class ReaderWriter:
                 total_bytes_sent = string_length - len( string )
 
                 if not sent:
-                    raise RwError( 'connection unexpectedly closed. sent {sent}/{total} bytes.'
+                    raise ConnError( 'connection unexpectedly closed. sent {sent}/{total} bytes.'
                                     .format( sent = total_bytes_sent, total = string_length ) )
         except socket.timeout:
-            raise RwTimeout( 'socket timed out. sent {sent}/{total} bytes.'
+            raise ConnError( 'socket timed out. sent {sent}/{total} bytes.'
                             .format( sent = total_bytes_sent, total = string_length ) )
         except socket.error as estr:
-            raise RwError( 'failed to write to socket: {reason}'.format( reason = estr ) )
+            raise ConnError( 'failed to write to socket: {reason}'.format( reason = estr ) )
 
 
     def getLength( self ):
@@ -231,7 +214,7 @@ class ReaderWriter:
         elif first_byte_int < 240:
             bytes_to_read = 3
         else:
-            raise ApiError( 'unknown controll byte received {0!r}'
+            raise ConnError( 'unknown controll byte received {0!r}'
                             .format( first_byte ) )
 
         additional_bytes = self.readSock( bytes_to_read )
@@ -254,3 +237,33 @@ class ReaderWriter:
             self.sock.close()
 
 
+class Connection:
+
+
+    def __init__( self, drv ):
+        self.drv = drv
+
+
+    def api( self ):
+        return Api( self.drv )
+
+
+    def close( self ):
+
+        try:
+            self._send_quit()
+        except LibError:
+            pass
+        finally:
+            self.drv.close()
+
+
+    def _send_quit( self ):
+
+        self.drv.writeSnt( '/quit', () )
+        self.drv.readSnt()
+
+
+    def __del__( self ):
+
+        self.close()
