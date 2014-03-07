@@ -6,13 +6,9 @@ Python3 implementation of [routeros api](http://wiki.mikrotik.com/wiki/API).
 * nosetests3 (for unit testing only)
 * mock (for unit testing only)
 
-### Unit tests
-This library comes with unit tests. You need to have nosetests installed.
-To run them simply do:
-
-```
-nosetests3 unit_tests/*
-```
+### Documentation
+Documentation is hosted as a separate [git repository](https://github.com/uqasz/librouteros-docs).
+It is build automaticly upon commit and generated [here](http://librouteros.readthedocs.org/en/).
 
 ### Contributing
 To submit a feature requests or a bug report, please use Issues from within github. If you would like to submit a patch please contact author or use pull request. Note however all new features must have unit tests and documentation.
