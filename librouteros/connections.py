@@ -257,10 +257,17 @@ class Connection:
 
 
     def api( self ):
+        '''
+        Return a new instance of class Api.
+        '''
+
         return Api( self.drv )
 
 
     def close( self ):
+        '''
+        Send /quit and close the connection.
+        '''
 
         try:
             self._send_quit()
@@ -271,11 +278,15 @@ class Connection:
 
 
     def _send_quit( self ):
-
+        '''
+        Send /quit command.
+        '''
         self.drv.writeSnt( '/quit', () )
         self.drv.readSnt()
 
 
     def __del__( self ):
-
+        '''
+        On garbage collection run close().
+        '''
         self.close()
