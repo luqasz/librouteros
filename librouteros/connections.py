@@ -244,6 +244,18 @@ class Connection:
         self.drv = drv
 
 
+    def _set_timeout(self, value):
+        if value < 1:
+            raise ValueError('timeout must be greater than 0')
+        else:
+            self.drv.conn.sock.settimeout(value)
+
+    def _get_timeout(self):
+        return self.drv.conn.sock.gettimeout()
+
+    timeout = property( _get_timeout, _set_timeout, doc='Get or set timeout of connection. Timeout muste be > 0.' )
+
+
     def api( self ):
         return Api( self.drv )
 

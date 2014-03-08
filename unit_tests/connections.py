@@ -345,3 +345,24 @@ class ClosingProcedures(unittest.TestCase):
         self.ReaderWriter.close()
         self.assertTrue( self.ReaderWriter.sock.shutdown.called )
         self.assertTrue( self.ReaderWriter.sock.close.called )
+
+
+
+class ConnectionTimeoutTests(unittest.TestCase):
+
+
+    def setUp(self):
+        self.drv = MagicMock()
+        self.conn = conn.Connection( self.drv )
+
+    def test_getting_timeout_value(self):
+        self.conn.timeout
+        self.drv.conn.sock.gettimeout.assert_called_once
+
+    def test_setting_timeout_below_0_raises_ValueError(self):
+        with self.assertRaises(ValueError):
+            self.conn.timeout = 0
+
+    def test_calls_setting_timeout(self):
+        self.conn.timeout = 20
+        self.drv.conn.sock.settimeout.assert_called_once_with(20)
