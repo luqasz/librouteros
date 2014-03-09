@@ -14,7 +14,7 @@ class Api:
 
     def talk( self, cmd, args = dict() ):
         '''
-        Run any arbitrary command. Returns parsed response.
+        Run any 'non interactive' command. Returns parsed response.
 
         cmd Command word eg. /ip/address/print.
         args Dictionary with key, value pairs.
