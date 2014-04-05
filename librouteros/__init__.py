@@ -39,6 +39,8 @@ def connect( host, user, pw, **kwargs ):
         Destination port to be used. Defaults to 8728.
     logger
         Logger instance to be used. Defaults to an empty logging instance.
+    saddr
+        Source address to bind to.
     '''
 
     def_vals = { 'timeout' : 10, \
@@ -50,7 +52,7 @@ def connect( host, user, pw, **kwargs ):
     arguments.update( kwargs )
 
     try:
-        sk = create_connection( ( host, passed['port'] ), passed['timeout'] )
+        sk = create_connection( ( host, arguments['port'] ), arguments['timeout'], ( arguments['saddr'], 0 ) )
     except ( sk_error, sk_timeout ) as e:
         raise ConnError( e )
 
