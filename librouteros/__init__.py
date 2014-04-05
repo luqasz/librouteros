@@ -19,10 +19,7 @@ from librouteros.connections import ReaderWriter, Connection
 from librouteros.datastructures import parsnt
 
 
-_def_vals = { 'timeout' : 10, \
-            'logger' : None, \
-            'port' : 8728, \
-            'password' : '' }
+__version__ = '1.0.0'
 
 
 def connect( host, user, pw, **kwargs ):
@@ -44,8 +41,13 @@ def connect( host, user, pw, **kwargs ):
         Logger instance to be used. Defaults to an empty logging instance.
     '''
 
-    passed = _def_vals.copy()
-    passed.update( kwargs )
+    def_vals = { 'timeout' : 10, \
+                'logger' : None, \
+                'port' : 8728, \
+                'saddr' : '' }
+
+    arguments = def_vals.copy()
+    arguments.update( kwargs )
 
     try:
         sk = create_connection( ( host, passed['port'] ), passed['timeout'] )
