@@ -14,7 +14,7 @@ class LoginError( LibError ):
 
 class CmdError( LibError ):
     '''
-    Execution of a command errors.
+    Commend execution errors.
     '''
 
 
