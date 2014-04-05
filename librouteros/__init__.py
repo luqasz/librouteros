@@ -25,7 +25,7 @@ _def_vals = { 'timeout' : 10, \
             'password' : '' }
 
 
-def connect( host, user, **kwargs ):
+def connect( host, user, pw, **kwargs ):
     '''
     Connect and login to routeros device.
     Upon success return a Connection class.
@@ -34,7 +34,7 @@ def connect( host, user, **kwargs ):
         Hostname to connecto to. May be ipv4,ipv6,FQDN.
     user
         Username to login with.
-    password
+    pw
         Password to login with. Defaults to be empty.
     timout
         Socket timeout. Defaults to 10.
