@@ -37,17 +37,17 @@ class EncodeLengths(unittest.TestCase):
 class DecodeLengths(unittest.TestCase):
 
 
+    def test_decode_0_length( self ):
+        self.assertEqual( conn.declen( b'\x00' ), 0 )
+
     def test_decode_length_less_than_128( self ):
         self.assertEqual( conn.declen( b'\x7f' ), 127 )
-
 
     def test_decode_length_less_than_16384( self ):
         self.assertEqual( conn.declen( b'\x80\x82' ), 130 )
 
-
     def test_decode_length_less_than_2097152( self ):
         self.assertEqual( conn.declen( b'\xdf\xff\xf4' ), 2097140 )
-
 
     def test_decode_length_less_than_268435456( self ):
         self.assertEqual( conn.declen( b'\xef\xff\xff\xf0'  ), 268435440 )
