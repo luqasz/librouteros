@@ -1,5 +1,15 @@
 # -*- coding: UTF-8 -*-
 
+'''
+from librouteros import connect
+api = connect( '1.1.1.1', 'admin', 'password' )
+api.talk('/ip/address/print')
+
+For more information please visit
+https://github.com/uqasz/librouteros
+'''
+
+
 from logging import getLogger, NullHandler
 from socket import create_connection, error as sk_error, timeout as sk_timeout
 
