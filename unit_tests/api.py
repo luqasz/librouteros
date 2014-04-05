@@ -1,59 +1,145 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock, patch
+from mock import MagicMock
 
 from librouteros.api import Api
-from librouteros.drivers import SocketDriver
+from librouteros.exc import CmdError, ConnError
+from librouteros.connections import ReaderWriter
+from unit_tests.helpers import make_patches
 
 class TalkMethd(unittest.TestCase):
 
 
     def setUp(self):
-        parsresp_patcher = patch('librouteros.api.parsresp')
-        mksnt_patcher = patch('librouteros.api.mksnt')
-        trapCheck_patcher = patch('librouteros.api.trapCheck')
+        make_patches( self, (
+            ( 'parsresp','librouteros.api.parsresp' ),
+            ( 'mksnt','librouteros.api.mksnt' ),
+            ( 'trapcheck','librouteros.api.trapCheck' ),
+            ( 'raisefatal', 'librouteros.api.raiseIfFatal' )
+                ))
 
-        self.parsresp_mock = parsresp_patcher.start()
-        self.mksnt_mock = mksnt_patcher.start()
-        self.trapCheck_mock = trapCheck_patcher.start()
-
-        self.addCleanup(parsresp_patcher.stop)
-        self.addCleanup(mksnt_patcher.stop)
-        self.addCleanup(trapCheck_patcher.stop)
-
-        drv = MagicMock( spec = SocketDriver )
-        self.api = Api( drv )
+        rwo = MagicMock( spec = ReaderWriter )
+        self.api = Api( rwo )
+        self.api.close = MagicMock()
+        self.api._readDone = MagicMock()
 
 
-    def test_calls_mksnt(self):
+    def test_calls_mksnt_if_passed_args(self):
+        args = {'key','value'}
+        self.api.talk( 'some level', args )
+        self.mksnt_mock.assert_called_once_with( args )
+
+    def test_does_not_call_mksnt_if_no_args_passed(self):
+        self.api.talk( 'some level' )
+        self.assertEqual( self.mksnt_mock.call_count, 0 )
+
+    def test_calls_write_sentence_with_combined_tuple(self):
         lvl = '/ip/address'
-        self.api.talk( lvl )
-        self.mksnt_mock.assert_called_once_with( {} )
-
-
-    def test_calls_writeSnt(self):
-        lvl = '/ip/address'
-        self.mksnt_mock.return_value = ()
-        self.api.talk( lvl )
-        self.api.drv.writeSnt.assert_called_once_with( lvl, () )
-
+        retval = ('=key=value',)
+        self.mksnt_mock.return_value = ( retval )
+        self.api.talk( lvl, 'some args' )
+        self.api.rwo.writeSnt.assert_called_once_with( (lvl,) + retval )
 
     def test_calls_readdone(self):
-        lvl = '/ip/address'
-        self.api.talk( lvl )
-        self.api.drv.readDone.assert_called_once_with()
-
+        self.api.talk( 'some string' )
+        self.api._readDone.assert_called_once_with()
 
     def test_calls_trapCheck(self):
-        lvl = '/ip/address'
-        self.api.drv.readDone.return_value = '123'
-        self.api.talk( lvl )
-        self.trapCheck_mock.assert_called_once_with( '123' )
-
+        self.api._readDone.return_value = ( 'some read sentence' )
+        self.api.talk( 'some level' )
+        self.trapcheck_mock.assert_called_once_with( 'some read sentence' )
 
     def test_calls_parsresp(self):
-        lvl = '/ip/address'
-        self.api.drv.readDone.return_value = '123'
-        self.api.talk( lvl )
-        self.parsresp_mock.assert_called_once_with( '123' )
+        self.api._readDone.return_value = 'read sentence'
+        self.api.talk( 'some level' )
+        self.parsresp_mock.assert_called_once_with( 'read sentence' )
+
+    def test_checks_for_fatal_condition(self):
+        self.api._readDone.return_value = ( 'some read sentence' )
+        self.api.talk( 'some level' )
+        self.raisefatal_mock.assert_called_once_with( 'some read sentence' )
+
+    def test_raises_CmdError_if_trap_in_sentence(self):
+        self.trapcheck_mock.side_effect = CmdError()
+        self.assertRaises( CmdError, self.api.talk, ( 'some level' ) )
+
+    def test_raises_ConnError_if_fatal_in_sentence(self):
+        self.raisefatal_mock.side_effect = ConnError()
+        self.assertRaises( ConnError, self.api.talk, ( 'some level' ) )
+
+
+
+class ReadLoop(unittest.TestCase):
+
+
+    def setUp(self):
+        rwo = MagicMock( spec = ReaderWriter )
+        self.api = Api( rwo )
+        self.api.close = MagicMock()
+
+
+    def test_breaks_if_done_in_sentence(self):
+        self.api.rwo.readSnt.side_effect = ['1','2','!done']
+        self.api._readDone()
+        self.assertEqual( self.api.rwo.readSnt.call_count, 3 )
+
+
+
+class ClosingConnecton(unittest.TestCase):
+
+
+    def setUp(self):
+        rwo = MagicMock( spec = ReaderWriter )
+        self.api = Api( rwo )
+
+    def test_calls_write_sentence(self):
+        self.api.close()
+        self.api.rwo.writeSnt.assert_called_once_with( ('/quit',) )
+
+    def test_calls_read_sentence(self):
+        self.api.close()
+        self.api.rwo.readSnt.assert_called_once_with()
+
+    def test_calls_reader_writers_close_method(self):
+        self.api.close()
+        self.api.rwo.close.assert_called_once_with()
+
+    def test_calls_reader_writers_close_method_even_if_write_raises_ConnError(self):
+        self.api.rwo.writeSnt.side_effect = ConnError()
+        self.api.close()
+        self.api.rwo.close.assert_called_once_with()
+
+    def test_calls_reader_writers_close_method_even_if_read_raises_ConnError(self):
+        self.api.rwo.readSnt.side_effect = ConnError()
+        self.api.close()
+        self.api.rwo.close.assert_called_once_with()
+
+    def test_raises_CmdError_if_write_fails(self):
+        self.api.rwo.writeSnt.side_effect = CmdError()
+        self.assertRaises( CmdError, self.api.close )
+
+    def test_raises_CmdError_if_read_fails(self):
+        self.api.rwo.readSnt.side_effect = CmdError()
+        self.assertRaises( CmdError, self.api.close )
+
+
+class TimeoutManipulations(unittest.TestCase):
+
+
+    def setUp(self):
+        self.rwo = MagicMock()
+        self.api = Api( self.rwo )
+
+    def test_getting_timeout_value(self):
+        self.api.timeout
+        self.rwo.sock.gettimeout.assert_called_once
+
+    def test_setting_timeout_below_0_raises_ValueError(self):
+        with self.assertRaises(ValueError):
+            self.api.timeout = 0
+
+    def test_calls_setting_timeout(self):
+        self.api.timeout = 20
+        self.rwo.sock.settimeout.assert_called_once_with(20)
+

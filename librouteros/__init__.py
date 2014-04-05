@@ -12,11 +12,12 @@ https://github.com/uqasz/librouteros
 
 from logging import getLogger, NullHandler
 from socket import create_connection, error as sk_error, timeout as sk_timeout
+from binascii import unhexlify, hexlify
+from hashlib import md5
 
 from librouteros.exc import ConnError, CmdError, LoginError
-from librouteros.drivers import SocketDriver, trapCheck, encPass
-from librouteros.connections import ReaderWriter, Connection
-from librouteros.datastructures import parsnt
+from librouteros.connections import ReaderWriter
+from librouteros.api import Api
 
 
 __version__ = '1.0.0'
@@ -56,44 +57,52 @@ def connect( host, user, pw, **kwargs ):
     except ( sk_error, sk_timeout ) as e:
         raise ConnError( e )
 
-    logger_instance = _mkNullLogger() if not passed['logger'] else passed['logger']
-    rwo = ReaderWriter( sk )
-    drv = SocketDriver( rwo, logger_instance )
+    api, rwo = _mkobj( sk, arguments['logger'] )
 
     try:
-        snt = _initLogin( drv )
-    except ConnError as estr:
-        drv.close()
+        chal = _initlogin( api )
+        encoded = _encpw( chal, pw )
+        api.talk( '/login', {'name':user, 'response':encoded} )
+    except ( ConnError, CmdError ) as estr:
+        rwo.close()
         raise LoginError( estr )
 
-    chal = parsnt(snt)['ret']
-    encoded = encPass( chal, passed['password'] )
-
-    try:
-        _login( drv, user, encoded )
-    except CmdError:
-        drv.close()
-        raise LoginError( 'wrong username and/or password' )
-
-    return Connection( drv )
+    return api
 
 
-
-
-def _initLogin( drv ):
+def _mkobj(sk, logger):
     '''
-    Send an initial login.
+    Assemble objects and return them.
     '''
 
-    drv.writeSnt( '/login', () )
-    return drv.readSnt()
+    logger = _mkNullLogger() if not logger else logger
+    rwo = ReaderWriter( sk, logger )
+    api = Api( rwo )
+
+    return (api, rwo)
 
 
-def _login( drv, username, password ):
+def _initlogin( api ):
+    '''
+    Send initial login and return challenge response.
+    '''
 
-    drv.writeSnt( '/login', ( '=name=' + username, '=response=' + password ) )
-    response = drv.readDone()
-    trapCheck( response )
+    snt = api.talk( '/login' )
+    return snt[0]['ret']
+
+
+
+def _encpw( chal, password ):
+
+    chal = chal.encode( 'UTF-8', 'strict' )
+    chal = unhexlify( chal )
+    password = password.encode( 'UTF-8', 'strict' )
+    md = md5()
+    md.update( b'\x00' + password + chal )
+    password = hexlify( md.digest() )
+    password = '00' + password.decode( 'UTF-8', 'strict' )
+
+    return password
 
 
 def _mkNullLogger():

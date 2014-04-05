@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+from librouteros.exc import CmdError, ConnError
 
 to_py_mapping = {'yes': True, \
                    'true': True, \
@@ -124,4 +125,36 @@ def convattrwrd( word ):
 
     return ( casted_key, casted_value )
 
+
+
+def trapCheck( snts ):
+    '''
+    Check for existance of !trap word. This word indicates that an error occured.
+    At least one !trap word in any sentence triggers an error.
+    Unfortunatelly mikrotik api may throw one or more errors as response.
+
+    :param snts: Iterable with each sentence as tuple
+    '''
+
+    errmsgs = []
+
+    for snt in snts:
+        if '!trap' in snt:
+            emsg = ' '.join( word for word in snt )
+            errmsgs.append( emsg )
+
+    if errmsgs:
+        e = ', '.join( errmsgs )
+        raise CmdError( e )
+
+
+def raiseIfFatal( sentence ):
+    '''
+    Check if a given sentence contains error message. If it does then raise an exception.
+    !fatal means that connection have been closed and no further transmission will work.
+    '''
+
+    if '!fatal' in sentence:
+        error = ', '.join( word for word in sentence if word != '!fatal' )
+        raise ConnError( error )
 

@@ -3,7 +3,29 @@
 import unittest
 from mock import patch, call
 
-from librouteros.datastructures import parsresp, parsnt, mksnt, mkattrwrd, convattrwrd, castKeyToApi, castKeyToPy, castValToPy, castValToApi
+from librouteros.datastructures import parsresp, parsnt, mksnt, mkattrwrd, convattrwrd, castKeyToApi, castKeyToPy, castValToPy, castValToApi, raiseIfFatal, trapCheck
+from librouteros.exc import CmdError, ConnError
+
+
+
+class TrapChecking(unittest.TestCase):
+
+
+    def test_trap_in_sentences_raises(self):
+        snts = ( '!trap', '=key=value' )
+        self.assertRaises( CmdError, trapCheck, snts )
+
+
+class RaiseIfFatal(unittest.TestCase):
+
+
+    def test_raises_when_fatal(self):
+        sentence = ('!fatal', 'connection terminated by remote hoost')
+        self.assertRaises( ConnError,  raiseIfFatal, sentence )
+
+
+    def test_does_not_raises_if_no_error(self):
+        raiseIfFatal( 'some string without error' )
 
 
 class TestValCastingFromApi(unittest.TestCase):

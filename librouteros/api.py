@@ -1,18 +1,31 @@
 # -*- coding: UTF-8 -*-
 
-from librouteros.drivers import trapCheck
-from librouteros.datastructures import mksnt, parsresp
 
+from librouteros.datastructures import mksnt, parsresp, trapCheck, raiseIfFatal
+from librouteros.exc import ConnError
 
 
 class Api:
 
 
-    def __init__( self, drv ):
-        self.drv = drv
+    def __init__( self, rwo ):
+        self.rwo = rwo
 
 
-    def talk( self, cmd, args = dict() ):
+    def _set_timeout(self, value):
+        if value < 1:
+            raise ValueError('timeout must be greater than 0')
+        else:
+            self.rwo.sock.settimeout(value)
+
+    def _get_timeout(self):
+        return self.rwo.sock.gettimeout()
+
+
+    timeout = property( _get_timeout, _set_timeout, doc='Get or set timeout of connection. Timeout muste be > 0.' )
+
+
+    def talk( self, cmd, args = None ):
         '''
         Run any 'non interactive' command. Returns parsed response.
 
@@ -20,11 +33,52 @@ class Api:
         args Dictionary with key, value pairs.
         '''
 
-        args = mksnt( args )
-        self.drv.writeSnt( cmd, args )
-        response = self.drv.readDone()
+        args = mksnt( args ) if args else tuple()
+        snt = (cmd,) + args
+        self.rwo.writeSnt( snt )
+        response = self._readDone()
         trapCheck( response )
-        parsed = parsresp( response )
+        raiseIfFatal( response )
 
-        return parsed
+        return parsresp( response )
 
+
+    def _readDone( self ):
+        '''
+        Read as long as !done is received.
+
+        returns Read sentences as tuple.
+        '''
+
+        snts = []
+
+        while True:
+
+            snt = self.rwo.readSnt()
+            snts.append( snt )
+
+            if '!done' in snt:
+                break
+
+        return tuple( snts )
+
+
+    def close( self ):
+        '''
+        Send /quit and close the connection.
+        '''
+
+        try:
+            self.rwo.writeSnt( ('/quit',) )
+            self.rwo.readSnt()
+        except ConnError:
+            pass
+        finally:
+            self.rwo.close()
+
+
+    def __del__( self ):
+        '''
+        On garbage collection run close().
+        '''
+        self.close()

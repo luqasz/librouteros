@@ -3,9 +3,7 @@
 import socket
 from struct import pack, unpack
 
-from librouteros.exc import ConnError, LibError
-from librouteros.api import Api
-
+from librouteros.exc import ConnError
 
 
 
@@ -81,11 +79,22 @@ def encword( word ):
 
     returns: Encoded word in bytes object.
     '''
+
     encoded_len = enclen( len( word ) )
     encoded_word = word.encode( encoding = 'utf_8', errors = 'strict' )
     return encoded_len + encoded_word
 
 
+
+def log_snt( logger, sentence, direction ):
+
+    dstrs = { 'write':'<---', 'read':'--->' }
+    dstr = dstrs.get( direction )
+
+    for word in sentence:
+        logger.debug( '{0} {1!r}'.format( dstr, word ) )
+
+    logger.debug( '{0} EOS'.format( dstr ) )
 
 
 
@@ -95,39 +104,42 @@ def encword( word ):
 class ReaderWriter:
 
 
-    def __init__( self, sock ):
+    def __init__( self, sock, log ):
         self.sock = sock
+        self.log = log
 
 
-    def writeSentence( self, sentence ):
+    def writeSnt( self, snt ):
         '''
         Write sentence to connection.
 
         sentence: Iterable (tuple or list) with words.
         '''
 
-        encoded = encsnt( sentence )
+        encoded = encsnt( snt )
         self.writeSock( encoded )
+        log_snt( self.log, snt, 'write' )
 
 
-    def readSentence( self ):
+    def readSnt( self ):
         '''
         Read sentence from connection.
 
         returns: Sentence as tuple with words in it.
         '''
 
-        sentence = []
-        to_read = self.getLength()
+        snt = []
+        to_read = self.getLen()
 
         while to_read:
             word = self.readSock( to_read )
-            sentence.append( word )
-            to_read = self.getLength()
+            snt.append( word )
+            to_read = self.getLen()
 
-        decoded_sentence = decsnt( sentence )
+        decoded = decsnt( snt )
+        log_snt( self.log, decoded, 'read' )
 
-        return decoded_sentence
+        return decoded
 
 
     def readSock( self, length ):
@@ -136,14 +148,14 @@ class ReaderWriter:
         Loop as long as every byte is read unless exception is raised.
         '''
 
-        return_string = b''
+        return_string = []
         to_read = length
         total_bytes_read = 0
 
         try:
             while to_read:
                 read = self.sock.recv( to_read )
-                return_string += read
+                return_string.append( read )
                 to_read -= len( read )
                 total_bytes_read = length - to_read
 
@@ -156,7 +168,7 @@ class ReaderWriter:
         except socket.error as estr:
             raise ConnError( 'failed to read from socket: {reason}'.format( reason = estr ) )
 
-        return return_string
+        return b''.join( return_string )
 
 
     def writeSock( self, string ):
@@ -185,7 +197,7 @@ class ReaderWriter:
             raise ConnError( 'failed to write to socket: {reason}'.format( reason = estr ) )
 
 
-    def getLength( self ):
+    def getLen( self ):
         '''
         Read encoded length and return it as integer.
         '''
@@ -206,14 +218,13 @@ class ReaderWriter:
                             .format( first_byte ) )
 
         additional_bytes = self.readSock( bytes_to_read )
-        bytes_string = first_byte + additional_bytes
-        decoded = declen( bytes_string )
 
-        return decoded
+        return declen( first_byte + additional_bytes )
 
 
     def close( self ):
 
+        # do not do anything if socket is already closed
         if self.sock._closed:
             return
         # shutdown socket
@@ -223,58 +234,3 @@ class ReaderWriter:
             pass
         finally:
             self.sock.close()
-
-
-class Connection:
-
-
-    def __init__( self, drv ):
-        self.drv = drv
-
-
-    def _set_timeout(self, value):
-        if value < 1:
-            raise ValueError('timeout must be greater than 0')
-        else:
-            self.drv.conn.sock.settimeout(value)
-
-    def _get_timeout(self):
-        return self.drv.conn.sock.gettimeout()
-
-    timeout = property( _get_timeout, _set_timeout, doc='Get or set timeout of connection. Timeout muste be > 0.' )
-
-
-    def api( self ):
-        '''
-        Return a new instance of class Api.
-        '''
-
-        return Api( self.drv )
-
-
-    def close( self ):
-        '''
-        Send /quit and close the connection.
-        '''
-
-        try:
-            self._send_quit()
-        except LibError:
-            pass
-        finally:
-            self.drv.close()
-
-
-    def _send_quit( self ):
-        '''
-        Send /quit command.
-        '''
-        self.drv.writeSnt( '/quit', () )
-        self.drv.readSnt()
-
-
-    def __del__( self ):
-        '''
-        On garbage collection run close().
-        '''
-        self.close()
