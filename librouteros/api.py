@@ -25,7 +25,7 @@ class Api:
     timeout = property( _get_timeout, _set_timeout, doc='Get or set timeout of connection. Timeout muste be > 0.' )
 
 
-    def talk( self, cmd, args = None ):
+    def run( self, cmd, args = None ):
         '''
         Run any 'non interactive' command. Returns parsed response.
 

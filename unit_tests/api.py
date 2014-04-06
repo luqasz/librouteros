@@ -8,7 +8,7 @@ from librouteros.exc import CmdError, ConnError
 from librouteros.connections import ReaderWriter
 from unit_tests.helpers import make_patches
 
-class TalkMethd(unittest.TestCase):
+class RunMethod(unittest.TestCase):
 
 
     def setUp(self):
@@ -27,46 +27,46 @@ class TalkMethd(unittest.TestCase):
 
     def test_calls_mksnt_if_passed_args(self):
         args = {'key','value'}
-        self.api.talk( 'some level', args )
+        self.api.run( 'some level', args )
         self.mksnt_mock.assert_called_once_with( args )
 
     def test_does_not_call_mksnt_if_no_args_passed(self):
-        self.api.talk( 'some level' )
+        self.api.run( 'some level' )
         self.assertEqual( self.mksnt_mock.call_count, 0 )
 
     def test_calls_write_sentence_with_combined_tuple(self):
         lvl = '/ip/address'
         retval = ('=key=value',)
         self.mksnt_mock.return_value = ( retval )
-        self.api.talk( lvl, 'some args' )
+        self.api.run( lvl, 'some args' )
         self.api.rwo.writeSnt.assert_called_once_with( (lvl,) + retval )
 
     def test_calls_readdone(self):
-        self.api.talk( 'some string' )
+        self.api.run( 'some string' )
         self.api._readDone.assert_called_once_with()
 
     def test_calls_trapCheck(self):
         self.api._readDone.return_value = ( 'some read sentence' )
-        self.api.talk( 'some level' )
+        self.api.run( 'some level' )
         self.trapcheck_mock.assert_called_once_with( 'some read sentence' )
 
     def test_calls_parsresp(self):
         self.api._readDone.return_value = 'read sentence'
-        self.api.talk( 'some level' )
+        self.api.run( 'some level' )
         self.parsresp_mock.assert_called_once_with( 'read sentence' )
 
     def test_checks_for_fatal_condition(self):
         self.api._readDone.return_value = ( 'some read sentence' )
-        self.api.talk( 'some level' )
+        self.api.run( 'some level' )
         self.raisefatal_mock.assert_called_once_with( 'some read sentence' )
 
     def test_raises_CmdError_if_trap_in_sentence(self):
         self.trapcheck_mock.side_effect = CmdError()
-        self.assertRaises( CmdError, self.api.talk, ( 'some level' ) )
+        self.assertRaises( CmdError, self.api.run, ( 'some level' ) )
 
     def test_raises_ConnError_if_fatal_in_sentence(self):
         self.raisefatal_mock.side_effect = ConnError()
-        self.assertRaises( ConnError, self.api.talk, ( 'some level' ) )
+        self.assertRaises( ConnError, self.api.run, ( 'some level' ) )
 
 
 

@@ -3,7 +3,7 @@
 '''
 from librouteros import connect
 api = connect( '1.1.1.1', 'admin', 'password' )
-api.talk('/ip/address/print')
+api.run('/ip/address/print')
 
 For more information please visit
 https://github.com/uqasz/librouteros
@@ -62,7 +62,7 @@ def connect( host, user, pw, **kwargs ):
     try:
         chal = _initlogin( api )
         encoded = _encpw( chal, pw )
-        api.talk( '/login', {'name':user, 'response':encoded} )
+        api.run( '/login', {'name':user, 'response':encoded} )
     except ( ConnError, CmdError ) as estr:
         rwo.close()
         raise LoginError( estr )
@@ -87,7 +87,7 @@ def _initlogin( api ):
     Send initial login and return challenge response.
     '''
 
-    snt = api.talk( '/login' )
+    snt = api.run( '/login' )
     return snt[0]['ret']
 
 

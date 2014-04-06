@@ -1,7 +1,7 @@
 #-*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock, patch
+from mock import MagicMock
 from logging import Logger, NullHandler
 from socket import error as sk_error, timeout as sk_timeout
 
@@ -38,12 +38,12 @@ class InitLogin(unittest.TestCase):
     def setUp(self):
         self.api_mock = MagicMock( spec = lr.api.Api )
 
-    def test_calls_talk_with_login(self):
+    def test_calls_run_with_login(self):
         lr._initlogin( self.api_mock )
-        self.api_mock.talk.assert_called_once_with('/login')
+        self.api_mock.run.assert_called_once_with('/login')
 
     def test_returns_challenge_response(self):
-        self.api_mock.talk.return_value = ( {'ret':'string'}, )
+        self.api_mock.run.return_value = ( {'ret':'string'}, )
         retval = lr._initlogin( self.api_mock )
         self.assertEqual( 'string', retval )
 
@@ -114,10 +114,10 @@ class Connection(unittest.TestCase):
         lr.connect('host', 'user', 'pass')
         self.initlogin_mock.assert_called_once_with( self.api_mock )
 
-    def test_calls_api_talk_with_username_and_password(self):
+    def test_calls_api_run_with_username_and_password(self):
         self.encpw_mock.return_value = 'pass'
         lr.connect('host', 'user', 'pass')
-        self.api_mock.talk.assert_any_call( '/login', {'name':'user', 'response':'pass'} )
+        self.api_mock.run.assert_any_call( '/login', {'name':'user', 'response':'pass'} )
 
     def test_initial_login_raises_LoginError_when_initial_login_fails_with_ConnError(self):
         self.initlogin_mock.side_effect = ConnError
@@ -128,21 +128,21 @@ class Connection(unittest.TestCase):
         self.assertRaises( LoginError, lr.connect, 'host', 'user', 'pass' )
 
     def test_failed_login_with_CmdError_raises_LoginError(self):
-        self.api_mock.talk.side_effect = CmdError
+        self.api_mock.run.side_effect = CmdError
         self.assertRaises( LoginError, lr.connect,'host','user','pw' )
 
     def test_failed_login_with_ConnError_raises_LoginError(self):
-        self.api_mock.talk.side_effect = ConnError
+        self.api_mock.run.side_effect = ConnError
         self.assertRaises( LoginError, lr.connect,'host','user','pw' )
 
     def test_after_CmdError_calls_rwo_close(self):
-        self.api_mock.talk.side_effect = CmdError
+        self.api_mock.run.side_effect = CmdError
         with self.assertRaises( LoginError ):
             lr.connect('host', 'user', 'pw')
             self.rwo_mock.close.assert_called_once_with()
 
     def test_after_initial_login_raises_ConnError_calls_rwo_close(self):
-        self.api_mock.talk.side_effect = ConnError
+        self.api_mock.run.side_effect = ConnError
         with self.assertRaises( LoginError ):
             lr.connect('host', 'user', 'pw')
             self.rwo_mock.close.assert_called_once_with()
