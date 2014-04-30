@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock, call, patch
 import socket
-
+try:
+    from unittest.mock import MagicMock, call, patch
+except ImportError:
+    from mock import MagicMock, call, patch
 
 import librouteros.connections as conn
 from unit_tests.helpers import make_patches

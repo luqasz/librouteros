@@ -1,7 +1,10 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 from librouteros.api import Api
 from librouteros.exc import CmdError, ConnError
