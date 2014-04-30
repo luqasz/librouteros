@@ -7,7 +7,7 @@ except ImportError:
     from mock import MagicMock
 
 from librouteros.api import Api
-from librouteros.exc import CmdError, ConnError
+from librouteros.exc import CmdError, ConnError, LibError
 from librouteros.connections import ReaderWriter
 from unit_tests.helpers import make_patches
 
@@ -108,23 +108,16 @@ class ClosingConnecton(unittest.TestCase):
         self.api.close()
         self.api.rwo.close.assert_called_once_with()
 
-    def test_calls_reader_writers_close_method_even_if_write_raises_ConnError(self):
-        self.api.rwo.writeSnt.side_effect = ConnError()
+    def test_calls_reader_writers_close_method_even_if_write_raises_LibError(self):
+        self.api.rwo.writeSnt.side_effect = LibError()
         self.api.close()
         self.api.rwo.close.assert_called_once_with()
 
-    def test_calls_reader_writers_close_method_even_if_read_raises_ConnError(self):
-        self.api.rwo.readSnt.side_effect = ConnError()
+    def test_calls_reader_writers_close_method_even_if_read_raises_LibError(self):
+        self.api.rwo.readSnt.side_effect = LibError()
         self.api.close()
         self.api.rwo.close.assert_called_once_with()
 
-    def test_raises_CmdError_if_write_fails(self):
-        self.api.rwo.writeSnt.side_effect = CmdError()
-        self.assertRaises( CmdError, self.api.close )
-
-    def test_raises_CmdError_if_read_fails(self):
-        self.api.rwo.readSnt.side_effect = CmdError()
-        self.assertRaises( CmdError, self.api.close )
 
 
 class TimeoutManipulations(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 
 from librouteros.datastructures import mksnt, parsresp, trapCheck, raiseIfFatal
-from librouteros.exc import ConnError
+from librouteros.exc import LibError
 
 
 class Api:
@@ -71,7 +71,7 @@ class Api:
         try:
             self.rwo.writeSnt( ('/quit',) )
             self.rwo.readSnt()
-        except ConnError:
+        except LibError:
             pass
         finally:
             self.rwo.close()
