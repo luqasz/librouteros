@@ -13,7 +13,7 @@ class Api:
 
 
     def _set_timeout(self, value):
-        if value < 1:
+        if value <= 0:
             raise ValueError('timeout must be greater than 0')
         else:
             self.rwo.sock.settimeout(value)

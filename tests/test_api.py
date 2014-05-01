@@ -126,9 +126,13 @@ class TimeoutManipulations(unittest.TestCase):
         self.api.timeout
         self.rwo.sock.gettimeout.assert_called_once
 
-    def test_setting_timeout_0_or_lower_raises_ValueError(self):
+    def test_setting_timeout_0_raises_ValueError(self):
         with self.assertRaises(ValueError):
             self.api.timeout = 0
+
+    def test_setting_timeout_lower_than_0_raises_ValueError(self):
+        with self.assertRaises(ValueError):
+            self.api.timeout = -1
 
     def test_calls_setting_timeout(self):
         self.api.timeout = 20
