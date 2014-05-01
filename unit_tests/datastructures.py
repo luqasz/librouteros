@@ -2,9 +2,9 @@
 
 import unittest
 try:
-    from unittest.mock import MagicMock
+    from unittest.mock import MagicMock, patch, call
 except ImportError:
-    from mock import MagicMock
+    from mock import MagicMock, patch, call
 
 from librouteros.datastructures import parsresp, parsnt, mksnt, mkattrwrd, convattrwrd, castKeyToApi, castKeyToPy, castValToPy, castValToApi, raiseIfFatal, trapCheck
 from librouteros.exc import CmdError, ConnError
