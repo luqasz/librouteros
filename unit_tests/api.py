@@ -28,14 +28,9 @@ class RunMethod(unittest.TestCase):
         self.api._readDone = MagicMock()
 
 
-    def test_calls_mksnt_if_passed_args(self):
-        args = {'key','value'}
-        self.api.run( 'some level', args )
-        self.mksnt_mock.assert_called_once_with( args )
-
-    def test_does_not_call_mksnt_if_no_args_passed(self):
+    def test_calls_mksnt(self):
         self.api.run( 'some level' )
-        self.assertEqual( self.mksnt_mock.call_count, 0 )
+        self.mksnt_mock.assert_called_once_with( dict() )
 
     def test_calls_write_sentence_with_combined_tuple(self):
         lvl = '/ip/address'
