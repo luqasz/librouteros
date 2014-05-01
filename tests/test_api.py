@@ -9,7 +9,7 @@ except ImportError:
 from librouteros.api import Api
 from librouteros.exc import CmdError, ConnError, LibError
 from librouteros.connections import ReaderWriter
-from unit_tests.helpers import make_patches
+from tests.helpers import make_patches
 
 class RunMethod(unittest.TestCase):
 

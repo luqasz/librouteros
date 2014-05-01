@@ -8,7 +8,7 @@ except ImportError:
     from mock import MagicMock, call, patch
 
 import librouteros.connections as conn
-from unit_tests.helpers import make_patches
+from tests.helpers import make_patches
 from librouteros.exc import ConnError
 
 
