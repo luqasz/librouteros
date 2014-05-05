@@ -4,7 +4,10 @@
 module for unit testing functions
 '''
 
-from mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 def make_patches(inst, patches):
     '''

@@ -129,12 +129,9 @@ class ReaderWriter:
         '''
 
         snt = []
-        to_read = self.getLen()
-
-        while to_read:
-            word = self.readSock( to_read )
+        for length in iter( self.getLen, 0 ):
+            word = self.readSock( length )
             snt.append( word )
-            to_read = self.getLen()
 
         decoded = decsnt( snt )
         log_snt( self.log, decoded, 'read' )

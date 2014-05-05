@@ -1,12 +1,14 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock, call, patch
 import socket
-
+try:
+    from unittest.mock import MagicMock, call, patch
+except ImportError:
+    from mock import MagicMock, call, patch
 
 import librouteros.connections as conn
-from unit_tests.helpers import make_patches
+from tests.helpers import make_patches
 from librouteros.exc import ConnError
 
 
@@ -271,25 +273,21 @@ class ReadSentence(unittest.TestCase):
             ('log', 'librouteros.connections.log_snt')
             ) )
         self.rwo = conn.ReaderWriter( None, None )
-        self.rwo.readSock = MagicMock()
-        self.rwo.getLen = MagicMock( return_value = None )
+        self.rwo.readSock = MagicMock( side_effect = [ 'first','second' ] )
+        self.rwo.getLen = MagicMock( side_effect = [5,6,0] )
 
 
-    def test_calls_get_length( self ):
+    def test_calls_getLen_as_long_as_returns_0( self ):
         self.rwo.readSnt()
-        self.assertEqual( self.rwo.getLen.call_count, 1 )
+        self.assertEqual( self.rwo.getLen.call_count, 3 )
 
-
-    def test_calls_read_socket_as_long_as_read_length_does_not_return_0( self ):
-        self.rwo.getLen.side_effect = [5,6,0]
+    def test_calls_readSock_for_every_returned_getLen(self):
         self.rwo.readSnt()
         self.assertEqual( self.rwo.readSock.mock_calls, [ call(5), call(6) ] )
 
-
     def test_calls_decode_sentence( self ):
         self.rwo.readSnt()
-        self.decsnt_mock.assert_called_once_with( [] )
-
+        self.decsnt_mock.assert_called_once_with( [ 'first', 'second' ] )
 
     def test_calls_log_sentence(self):
         self.decsnt_mock.return_value = 'string'

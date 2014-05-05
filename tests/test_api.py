@@ -1,12 +1,15 @@
 # -*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 from librouteros.api import Api
-from librouteros.exc import CmdError, ConnError
+from librouteros.exc import CmdError, ConnError, LibError
 from librouteros.connections import ReaderWriter
-from unit_tests.helpers import make_patches
+from tests.helpers import make_patches
 
 class RunMethod(unittest.TestCase):
 
@@ -25,14 +28,9 @@ class RunMethod(unittest.TestCase):
         self.api._readDone = MagicMock()
 
 
-    def test_calls_mksnt_if_passed_args(self):
-        args = {'key','value'}
-        self.api.run( 'some level', args )
-        self.mksnt_mock.assert_called_once_with( args )
-
-    def test_does_not_call_mksnt_if_no_args_passed(self):
+    def test_calls_mksnt(self):
         self.api.run( 'some level' )
-        self.assertEqual( self.mksnt_mock.call_count, 0 )
+        self.mksnt_mock.assert_called_once_with( dict() )
 
     def test_calls_write_sentence_with_combined_tuple(self):
         lvl = '/ip/address'
@@ -105,23 +103,16 @@ class ClosingConnecton(unittest.TestCase):
         self.api.close()
         self.api.rwo.close.assert_called_once_with()
 
-    def test_calls_reader_writers_close_method_even_if_write_raises_ConnError(self):
-        self.api.rwo.writeSnt.side_effect = ConnError()
+    def test_calls_reader_writers_close_method_even_if_write_raises_LibError(self):
+        self.api.rwo.writeSnt.side_effect = LibError()
         self.api.close()
         self.api.rwo.close.assert_called_once_with()
 
-    def test_calls_reader_writers_close_method_even_if_read_raises_ConnError(self):
-        self.api.rwo.readSnt.side_effect = ConnError()
+    def test_calls_reader_writers_close_method_even_if_read_raises_LibError(self):
+        self.api.rwo.readSnt.side_effect = LibError()
         self.api.close()
         self.api.rwo.close.assert_called_once_with()
 
-    def test_raises_CmdError_if_write_fails(self):
-        self.api.rwo.writeSnt.side_effect = CmdError()
-        self.assertRaises( CmdError, self.api.close )
-
-    def test_raises_CmdError_if_read_fails(self):
-        self.api.rwo.readSnt.side_effect = CmdError()
-        self.assertRaises( CmdError, self.api.close )
 
 
 class TimeoutManipulations(unittest.TestCase):
@@ -135,9 +126,13 @@ class TimeoutManipulations(unittest.TestCase):
         self.api.timeout
         self.rwo.sock.gettimeout.assert_called_once
 
-    def test_setting_timeout_below_0_raises_ValueError(self):
+    def test_setting_timeout_0_raises_ValueError(self):
         with self.assertRaises(ValueError):
             self.api.timeout = 0
+
+    def test_setting_timeout_lower_than_0_raises_ValueError(self):
+        with self.assertRaises(ValueError):
+            self.api.timeout = -1
 
     def test_calls_setting_timeout(self):
         self.api.timeout = 20

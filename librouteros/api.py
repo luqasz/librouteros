@@ -2,7 +2,7 @@
 
 
 from librouteros.datastructures import mksnt, parsresp, trapCheck, raiseIfFatal
-from librouteros.exc import ConnError
+from librouteros.exc import LibError
 
 
 class Api:
@@ -13,7 +13,7 @@ class Api:
 
 
     def _set_timeout(self, value):
-        if value < 1:
+        if value <= 0:
             raise ValueError('timeout must be greater than 0')
         else:
             self.rwo.sock.settimeout(value)
@@ -25,7 +25,7 @@ class Api:
     timeout = property( _get_timeout, _set_timeout, doc='Get or set timeout of connection. Timeout muste be > 0.' )
 
 
-    def run( self, cmd, args = None ):
+    def run( self, cmd, args = dict() ):
         '''
         Run any 'non interactive' command. Returns parsed response.
 
@@ -33,8 +33,7 @@ class Api:
         args Dictionary with key, value pairs.
         '''
 
-        args = mksnt( args ) if args else tuple()
-        snt = (cmd,) + args
+        snt = (cmd,) + mksnt( args )
         self.rwo.writeSnt( snt )
         response = self._readDone()
         trapCheck( response )
@@ -71,7 +70,7 @@ class Api:
         try:
             self.rwo.writeSnt( ('/quit',) )
             self.rwo.readSnt()
-        except ConnError:
+        except LibError:
             pass
         finally:
             self.rwo.close()

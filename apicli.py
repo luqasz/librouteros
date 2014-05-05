@@ -56,8 +56,8 @@ def main():
     pw = getpass.getpass()
     try:
         api = connect( args.host, args.user, pw, logger = mainlog )
-    except LoginError:
-        pass
+    except ( LoginError, ConnError ) as err:
+        exit(err)
     except KeyboardInterrupt:
         pass
     else:

@@ -1,11 +1,15 @@
 #-*- coding: UTF-8 -*-
 
 import unittest
-from mock import MagicMock
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
+
 from logging import Logger, NullHandler
 from socket import error as sk_error, timeout as sk_timeout
 
-from unit_tests.helpers import make_patches
+from tests.helpers import make_patches
 import librouteros as lr
 from librouteros.exc import ConnError, LoginError, CmdError
 
