@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 
-def dictdiff( wanted, present, split_keys=None, split_char=',' ):
+def dictdiff( wanted, present, split_keys=tuple(), split_char=',' ):
     '''
     Compare two dictionaries and return items from wanted not listed in present.
     If split_keys and split_char is provided, additional comparison is made based on provided keys.
@@ -18,7 +18,7 @@ def dictdiff( wanted, present, split_keys=None, split_char=',' ):
 
     difference = dict( set( wanted.items() ) - set( present.items() ) )
 
-    for key in split_keys or tuple():
+    for key in split_keys:
         welem = wanted.get( key, '' )
         pelem = present.get( key, '' )
         difference[ key ] = diffstr( welem, pelem, split_char )
