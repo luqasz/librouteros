@@ -21,12 +21,12 @@ def dictdiff( wanted, present, split_keys=tuple(), split_char=',' ):
     for key in split_keys:
         welem = wanted.get( key, '' )
         pelem = present.get( key, '' )
-        difference[ key ] = diffstr( welem, pelem, split_char )
+        difference[ key ] = strdiff( welem, pelem, split_char )
 
     return difference
 
 
-def diffstr( welem, pelem, splchr ):
+def strdiff( welem, pelem, splchr ):
     '''
     Compare two strings and return items from welem not present in pelem.
     Items from pelem,welem are splitted by splchr and compared.
