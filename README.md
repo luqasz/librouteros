@@ -2,7 +2,7 @@
 Python3 implementation of [routeros api](http://wiki.mikrotik.com/wiki/API).
 
 ### Requirements
-* python3.2 or higher
+* python3.2
 * nosetests3 (for unit testing only)
 * mock (for unit testing only)
 
