@@ -30,7 +30,7 @@ def strdiff( welem, pelem, splchr ):
     '''
     Compare two strings and return items from welem not present in pelem.
     Items from pelem,welem are splitted by splchr and compared.
-    Returns string joined by splchr.
+    Returns (unordered) string joined by splchr.
 
 
     welem
