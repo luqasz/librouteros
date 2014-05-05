@@ -14,8 +14,7 @@ class DiffComputations(unittest.TestCase):
         wanted = {'name':'public', 'write':True, 'integer':1}
         present = {'name':'public', 'write':False, 'integer':1}
         retval = dictdiff( wanted, present )
-        desired = { 'write':True }
-        self.assertEqual( retval, desired )
+        self.assertEqual( retval, { 'write':True })
 
     @patch('librouteros.extras.strdiff')
     def test_calls_diffstr_when_plit_keys_are_specified(self, strdiff_mock):
