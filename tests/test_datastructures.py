@@ -68,6 +68,12 @@ class TestValCastingFromPython(unittest.TestCase):
     def test_int_mapping(self):
         self.assertEqual( castValToApi( 22 ) , '22' )
 
+    def test_int_1_mapping(self):
+        self.assertEqual( castValToApi( 1 ) , '1' )
+
+    def test_int_0_mapping(self):
+        self.assertEqual( castValToApi( 0 ) , '0' )
+
     def test_float_mapping(self):
         self.assertEqual( castValToApi( 22.2 ) , '22.2' )
 

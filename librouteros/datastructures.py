@@ -24,8 +24,10 @@ def castValToPy( value ):
 
 def castValToApi( value ):
 
-    casted = to_api_mapping.get( value, str( value ) )
-    return casted
+    if type(value) == int:
+        return str(value)
+    else:
+        return to_api_mapping.get(value, str(value))
 
 
 
