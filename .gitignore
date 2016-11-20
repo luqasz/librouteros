@@ -9,9 +9,12 @@ build
 sdist
 MANIFEST
 .project
+*.egg-info
 
 
 #eclipse files and directories
 .pydevproject
 .settings
 
+#pytest cache
+.cache

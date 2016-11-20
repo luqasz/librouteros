@@ -1,45 +1,53 @@
-#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-# dirty hack http://bugs.python.org/issue8876
-import os
-del os.link
+from setuptools import setup
 
-from distutils.core import setup
 
-from versioning import on_master, get_branches, get_version, stable_version
-from librouteros import __version__ as pkg_version
+install_pkgs = (
+        'chainmap'
+        )
 
-branches = get_branches()
-version = get_version()
-on_master = on_master( branches )
+tests_pkgs = (
+        'pytest-xdist',
+        'pytest==2.*',     # pytest 3.x does not work on python 3.2
+        'pylama',
+        'mock',
+        )
 
-print('current version is: ', version)
+dev_pkgs = (
+        'bumpversion',
+        )
 
-if pkg_version != version:
-    exit('version from package differs from GIT tag !')
-
-if ( on_master and not stable_version(version)):
-    exit('can not do anything on non-stable release. Fix git tag !')
-
-setup(name='librouteros',
-    version=version(),
-    description='Python3 implementation of RouterOS API',
+setup(
+    install_requires=install_pkgs,
+    tests_require=tests_pkgs,
+    extras_require={
+        'tests': tests_pkgs,
+        'develop': dev_pkgs,
+    },
+    zip_safe=False,
+    name='librouteros',
+    version='1.0.1',
+    description='Python implementation of MikroTik RouterOS API',
     author='Łukasz Kostka',
-    author_email='ukasz83@gmail.com',
-    url='https://github.com/uqasz/librouteros',
+    author_email='lukasz.kostka@netng.pl',
+    url='https://github.com/luqasz/librouteros',
     packages=['librouteros'],
-    license='GNU GPLv3',
+    license='GNU GPLv2',
     keywords='mikrotik routeros api',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: Unix',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Libraries'
         ]
      )
