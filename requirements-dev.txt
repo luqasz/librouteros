@@ -1,6 +1,6 @@
 bumpversion
 pytest-xdist
 # pytest 3.x does not work on python 3.2
-pytest==2.*
+pytest==3.0.4
 pylama
 mock
