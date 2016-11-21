@@ -1,11 +1,16 @@
 # -*- coding: UTF-8 -*-
 
 from setuptools import setup
+from sys import version_info
 
+pyversion = version_info.major, version_info.minor
 
-install_pkgs = (
-        'chainmap'
-        )
+if pyversion > (3, 2):
+    install_pkgs = ()
+else:
+    install_pkgs = (
+            'chainmap'
+            )
 
 tests_pkgs = (
         'pytest-xdist',
