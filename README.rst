@@ -19,6 +19,46 @@ About
 Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_.
 This library uses `semantic versioning <http://semver.org/>`_. On major version things may break, so pin version in dependencies.
 
+Usage
+=====
+
+.. code-block:: python
+
+    In [1]: from librouteros import connect
+
+    In [2]: api = connect(host='192.168.56.200', username='admin', password='abc')
+
+    In [4]: api(cmd='/interface/print', stats=True)
+    Out[4]:
+      ({'.id': '*1',
+      'bytes': '418152/157562',
+      'comment': '',
+      'disabled': False,
+      'drops': '0/0',
+      'dynamic': False,
+      'errors': '0/0',
+      'mtu': 1500,
+      'name': 'ether1',
+      'packets': '3081/1479',
+      'running': True,
+      'type': 'ether'},)
+
+    In [5]: api(cmd='/interface/print')
+    Out[5]:
+      ({'.id': '*1',
+      'comment': '',
+      'disabled': False,
+      'dynamic': False,
+      'mtu': 1500,
+      'name': 'ether1',
+      'running': True,
+      'type': 'ether'},)
+
+    In [7]: api.close()
+
+    In [8]:
+
+
 Contributing
 ============
 To submit a feature requests or a bug report, please use issues from within github. If you would like to submit a patch please contact author or use pull request.
