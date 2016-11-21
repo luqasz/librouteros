@@ -9,7 +9,7 @@ install_pkgs = (
 
 tests_pkgs = (
         'pytest-xdist',
-        'pytest==2.*',     # pytest 3.x does not work on python 3.2
+        'pytest==3.0.4',     # pytest 3.x does not work on python 3.2
         'pylama',
         'mock',
         )
