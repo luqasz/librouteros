@@ -1,5 +1,5 @@
 .. image:: https://travis-ci.org/luqasz/librouteros.svg?branch=master
-    :target: https://travis-ci.org/luqasz/librouteros.svg
+    :target: https://travis-ci.org/luqasz/librouteros
     :alt: Tests
 
 .. image:: https://img.shields.io/pypi/v/librouteros.svg
