@@ -24,7 +24,9 @@ dev_pkgs = (
         )
 
 setup_pkgs = [
-    'setuptools >= 34.1.1'
+    'packaging >= 16.8',
+    'setuptools >= 34.1.1',
+    'six >= 1.10.0'
     ]
 
 setup(
