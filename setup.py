@@ -23,9 +23,14 @@ dev_pkgs = (
         'bumpversion',
         )
 
+setup_pkgs = [
+    'setuptools >= 34.1.1'
+    ]
+
 setup(
     install_requires=install_pkgs,
     tests_require=tests_pkgs,
+    setup_requires=setup_pkgs,
     extras_require={
         'tests': tests_pkgs,
         'develop': dev_pkgs,
