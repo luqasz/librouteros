@@ -8,4 +8,5 @@ python:
 install:
   - pip install -e '.[tests]'
 script:
+  - pip list
   - py.test --pylama
