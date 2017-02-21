@@ -92,7 +92,7 @@ def routeros(request, disk_image):
     cmd = [
         'qemu-system-i386',
         '-m', '64',
-        '-vga', 'none',
+        '-nographic',
         '-hda', disk_image,
         '-net', 'user,hostfwd=tcp::8728-:8728',
         '-net', 'nic,model=e1000',
