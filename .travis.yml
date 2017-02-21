@@ -12,6 +12,7 @@ addons:
   apt:
     packages:
       - qemu-system-i386
+      - qemu-utils
 install:
   - pip install -e '.[tests]'
 script:
