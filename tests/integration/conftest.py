@@ -1,5 +1,6 @@
 import pytest
 import os
+import py.path
 from time import sleep
 from subprocess import Popen, PIPE, check_call
 from librouteros import connect, ConnectionError
@@ -19,9 +20,17 @@ def ros_img(request):
     return os.path.join(os.getcwd(), 'images/routeros_{}.qcow2'.format(request.param))
 
 
+@pytest.yield_fixture(scope='session')
+def img_tmpdir():
+    """Return py.path.local temporary directory and remove it at the end."""
+    path = py.path.local.mkdtemp()
+    yield path
+    path.remove()
+
+
 @pytest.fixture(scope='session')
-def disk_image(request, ros_img, tmpdir_factory):
-    img = str(tmpdir_factory.mktemp('disk_img').join('routeros.qcow2'))
+def disk_image(request, ros_img, img_tmpdir):
+    img = str(img_tmpdir.join('routeros.qcow2'))
     cmd = [
         'qemu-img', 'create',
         '-f', 'qcow2',
