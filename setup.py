@@ -17,7 +17,6 @@ tests_pkgs = (
         'pytest==2.*',      # pytest 3.x does not work on python 3.2
         'pylama',
         'mock',
-        'requests',         # used for downloading RouterOS images
         )
 
 dev_pkgs = (
