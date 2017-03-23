@@ -23,3 +23,9 @@ install:
 script:
   - wget netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
   - py.test --pylama
+deploy:
+  provider: pypi
+  user: lkostka
+  password: $PYPI_PASS
+  on:
+    tags: true
