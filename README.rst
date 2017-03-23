@@ -59,6 +59,26 @@ Usage
     In [8]:
 
 
+If you want to pass parameters that strart with a dot character you can do it in this way:
+
+.. code-block:: python
+
+    params = {'disabled': True, '.id' :'7'}
+    api(cmd='/ip/firewall/nat/set', **params)
+
+
+Python booleans are converted according to this table:
+
+====== ========= ========
+python direction api
+====== ========= ========
+False  <-        false,no
+True   <-        true,yes
+False  ->        no
+True   ->        yes
+====== ========= ========
+
+
 Contributing
 ============
 To submit a feature requests or a bug report, please use issues from within github. If you would like to submit a patch please contact author or use pull request.
