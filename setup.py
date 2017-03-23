@@ -27,6 +27,12 @@ dev_pkgs = (
         'bumpversion',
         )
 
+setup_pkgs = [
+    'packaging >= 16.8',
+    'setuptools >= 34.1.1',
+    'six >= 1.10.0'
+    ]
+
 setup(
     install_requires=install_pkgs,
     tests_require=tests_pkgs,
