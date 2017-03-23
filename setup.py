@@ -19,6 +19,10 @@ tests_pkgs = (
         'mock',
         )
 
+setup_pkgs = (
+        'setuptools>=12.0.5',
+        )
+
 dev_pkgs = (
         'bumpversion',
         )
@@ -26,6 +30,7 @@ dev_pkgs = (
 setup(
     install_requires=install_pkgs,
     tests_require=tests_pkgs,
+    setup_requires=setup_pkgs,
     extras_require={
         'tests': tests_pkgs,
         'develop': dev_pkgs,
