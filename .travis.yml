@@ -21,7 +21,7 @@ addons:
 install:
   - pip install -e '.[tests]'
 script:
-  - wget netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
+  - wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
   - py.test --pylama
 deploy:
   provider: pypi
