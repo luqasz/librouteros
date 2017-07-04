@@ -34,7 +34,7 @@ class Encoder:
         :param word: Word to encode.
         :returns: Encoded word.
         '''
-        encoded_word = word.encode(encoding='ASCII', errors='strict')
+        encoded_word = word.encode(encoding='cp1250', errors='strict')
         return Encoder.encodeLength(len(word)) + encoded_word
 
     @staticmethod
@@ -131,7 +131,7 @@ class Decoder:
             word_length = Decoder.decodeLength(sentence[start:end])
             words.append(sentence[end:word_length+end])
             start, end = end + word_length, end + word_length + 1
-        return tuple(word.decode(encoding='ASCII', errors='strict') for word in words)
+        return tuple(word.decode(encoding='cp1250', errors='strict') for word in words)
 
 
 class ApiProtocol(Encoder, Decoder):
