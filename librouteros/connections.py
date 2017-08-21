@@ -12,29 +12,27 @@ LOGGER.addHandler(NullHandler())
 
 class Encoder:
 
-    @staticmethod
-    def encodeSentence(*words):
+    def encodeSentence(self, *words):
         '''
         Encode given sentence in API format.
 
         :param words: Words to endoce.
         :returns: Encoded sentence.
         '''
-        encoded = map(Encoder.encodeWord, words)
+        encoded = map(self.encodeWord, words)
         encoded = b''.join(encoded)
         # append EOS (end of sentence) byte
         encoded += b'\x00'
         return encoded
 
-    @staticmethod
-    def encodeWord(word):
+    def encodeWord(self, word):
         '''
         Encode word in API format.
 
         :param word: Word to encode.
         :returns: Encoded word.
         '''
-        encoded_word = word.encode(encoding='ASCII', errors='strict')
+        encoded_word = word.encode(encoding=self.encoding, errors='strict')
         return Encoder.encodeLength(len(word)) + encoded_word
 
     @staticmethod
@@ -116,8 +114,7 @@ class Decoder:
         decoded ^= XOR
         return decoded
 
-    @staticmethod
-    def decodeSentence(sentence):
+    def decodeSentence(self, sentence):
         '''
         Decode given sentence.
 
@@ -131,14 +128,15 @@ class Decoder:
             word_length = Decoder.decodeLength(sentence[start:end])
             words.append(sentence[end:word_length+end])
             start, end = end + word_length, end + word_length + 1
-        return tuple(word.decode(encoding='ASCII', errors='strict') for word in words)
+        return tuple(word.decode(encoding=self.encoding, errors='strict') for word in words)
 
 
 class ApiProtocol(Encoder, Decoder):
 
-    def __init__(self, transport):
+    def __init__(self, transport, encoding):
         self.transport = transport
         self.read_buffer = bytearray()
+        self.encoding = encoding
 
     def log(self, direction_string, *sentence):
         for word in sentence:

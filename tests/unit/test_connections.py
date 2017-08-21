@@ -10,6 +10,10 @@ from librouteros.exceptions import ConnectionError, FatalError
 
 class Test_Decoder:
 
+    def setup(self):
+        self.decoder = connections.Decoder()
+        self.decoder.encoding = 'ASCII'
+
     @pytest.mark.parametrize("length,expected", (
         (b'x', 0),  # 120
         (b'\xbf', 1),  # 191
@@ -17,54 +21,70 @@ class Test_Decoder:
         (b'\xef', 3),  # 239
         ))
     def test_determineLength(self, length, expected):
-        assert connections.Decoder.determineLength(length) == expected
+        assert self.decoder.determineLength(length) == expected
 
     def test_determineLength_raises(self, bad_first_length_bytes):
         with pytest.raises(ConnectionError) as error:
-            connections.Decoder.determineLength(bad_first_length_bytes)
+            self.decoder.determineLength(bad_first_length_bytes)
         assert str(bad_first_length_bytes) in str(error.value)
 
     def test_decodeLength(self, valid_word_length):
-        result = connections.Decoder.decodeLength(valid_word_length.encoded)
+        result = self.decoder.decodeLength(valid_word_length.encoded)
         assert result == valid_word_length.integer
 
     def test_decodeLength_raises(self, bad_length_bytes):
         with pytest.raises(ConnectionError) as error:
-            connections.Decoder.decodeLength(bad_length_bytes)
+            self.decoder.decodeLength(bad_length_bytes)
         assert str(bad_length_bytes) in str(error.value)
 
     def test_decodeSentence(self):
         sentence = b'\x11/ip/address/print\x05first\x06second'
         expected = ('/ip/address/print', 'first', 'second')
-        assert connections.Decoder.decodeSentence(sentence) == expected
+        assert self.decoder.decodeSentence(sentence) == expected
 
     def test_decodeSentence_non_ASCII(self):
         '''Word may only contain ASCII characters.'''
         sentence = b'\x11/ip/addres\xc5\x82/print\x05first\x06second'
         with pytest.raises(UnicodeDecodeError):
-            connections.Decoder.decodeSentence(sentence)
+            self.decoder.decodeSentence(sentence)
+
+    def test_decodeSentence_utf_8(self):
+        '''Assert that utf-8 encoding works.'''
+        sentence = b'\x11/ip/addres\xc5\x82/print\x05first\x06second'
+        self.decoder.encoding = 'utf-8'
+        self.decoder.decodeSentence(sentence) == ('/ip/addressł/print', 'first', 'second')
 
 
 class Test_Encoder:
 
+    def setup(self):
+        self.encoder = connections.Encoder()
+        self.encoder.encoding = 'ASCII'
+
     def test_encodeLength(self, valid_word_length):
-        result = connections.Encoder.encodeLength(valid_word_length.integer)
+        result = self.encoder.encodeLength(valid_word_length.integer)
         assert result == valid_word_length.encoded
 
     def test_encodeLength_raises_if_lenghth_is_too_big(self, bad_length_int):
         with pytest.raises(ConnectionError) as error:
-            connections.Encoder.encodeLength(bad_length_int)
+            self.encoder.encodeLength(bad_length_int)
         assert str(bad_length_int) in str(error.value)
 
     @patch.object(connections.Encoder, 'encodeLength', return_value=b'len_')
     def test_encodeWord(self, encodeLength_mock):
-        assert connections.Encoder.encodeWord('word') == b'len_word'
+        assert self.encoder.encodeWord('word') == b'len_word'
         assert encodeLength_mock.call_count == 1
 
     def test_non_ASCII_word_encoding(self):
         '''Word may only contain ASCII characters.'''
+        self.encoder.encoding = 'ASCII'
         with pytest.raises(UnicodeEncodeError):
-            connections.Encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8'))
+            self.encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8'))
+
+    def test_utf_8_word_encoding(self):
+        '''Assert that utf-8 encoding works.'''
+        self.encoder.encoding = 'utf-8'
+        self.encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8')) == 'łą'
 
     @patch.object(connections.Encoder, 'encodeWord', return_value=b'')
     def test_encodeSentence(self, encodeWord_mock):
@@ -73,7 +93,7 @@ class Test_Encoder:
             \x00 is appended to the sentence
             encodeWord is called == len(sentence)
         '''
-        encoded = connections.Encoder.encodeSentence('first', 'second')
+        encoded = self.encoder.encodeSentence('first', 'second')
         assert encodeWord_mock.call_count == 2
         assert encoded[-1:] == b'\x00'
 
@@ -82,7 +102,8 @@ class Test_ApiProtocol:
 
     def setup(self):
         self.protocol = connections.ApiProtocol(
-                transport=MagicMock(spec=connections.SocketTransport)
+                transport=MagicMock(spec=connections.SocketTransport),
+                encoding='ASCII',
                 )
 
     @patch.object(connections.Encoder, 'encodeSentence')

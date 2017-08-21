@@ -18,6 +18,7 @@ defaults = {
             'port': 8728,
             'saddr': '',
             'subclass': Api,
+            'encoding': 'ASCII',
             }
 
 
@@ -36,7 +37,7 @@ def connect(host, username, password, **kwargs):
     '''
     arguments = ChainMap(kwargs, defaults)
     transport = create_transport(host, **arguments)
-    protocol = ApiProtocol(transport=transport)
+    protocol = ApiProtocol(transport=transport, encoding=arguments['encoding'])
     api = arguments['subclass'](protocol=protocol)
 
     try:

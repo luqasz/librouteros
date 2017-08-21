@@ -15,6 +15,7 @@ def lib_default_kwargs():
             'port': 8728,
             'saddr': '',
             'subclass': Api,
+            'encoding': 'ASCII',
             }
 
 

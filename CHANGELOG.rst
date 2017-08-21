@@ -1,3 +1,8 @@
+1.0.3
+------
+
+- Provide option to use user defined encoding
+
 1.0.2
 ------
 
