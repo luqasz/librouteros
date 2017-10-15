@@ -38,7 +38,7 @@ setup(
     },
     zip_safe=False,
     name='librouteros',
-    version='1.0.3',
+    version='1.0.4',
     description='Python implementation of MikroTik RouterOS API',
     author='Łukasz Kostka',
     author_email='lukasz.kostka@netng.pl',
