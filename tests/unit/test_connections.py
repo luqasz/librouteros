@@ -117,40 +117,13 @@ class Test_ApiProtocol:
         self.protocol.writeSentence('/ip/address/print', '=key=value')
         self.protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
 
-    @patch.object(connections.ApiProtocol, 'decodeSentence', return_value=('!fatal', 'reason'))
-    def test_readSentence_raises_FatalError(self, decodeSentence_mock):
+    @patch('librouteros.connections.iter', return_value=('!fatal', 'reason'))
+    def test_readSentence_raises_FatalError(self, iter_mock):
         '''Assert that FatalError is raised with its reason.'''
-        self.protocol.read_buffer = b'!fatal\x00'
         with pytest.raises(FatalError) as error:
             self.protocol.readSentence()
         assert str(error.value) == 'reason'
         assert self.protocol.transport.close.call_count == 1
-
-    @patch.object(connections.ApiProtocol, 'decodeSentence')
-    def test_readSentence_calls_decodeSentence(self, decodeSentence_mock):
-        '''Assert that decodeSentence is called without ending \x00.'''
-        self.protocol.read_buffer = b'!fatal\x00'
-        self.protocol.readSentence()
-        decodeSentence_mock.assert_called_once_with(b'!fatal')
-
-    @patch.object(connections.ApiProtocol, 'decodeSentence')
-    def test_readSentence_does_not_call_transport_read(self, decodeSentence_mock):
-        '''Assert that transport.read is not called when \x00 is present in buffer.'''
-        self.protocol.read_buffer = b'!fatal\x00'
-        self.protocol.readSentence()
-        assert self.protocol.transport.read.call_count == 0
-
-    @pytest.mark.parametrize('side_effect', (
-        [b'reply_word\x00'],
-        [b'reply_word', b'another_word\x00'],
-        [b'reply_word', b'another_word', b'\x00'],
-        ))
-    @patch.object(connections.ApiProtocol, 'decodeSentence')
-    def test_readSentence_calls_transport_read(self, decodeSentence_mock, side_effect):
-        '''Assert that transport.read is called untill \x00 is present in buffer.'''
-        self.protocol.transport.read.side_effect = side_effect
-        self.protocol.readSentence()
-        assert self.protocol.transport.read.call_count == len(side_effect)
 
     def test_close(self):
         self.protocol.close()

@@ -135,7 +135,6 @@ class ApiProtocol(Encoder, Decoder):
 
     def __init__(self, transport, encoding):
         self.transport = transport
-        self.read_buffer = bytearray()
         self.encoding = encoding
 
     def log(self, direction_string, *sentence):
@@ -161,13 +160,7 @@ class ApiProtocol(Encoder, Decoder):
 
         :return: Reply word, tuple with read words.
         '''
-        sentence, separator, tail = self.read_buffer.partition(b'\x00')
-        while not separator:
-            self.read_buffer += self.transport.read(1024)
-            sentence, separator, tail = self.read_buffer.partition(b'\x00')
-
-        self.read_buffer = tail
-        sentence = self.decodeSentence(sentence)
+        sentence = tuple(word for word in iter(self.readWord, None))
         self.log('--->', *sentence)
         reply_word, words = sentence[0], sentence[1:]
         if reply_word == '!fatal':
@@ -175,6 +168,17 @@ class ApiProtocol(Encoder, Decoder):
             raise FatalError(words[0])
         else:
             return reply_word, words
+
+    def readWord(self):
+        length = self.transport.read(1)
+        to_read = self.determineLength(length)
+        if to_read:
+            length += self.transport.read(to_read)
+
+        length = self.decodeLength(length)
+        if not length:
+            return None
+        return self.transport.read(length).decode(encoding=self.encoding, errors='strict')
 
     def close(self):
         self.transport.close()
