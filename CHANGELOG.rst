@@ -1,3 +1,8 @@
+1.0.4
+------
+
+- Fix multiple byte word encoding during reading (issue #12)
+
 1.0.3
 ------
 
