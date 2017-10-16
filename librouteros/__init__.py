@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+import ssl
 from socket import create_connection, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
 from binascii import unhexlify, hexlify
 from hashlib import md5
@@ -55,6 +56,8 @@ def connect(host, username, password, **kwargs):
 def create_transport(host, **kwargs):
     try:
         sock = create_connection((host, kwargs['port']), kwargs['timeout'], (kwargs['saddr'], 0))
+        if 'ssl' in kwargs and kwargs['ssl'] == True:
+            sock = ssl.wrap_socket (sock)
     except (SOCKET_ERROR, SOCKET_TIMEOUT) as error:
         raise ConnectionError(error)
     return SocketTransport(sock=sock)
