@@ -33,6 +33,8 @@ class Parser:
         '''
         _, key, value = word.split('=', 2)
         value = Parser.apiCast(value)
+	key = key.replace('-', '_')
+        key = key.replace('.id', 'id')
         return (key, value)
 
 
