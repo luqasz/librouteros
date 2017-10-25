@@ -1,59 +1,53 @@
-import pytest
-import os
-import py.path
 from time import sleep
-from subprocess import Popen, PIPE, check_call
-from librouteros import connect, ConnectionError
+from os import devnull
+from subprocess import Popen, check_call
+from tempfile import NamedTemporaryFile
+
+import pytest
+import py.path
+
+import librouteros
 
 
-def get_api():
-    for _ in range(30):
+DEV_NULL = open(devnull, 'w')
+
+
+def api_session():
+    for x in range(10):
         try:
-            return connect('127.0.0.1', 'admin', '', timeout=1)
-        except ConnectionError:
+            return librouteros.connect('127.0.0.1', username='admin', password='')
+        except librouteros.ConnectionError:
             sleep(1)
-
-
-@pytest.fixture(scope='session', params=('6.33.3',))
-def ros_img(request):
-    """Return absolute path to backing disk image."""
-    return os.path.join(os.getcwd(), 'images/routeros_{}.qcow2'.format(request.param))
-
-
-@pytest.yield_fixture(scope='session')
-def img_tmpdir():
-    """Return py.path.local temporary directory and remove it at the end."""
-    path = py.path.local.mkdtemp()
-    yield path
-    path.remove()
+    else:
+        raise librouteros.ConnectionError('could not connect to device')
 
 
 @pytest.fixture(scope='session')
-def disk_image(request, ros_img, img_tmpdir):
-    img = str(img_tmpdir.join('routeros.qcow2'))
+def disk_image(request):
+    """Create a temporary disk image backed by original one."""
+    img = NamedTemporaryFile()
+    request.addfinalizer(img.close)
     cmd = [
         'qemu-img', 'create',
         '-f', 'qcow2',
         # Path to backing file must be absolute or relative to new image
-        '-b', ros_img,
-        img,
+        '-b', str(py.path.local().join('images/routeros_6.33.3.qcow2')),
+        img.name,
     ]
-    check_call(cmd)
-    return img
+    check_call(cmd, stdout=DEV_NULL)
+    return img.name
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.fixture(scope='session')
 def routeros(request, disk_image):
     cmd = [
         'qemu-system-i386',
         '-m', '64',
-        '-nographic',
+        '-display', 'none',
         '-hda', disk_image,
         '-net', 'user,hostfwd=tcp::8728-:8728',
         '-net', 'nic,model=e1000',
     ]
-    proc = Popen(cmd, stdout=PIPE, stdin=PIPE)
-    api = get_api()
-    yield api
-    api.close()
-    proc.kill()
+    proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
+    request.addfinalizer(proc.kill)
+    return api_session()
