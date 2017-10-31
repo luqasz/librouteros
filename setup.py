@@ -3,9 +3,7 @@
 from setuptools import setup
 from sys import version_info
 
-pyversion = version_info.major, version_info.minor
-
-if pyversion > (3, 2):
+if version_info.major >= 3:
     install_pkgs = ()
 else:
     install_pkgs = (
@@ -54,11 +52,14 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: Unix',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries'
         ]
      )
