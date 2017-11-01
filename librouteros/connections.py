@@ -13,12 +13,12 @@ LOGGER.addHandler(NullHandler())
 class Encoder:
 
     def encodeSentence(self, *words):
-        '''
+        """
         Encode given sentence in API format.
 
         :param words: Words to endoce.
         :returns: Encoded sentence.
-        '''
+        """
         encoded = map(self.encodeWord, words)
         encoded = b''.join(encoded)
         # append EOS (end of sentence) byte
@@ -26,23 +26,23 @@ class Encoder:
         return encoded
 
     def encodeWord(self, word):
-        '''
+        """
         Encode word in API format.
 
         :param word: Word to encode.
         :returns: Encoded word.
-        '''
+        """
         encoded_word = word.encode(encoding=self.encoding, errors='strict')
         return Encoder.encodeLength(len(word)) + encoded_word
 
     @staticmethod
     def encodeLength(length):
-        '''
+        """
         Encode given length in mikrotik format.
 
         :param length: Integer < 268435456.
         :returns: Encoded length.
-        '''
+        """
         if length < 128:
             ored_length = length
             offset = -1
@@ -65,13 +65,13 @@ class Decoder:
 
     @staticmethod
     def determineLength(length):
-        '''
+        """
         Given first read byte, determine how many more bytes
         needs to be known in order to get fully encoded length.
 
         :param length: First read byte.
         :return: How many bytes to read.
-        '''
+        """
         integer = ord(length)
 
         if integer < 128:
@@ -87,12 +87,12 @@ class Decoder:
 
     @staticmethod
     def decodeLength(length):
-        '''
+        """
         Decode length based on given bytes.
 
         :param length: Bytes string to decode.
         :return: Decoded length.
-        '''
+        """
         bytes_length = len(length)
 
         if bytes_length < 2:
@@ -115,12 +115,12 @@ class Decoder:
         return decoded
 
     def decodeSentence(self, sentence):
-        '''
+        """
         Decode given sentence.
 
         :param sentence: Bytes string with sentence (without ending \x00 EOS byte).
         :return: Tuple with decoded words.
-        '''
+        """
         words = []
         start, end = 0, 1
         while end < len(sentence):
@@ -144,22 +144,22 @@ class ApiProtocol(Encoder, Decoder):
         LOGGER.debug('{0} EOS'.format(direction_string))
 
     def writeSentence(self, cmd, *words):
-        '''
+        """
         Write encoded sentence.
 
         :param cmd: Command word.
         :param words: Aditional words.
-        '''
+        """
         encoded = self.encodeSentence(cmd, *words)
         self.log('<---', cmd, *words)
         self.transport.write(encoded)
 
     def readSentence(self):
-        '''
+        """
         Read every word untill empty word (NULL byte) is received.
 
         :return: Reply word, tuple with read words.
-        '''
+        """
         sentence = tuple(word for word in iter(self.readWord, None))
         self.log('--->', *sentence)
         reply_word, words = sentence[0], sentence[1:]
@@ -190,10 +190,10 @@ class SocketTransport:
         self.sock = sock
 
     def write(self, string):
-        '''
+        """
         Write given bytes string to socket. Loop as long as every byte in
         string is written unless exception is raised.
-        '''
+        """
         try:
             self.sock.sendall(string)
         except SOCKET_TIMEOUT as error:
@@ -202,10 +202,10 @@ class SocketTransport:
             raise ConnectionError('Failed to write to socket. ' + str(error))
 
     def read(self, length):
-        '''
+        """
         Read as many bytes from socket as specified in length.
         Loop as long as every byte is read unless exception is raised.
-        '''
+        """
         try:
             data = self.sock.recv(length)
             if not data:

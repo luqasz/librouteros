@@ -23,7 +23,7 @@ defaults = {
 
 
 def connect(host, username, password, **kwargs):
-    '''
+    """
     Connect and login to routeros device.
     Upon success return a Connection class.
 
@@ -34,7 +34,7 @@ def connect(host, username, password, **kwargs):
     :param port: Destination port to be used. Defaults to 8728.
     :param saddr: Source address to bind to.
     :param subclass: Subclass of Api class. Defaults to Api class from library.
-    '''
+    """
     arguments = ChainMap(kwargs, defaults)
     transport = create_transport(host, **arguments)
     protocol = ApiProtocol(transport=transport, encoding=arguments['encoding'])

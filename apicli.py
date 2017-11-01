@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-'''
+"""
 Command line interface for debugging purpouses.
-'''
+"""
 
 
 import logging

@@ -21,13 +21,13 @@ def lib_default_kwargs():
 
 @pytest.fixture(scope='function')
 def bad_length_bytes():
-    '''len(length) must be < 5'''
+    """len(length) must be < 5"""
     return b'\xff\xff\xff\xff\xff'
 
 
 @pytest.fixture(scope='function')
 def bad_length_int():
-    '''Length must be < 268435456'''
+    """Length must be < 268435456"""
     return 268435456
 
 
@@ -44,7 +44,7 @@ def valid_word_length(request):
 
 @pytest.fixture(scope='function', params=(pack('>B', i) for i in range(240, 256)))
 def bad_first_length_bytes(request):
-    '''First byte of length must be < 240.'''
+    """First byte of length must be < 240."""
     return request.param
 
 
@@ -58,7 +58,7 @@ def bad_first_length_bytes(request):
             TypeCast(api='0', python=0)
         ))
 def bidirectional_type_cast(request):
-    '''Values used for casting from/to python/api in both directions.'''
+    """Values used for casting from/to python/api in both directions."""
     return request.param
 
 
@@ -67,7 +67,7 @@ def bidirectional_type_cast(request):
             TypeCast(api='false', python=False),
         ))
 def from_api_type_cast(request):
-    '''Values that are casted from api to pythn.'''
+    """Values that are casted from api to pythn."""
     return request.param
 
 

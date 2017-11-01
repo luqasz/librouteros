@@ -11,11 +11,11 @@ class Parser:
 
     @staticmethod
     def apiCast(value):
-        '''
+        """
         Cast value from API to python.
 
         :returns: Python equivalent.
-        '''
+        """
         try:
             casted = int(value)
         except ValueError:
@@ -24,13 +24,13 @@ class Parser:
 
     @staticmethod
     def parseWord(word):
-        '''
+        """
         Split given attribute word to key, value pair.
         Values are casted to python equivalents.
 
         :param word: API word.
         :returns: Key, value pair.
-        '''
+        """
         _, key, value = word.split('=', 2)
         value = Parser.apiCast(value)
         return (key, value)
@@ -42,11 +42,11 @@ class Composer:
 
     @staticmethod
     def pythonCast(value):
-        '''
+        """
         Cast value from python to API.
 
         :returns: Casted to API equivalent.
-        '''
+        """
 
         # this is necesary because 1 == True, 0 == False
         if type(value) == int:
@@ -56,10 +56,10 @@ class Composer:
 
     @staticmethod
     def composeWord(key, value):
-        '''
+        """
         Create a attribute word from key, value pair.
         Values are casted to api equivalents.
-        '''
+        """
         return '={}={}'.format(key, Composer.pythonCast(value))
 
 
@@ -69,34 +69,34 @@ class Api(Composer, Parser):
         self.protocol = protocol
 
     def __call__(self, cmd, **kwargs):
-        '''
+        """
         Call Api with given command.
 
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
-        '''
+        """
         words = tuple(self.composeWord(key, value) for key, value in kwargs.items())
         self.protocol.writeSentence(cmd, *words)
         return self._readResponse()
 
     def _readSentence(self):
-        '''
+        """
         Read one sentence and parse words.
 
         :returns: Reply word, dict with attribute words.
-        '''
+        """
         reply_word, words = self.protocol.readSentence()
         words = dict(self.parseWord(word) for word in words)
         return reply_word, words
 
     def _readResponse(self):
-        '''
+        """
         Read untill !done is received.
 
         :throws TrapError: If one !trap is received.
         :throws MultiTrapError: If > 1 !trap is received.
         :returns: Full response
-        '''
+        """
         response = []
         reply_word = None
         while reply_word != '!done':
@@ -125,9 +125,9 @@ class Api(Composer, Parser):
 
     @staticmethod
     def joinPath(*path):
-        '''
+        """
         Join two or more paths forming a command word.
         >>> api.joinPath('/ip', 'address', 'print')
         >>> '/ip/address/print'
-        '''
+        """
         return pjoin('/', *path).rstrip('/')

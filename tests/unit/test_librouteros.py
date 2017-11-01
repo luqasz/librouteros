@@ -17,7 +17,7 @@ def test_password_encoding():
 
 
 def test_non_ascii_password_encoding():
-    '''Only ascii characters are allowed in password.'''
+    """Only ascii characters are allowed in password."""
     with pytest.raises(UnicodeEncodeError):
         encode_password(
                 token='259e0bc05acd6f46926dc2f809ed1bba',
