@@ -24,11 +24,11 @@ class Test_Composer:
         assert Composer.pythonCast(bidirectional_type_cast.python) == bidirectional_type_cast.api
 
     def test_pythonCast(self):
-        '''
+        """
         Do not cast None to string. MikroTik API sometime returns "none" as value.
         Casting to "none" requires more reasearch.
         "none" may not always be None
-        '''
+        """
         assert Composer.pythonCast(None) == 'None'
 
     def test_composeWord(self, attribute_word):

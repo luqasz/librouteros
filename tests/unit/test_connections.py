@@ -43,13 +43,13 @@ class Test_Decoder:
         assert self.decoder.decodeSentence(sentence) == expected
 
     def test_decodeSentence_non_ASCII(self):
-        '''Word may only contain ASCII characters.'''
+        """Word may only contain ASCII characters."""
         sentence = b'\x11/ip/addres\xc5\x82/print\x05first\x06second'
         with pytest.raises(UnicodeDecodeError):
             self.decoder.decodeSentence(sentence)
 
     def test_decodeSentence_utf_8(self):
-        '''Assert that utf-8 encoding works.'''
+        """Assert that utf-8 encoding works."""
         sentence = b'\x11/ip/addres\xc5\x82/print\x05first\x06second'
         self.decoder.encoding = 'utf-8'
         self.decoder.decodeSentence(sentence) == ('/ip/addressł/print', 'first', 'second')
@@ -76,23 +76,23 @@ class Test_Encoder:
         assert encodeLength_mock.call_count == 1
 
     def test_non_ASCII_word_encoding(self):
-        '''Word may only contain ASCII characters.'''
+        """Word may only contain ASCII characters."""
         self.encoder.encoding = 'ASCII'
         with pytest.raises(UnicodeEncodeError):
             self.encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8'))
 
     def test_utf_8_word_encoding(self):
-        '''Assert that utf-8 encoding works.'''
+        """Assert that utf-8 encoding works."""
         self.encoder.encoding = 'utf-8'
         self.encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8')) == 'łą'
 
     @patch.object(connections.Encoder, 'encodeWord', return_value=b'')
     def test_encodeSentence(self, encodeWord_mock):
-        '''
+        """
         Assert that:
             \x00 is appended to the sentence
             encodeWord is called == len(sentence)
-        '''
+        """
         encoded = self.encoder.encodeSentence('first', 'second')
         assert encodeWord_mock.call_count == 2
         assert encoded[-1:] == b'\x00'
@@ -113,13 +113,13 @@ class Test_ApiProtocol:
 
     @patch.object(connections.Encoder, 'encodeSentence')
     def test_writeSentence_calls_transport_write(self, encodeSentence_mock):
-        '''Assert that write is called with encoded sentence.'''
+        """Assert that write is called with encoded sentence."""
         self.protocol.writeSentence('/ip/address/print', '=key=value')
         self.protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
 
     @patch('librouteros.connections.iter', return_value=('!fatal', 'reason'))
     def test_readSentence_raises_FatalError(self, iter_mock):
-        '''Assert that FatalError is raised with its reason.'''
+        """Assert that FatalError is raised with its reason."""
         with pytest.raises(FatalError) as error:
             self.protocol.readSentence()
         assert str(error.value) == 'reason'
