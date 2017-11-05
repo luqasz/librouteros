@@ -13,10 +13,10 @@ else:
             )
 
 tests_pkgs = (
-        'pytest-xdist==1.17.*',
-        'pytest==2.*',      # pytest 3.x does not work on python 3.2
-        'pylama==7.3.3',
-        'pydocstyle==1.*',
+        'pytest-xdist==1.*',
+        'pytest==3.*',      # pytest 3.x does not work on python 3.2
+        'pylama',
+        'pydocstyle',
         'mock',
         )
 
@@ -38,7 +38,7 @@ setup(
     },
     zip_safe=False,
     name='librouteros',
-    version='1.0.4',
+    version='2.0.0',
     description='Python implementation of MikroTik RouterOS API',
     author='Łukasz Kostka',
     author_email='lukasz.kostka@netng.pl',
