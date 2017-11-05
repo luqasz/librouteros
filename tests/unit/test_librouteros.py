@@ -21,7 +21,7 @@ def test_non_ascii_password_encoding():
     with pytest.raises(UnicodeEncodeError):
         encode_password(
                 token='259e0bc05acd6f46926dc2f809ed1bba',
-                password=b'\xc5\x82\xc4\x85'.decode('utf-8')
+                password=u'łą'
                 )
 
 

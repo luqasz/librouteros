@@ -76,15 +76,15 @@ class Test_Encoder:
         assert encodeLength_mock.call_count == 1
 
     def test_non_ASCII_word_encoding(self):
-        """Word may only contain ASCII characters."""
+        """When encoding is ASCII, word may only contain ASCII characters."""
         self.encoder.encoding = 'ASCII'
         with pytest.raises(UnicodeEncodeError):
-            self.encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8'))
+            self.encoder.encodeWord(u'łą')
 
     def test_utf_8_word_encoding(self):
         """Assert that utf-8 encoding works."""
         self.encoder.encoding = 'utf-8'
-        self.encoder.encodeWord(b'\xc5\x82\xc4\x85'.decode('utf-8')) == 'łą'
+        assert self.encoder.encodeWord(u'łą').endswith(b'\xc5\x82\xc4\x85')
 
     @patch.object(connections.Encoder, 'encodeWord', return_value=b'')
     def test_encodeSentence(self, encodeWord_mock):
