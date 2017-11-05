@@ -16,14 +16,12 @@
 
 About
 =====
-Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_.
-This library uses `semantic versioning <http://semver.org/>`_. On major version things may break, so pin version in dependencies.
+Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. This library uses `semantic versioning <http://semver.org/>`_. On major version things may break, so pin version in dependencies.
 
 Usage
 =====
-First you need to create and connect to a socket. If using plain TCP socket, easiest way is to use
-`socket.create_connection()` from stdlib. Please refer to `ssl.wrap_socket()` for more information on how to use it
-with SSL/TLS.
+Before using this library, you need to create and connect to a socket. If using plain TCP socket, easiest way is to use `socket.create_connection() <https://docs.python.org/library/socket.html#socket.create_connection>`_.
+For SSL/TLS I'd recommend using ``ssl.warp_socket(connected_socket, ciphers='ALL')`` as a bare minimum. This will work even when no certificate is set on remote device.
 
 .. code-block:: python
 
