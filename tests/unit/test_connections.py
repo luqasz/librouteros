@@ -37,23 +37,6 @@ class Test_Decoder:
             self.decoder.decodeLength(bad_length_bytes)
         assert str(bad_length_bytes) in str(error.value)
 
-    def test_decodeSentence(self):
-        sentence = b'\x11/ip/address/print\x05first\x06second'
-        expected = ('/ip/address/print', 'first', 'second')
-        assert self.decoder.decodeSentence(sentence) == expected
-
-    def test_decodeSentence_non_ASCII(self):
-        """Word may only contain ASCII characters."""
-        sentence = b'\x11/ip/addres\xc5\x82/print\x05first\x06second'
-        with pytest.raises(UnicodeDecodeError):
-            self.decoder.decodeSentence(sentence)
-
-    def test_decodeSentence_utf_8(self):
-        """Assert that utf-8 encoding works."""
-        sentence = b'\x11/ip/addres\xc5\x82/print\x05first\x06second'
-        self.decoder.encoding = 'utf-8'
-        self.decoder.decodeSentence(sentence) == ('/ip/addressł/print', 'first', 'second')
-
 
 class Test_Encoder:
 
