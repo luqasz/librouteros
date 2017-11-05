@@ -26,6 +26,7 @@ class Parser:
     def parseWord(word):
         """
         Split given attribute word to key, value pair.
+
         Values are casted to python equivalents.
 
         :param word: API word.
@@ -47,7 +48,6 @@ class Composer:
 
         :returns: Casted to API equivalent.
         """
-
         # this is necesary because 1 == True, 0 == False
         if type(value) == int:
             return str(value)
@@ -127,6 +127,7 @@ class Api(Composer, Parser):
     def joinPath(*path):
         """
         Join two or more paths forming a command word.
+
         >>> api.joinPath('/ip', 'address', 'print')
         >>> '/ip/address/print'
         """

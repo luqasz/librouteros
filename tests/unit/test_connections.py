@@ -88,7 +88,7 @@ class Test_Encoder:
 
     @patch.object(connections.Encoder, 'encodeWord', return_value=b'')
     def test_encodeSentence(self, encodeWord_mock):
-        """
+        r"""
         Assert that:
             \x00 is appended to the sentence
             encodeWord is called == len(sentence)

@@ -115,7 +115,7 @@ class Decoder:
         return decoded
 
     def decodeSentence(self, sentence):
-        """
+        r"""
         Decode given sentence.
 
         :param sentence: Bytes string with sentence (without ending \x00 EOS byte).

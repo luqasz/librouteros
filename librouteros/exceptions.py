@@ -2,27 +2,19 @@
 
 
 class LibError(Exception):
-    """
-    This is a base exception for all other.
-    """
+    """Base exception for all other."""
 
 
 class LoginError(LibError):
-    """
-    Login attempt errors.
-    """
+    """Login attempt errors."""
 
 
 class ConnectionError(LibError):
-    """
-    Connection related errors.
-    """
+    """Connection related errors."""
 
 
 class FatalError(LibError):
-    """
-    Exception raised when !fatal is received.
-    """
+    """Exception raised when !fatal is received."""
 
 
 class TrapError(LibError):

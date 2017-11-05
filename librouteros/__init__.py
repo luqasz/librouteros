@@ -25,6 +25,7 @@ defaults = {
 def connect(host, username, password, **kwargs):
     """
     Connect and login to routeros device.
+
     Upon success return a Connection class.
 
     :param host: Hostname to connecto to. May be ipv4,ipv6,FQDN.

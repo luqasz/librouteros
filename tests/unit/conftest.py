@@ -58,7 +58,7 @@ def bad_first_length_bytes(request):
             TypeCast(api='0', python=0)
         ))
 def bidirectional_type_cast(request):
-    """Values used for casting from/to python/api in both directions."""
+    """Value used for casting from/to python/api in both directions."""
     return request.param
 
 
@@ -67,7 +67,7 @@ def bidirectional_type_cast(request):
             TypeCast(api='false', python=False),
         ))
 def from_api_type_cast(request):
-    """Values that are casted from api to pythn."""
+    """Value that is casted from api to pythn."""
     return request.param
 
 

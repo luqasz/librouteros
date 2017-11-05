@@ -4,7 +4,7 @@ def test_hostname(routeros):
 
 
 def test_long_word(routeros):
-    """
+    r"""
     Assert that when word length is encoded with \x00 in it,
     library should decode this without errors.
 
