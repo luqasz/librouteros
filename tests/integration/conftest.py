@@ -2,6 +2,7 @@ from time import sleep
 from os import devnull
 from subprocess import Popen, check_call
 from tempfile import NamedTemporaryFile
+import socket
 
 import pytest
 import py.path
@@ -15,8 +16,9 @@ DEV_NULL = open(devnull, 'w')
 def api_session():
     for x in range(10):
         try:
-            return librouteros.connect('127.0.0.1', username='admin', password='')
-        except librouteros.ConnectionError:
+            sock = socket.create_connection(('127.0.0.1', 8728))
+            return librouteros.login(username='admin', password='', sock=sock)
+        except (librouteros.ConnectionError, socket.error, socket.timeout):
             sleep(1)
     else:
         raise librouteros.ConnectionError('could not connect to device')
