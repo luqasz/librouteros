@@ -114,22 +114,6 @@ class Decoder:
         decoded ^= XOR
         return decoded
 
-    def decodeSentence(self, sentence):
-        r"""
-        Decode given sentence.
-
-        :param sentence: Bytes string with sentence (without ending \x00 EOS byte).
-        :return: Tuple with decoded words.
-        """
-        words = []
-        start, end = 0, 1
-        while end < len(sentence):
-            end += Decoder.determineLength(sentence[start:end])
-            word_length = Decoder.decodeLength(sentence[start:end])
-            words.append(sentence[end:word_length+end])
-            start, end = end + word_length, end + word_length + 1
-        return tuple(word.decode(encoding=self.encoding, errors='strict') for word in words)
-
 
 class ApiProtocol(Encoder, Decoder):
 
