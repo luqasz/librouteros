@@ -21,12 +21,15 @@ This library uses `semantic versioning <http://semver.org/>`_. On major version 
 
 Usage
 =====
+First you need to create and connect to a socket. If using plain TCP socket, easiest way is to use
+`socket.create_connection()` from stdlib. Please refer to `ssl.wrap_socket()` for more information on how to use it
+with SSL/TLS.
 
 .. code-block:: python
 
-    In [1]: from librouteros import connect
+    In [1]: from librouteros import login
 
-    In [2]: api = connect(host='192.168.56.200', username='admin', password='abc')
+    In [2]: api = login(username='admin', password='abc', sock=connected_socket)
 
     In [4]: api(cmd='/interface/print', stats=True)
     Out[4]:
