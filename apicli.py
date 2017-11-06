@@ -10,8 +10,9 @@ from argparse import ArgumentParser
 from sys import stdout, stdin
 from select import select
 from os import linesep
+import socket
 
-from librouteros import connect, ConnectionError, TrapError, FatalError
+from librouteros import login, ConnectionError, TrapError, FatalError
 
 argParser = ArgumentParser(description='mikrotik api cli interface')
 argParser.add_argument(
@@ -30,21 +31,16 @@ console.setFormatter(formatter)
 mainlog.addHandler(console)
 
 
-def selectloop(api):
+def selectloop(api, sk):
     snt = []
     while True:
         proto = api.protocol
-        sk = proto.transport.sock
-
-        rlist, wlist, errlist = select([sk, stdin], [], [], None)
-
+        rlist, wlist, _ = select([sk, stdin], [], [], None)
         if sk in rlist:
             proto.readSentence()
 
         if stdin in rlist:
-            line = stdin.readline()
-            line = line.split(linesep)
-            line = line[0]
+            line = stdin.readline().rstrip(linesep)
             if line:
                 snt.append(line)
             elif not line and snt:
@@ -52,23 +48,28 @@ def selectloop(api):
                 snt = []
 
 
-def main():
-    pw = getpass.getpass()
+def get_api():
     try:
-        api = connect(args.host, args.user, pw, logger=mainlog)
-    except (TrapError, ConnectionError) as err:
-        exit(err)
+        sk = socket.create_connection((args.host, args.port))
+        api = login(args.user, getpass.getpass(), sock=sk)
+        return api, sk
+    except (TrapError, ConnectionError, socket.error, socket.timeout) as err:
+        mainlog.error(err)
+        exit(1)
+    except KeyboardInterrupt:
+        exit(0)
+
+
+def main():
+    api, sk = get_api()
+    try:
+        selectloop(api, sk)
     except KeyboardInterrupt:
         pass
-    else:
-        try:
-            selectloop(api)
-        except KeyboardInterrupt:
-            pass
-        except (ConnectionError, FatalError) as e:
-            print(e)
-        finally:
-            api.close()
+    except (ConnectionError, FatalError) as e:
+        print(e)
+    finally:
+        api.close()
 
 
 if __name__ == '__main__':
