@@ -60,12 +60,15 @@ For SSL/TLS I'd recommend using ``ssl.warp_socket(connected_socket, ciphers='ALL
     In [8]:
 
 
-If you want to pass parameters that strart with a dot character you can do it in this way:
+If you want to pass parameters that start with a dot character you can do it in this way:
 
 .. code-block:: python
 
-    params = {'disabled': True, '.id' :'7'}
+    params = {'disabled': True, '.id' :'*7'}
     api(cmd='/ip/firewall/nat/set', **params)
+
+Note that ``.id`` must always be passed as read from API. They usually start with a ``*`` followed by a number.
+Keep in mind that they do change across reboots. As a rule of thumb, always read them first.
 
 
 Python booleans are converted according to this table:
