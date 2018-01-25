@@ -3,6 +3,7 @@
 from socket import SHUT_RDWR, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
 from struct import pack, unpack
 from logging import getLogger, NullHandler
+import select
 
 from librouteros.exceptions import ConnectionError, FatalError
 
@@ -190,9 +191,16 @@ class SocketTransport:
         Loop as long as every byte is read unless exception is raised.
         """
         try:
-            data = self.sock.recv(length)
-            if not data:
-                raise ConnectionError('Connection unexpectedly closed.')
+            data = b''
+            while len(data) < length:
+                rlist, wlist, xlist = select.select([self.sock],[],[self.sock],5)
+                if rlist:
+                    data += self.sock.recv(length-len(data))
+                elif xlist:
+                    raise ConnectionError('Connection unexpectedly closed.')
+                else:
+                     raise ConnectionError('Connection read timeout.')
+
             return data
         except SOCKET_TIMEOUT as error:
             raise ConnectionError('Socket timed out. ' + str(error))
