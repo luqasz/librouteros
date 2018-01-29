@@ -6,6 +6,7 @@ from sys import version_info
 
 here = os.path.dirname(__file__)
 
+
 def read(fname):
     """
     Read given file's content.
