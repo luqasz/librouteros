@@ -1,7 +1,20 @@
 # -*- coding: UTF-8 -*-
 
+import os
 from setuptools import setup
 from sys import version_info
+
+here = os.path.dirname(__file__)
+
+def read(fname):
+    """
+    Read given file's content.
+    :param str fname: file name
+    :returns: file contents
+    :rtype: str
+    """
+    return open(os.path.join(here, fname)).read()
+
 
 pyversion = version_info.major, version_info.minor
 
@@ -40,6 +53,7 @@ setup(
     name='librouteros',
     version='1.0.5',
     description='Python implementation of MikroTik RouterOS API',
+    long_description=read('README.rst'),
     author='Łukasz Kostka',
     author_email='lukasz.kostka@netng.pl',
     url='https://github.com/luqasz/librouteros',
