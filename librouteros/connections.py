@@ -189,10 +189,12 @@ class SocketTransport:
         Read as many bytes from socket as specified in length.
         Loop as long as every byte is read unless exception is raised.
         """
+        data = bytearray()
         try:
-            data = self.sock.recv(length)
-            if not data:
-                raise ConnectionError('Connection unexpectedly closed.')
+            while len(data) != length:
+                data += self.sock.recv((length - len(data)))
+                if not data:
+                    raise ConnectionError('Connection unexpectedly closed.')
             return data
         except SOCKET_TIMEOUT as error:
             raise ConnectionError('Socket timed out. ' + str(error))
