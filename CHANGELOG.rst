@@ -5,6 +5,11 @@
 - Removed connect() function with login()
 - Ability to pass connected socket (ssl or plain) to login()
 
+1.0.5
+------
+
+- Fix loop in SocketTransport.read() (pull request #23)
+
 1.0.4
 ------
 
