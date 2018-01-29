@@ -2,7 +2,7 @@
 
 import pytest
 from socket import SHUT_RDWR, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 
 from librouteros import connections
 from librouteros.exceptions import ConnectionError, FatalError
@@ -158,15 +158,24 @@ class Test_SocketTransport:
         with pytest.raises(ConnectionError):
             self.transport.write(b'some data')
 
-    @pytest.mark.parametrize('length', (0, 3))
-    def test_read_raises_when_recv_returns_empty_byte_string(self, length):
+    def test_read_raises_when_recv_returns_empty_byte_string(self):
         self.transport.sock.recv.return_value = b''
         with pytest.raises(ConnectionError):
-            self.transport.read(length)
+            self.transport.read(3)
 
-    def test_read_returns_from_recv(self):
-        self.transport.sock.recv.return_value = b'returned'
-        assert self.transport.read(1024) == b'returned'
+    def test_read_reads_full_length(self):
+        """
+        Check if read() reads all data, even when socket.recv()
+        needs to be called multiple times.
+        """
+        self.transport.sock.recv.side_effect = (b'retu', b'rne', b'd')
+        assert self.transport.read(8) == b'returned'
+        # Check if we ask only for what is left after each recv()
+        assert self.transport.sock.recv.call_args_list == [
+                call(8),
+                call(4),
+                call(1),
+                ]
 
     @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
     def test_recv_raises_socket_errors(self, exception):
