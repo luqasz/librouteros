@@ -11,13 +11,12 @@ MANIFEST
 .project
 *.egg-info
 
-
-#eclipse files and directories
-.pydevproject
-.settings
-
 #pytest cache
 .cache
+.pytest_cache
 
-# PyCharm IDE
+# IDE stuff
 .idea
+.pydevproject
+.settings
+.vscode
