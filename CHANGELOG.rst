@@ -2,8 +2,7 @@
 ------
 
 - Drop support for python 3.2, 3.3
-- Removed connect() function with login()
-- Ability to pass connected socket (ssl or plain) to login()
+- Added ssl / apis support
 
 1.0.5
 ------

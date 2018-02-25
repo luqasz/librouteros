@@ -18,47 +18,60 @@ About
 =====
 Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. This library uses `semantic versioning <http://semver.org/>`_. On major version things may break, so pin version in dependencies.
 
+
 Usage
 =====
-Before using this library, you need to create and connect to a socket. If using plain TCP socket, easiest way is to use `socket.create_connection() <https://docs.python.org/library/socket.html#socket.create_connection>`_.
-For SSL/TLS I'd recommend using ``ssl.warp_socket(connected_socket, ciphers='ALL')`` as a bare minimum. This will work even when no certificate is set on remote device.
 
 .. code-block:: python
 
-    In [1]: from librouteros import login
+    from librouteros import connect
 
-    In [2]: api = login(username='admin', password='abc', sock=connected_socket)
+    api = connect(username='admin', password='abc', host='some.address.com')
 
-    In [4]: api(cmd='/interface/print', stats=True)
-    Out[4]:
-      ({'.id': '*1',
-      'bytes': '418152/157562',
-      'comment': '',
-      'disabled': False,
-      'drops': '0/0',
-      'dynamic': False,
-      'errors': '0/0',
-      'mtu': 1500,
-      'name': 'ether1',
-      'packets': '3081/1479',
-      'running': True,
-      'type': 'ether'},)
+For SSL/TLS you need to create a ssl.SSLContext instance and pass it to ``connect()``.
+Bare minimal requirement for ssl to work (without certificates).
 
-    In [5]: api(cmd='/interface/print')
-    Out[5]:
-      ({'.id': '*1',
-      'comment': '',
-      'disabled': False,
-      'dynamic': False,
-      'mtu': 1500,
-      'name': 'ether1',
-      'running': True,
-      'type': 'ether'},)
+.. code-block:: python
 
-    In [7]: api.close()
+    import ssl
+    from librouteros import connect
 
-    In [8]:
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ctx.set_ciphers('ADH')
+    api = connect(username='admin', password='abc', host='some.address.com', ssl_wrapper=ctx.wrap_socket, port=8729)
 
+
+Api usage.
+
+.. code-block:: python
+
+    api(cmd='/interface/print', stats=True)
+    ({'.id': '*1',
+    'bytes': '418152/157562',
+    'comment': '',
+    'disabled': False,
+    'drops': '0/0',
+    'dynamic': False,
+    'errors': '0/0',
+    'mtu': 1500,
+    'name': 'ether1',
+    'packets': '3081/1479',
+    'running': True,
+    'type': 'ether'},)
+
+    api(cmd='/interface/print')
+    ({'.id': '*1',
+    'comment': '',
+    'disabled': False,
+    'dynamic': False,
+    'mtu': 1500,
+    'name': 'ether1',
+    'running': True,
+    'type': 'ether'},)
+
+    api.close()
 
 If you want to pass parameters that start with a dot character you can do it in this way:
 
@@ -70,6 +83,9 @@ If you want to pass parameters that start with a dot character you can do it in 
 Note that ``.id`` must always be passed as read from API. They usually start with a ``*`` followed by a number.
 Keep in mind that they do change across reboots. As a rule of thumb, always read them first.
 
+
+Booleans conversions
+====================
 
 Python booleans are converted according to this table:
 

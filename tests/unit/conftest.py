@@ -1,19 +1,10 @@
 import pytest
 from collections import namedtuple
 from struct import pack
-from librouteros import Api
 
 WordLength = namedtuple('WordLength', ('integer', 'encoded'))
 TypeCast = namedtuple('TypeCast', ('api', 'python'))
 AttributeWord = namedtuple('AttributeWord', ('raw', 'key', 'value'))
-
-
-@pytest.fixture(scope='function')
-def lib_default_kwargs():
-    return {
-            'subclass': Api,
-            'encoding': 'ASCII',
-            }
 
 
 @pytest.fixture(scope='function')

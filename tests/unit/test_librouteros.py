@@ -2,11 +2,18 @@
 
 import pytest
 
-from librouteros import encode_password, defaults
+from librouteros import encode_password, defaults, Api
 
 
-def test_lib_default_arguments(lib_default_kwargs):
-    assert lib_default_kwargs == defaults
+def test_lib_default_arguments():
+    assert {
+            'timeout': 10,
+            'port': 8728,
+            'saddr': '',
+            'subclass': Api,
+            'encoding': 'ASCII',
+            'ssl_wrapper': defaults['ssl_wrapper'],
+            } == defaults
 
 
 def test_password_encoding():
