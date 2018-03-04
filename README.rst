@@ -14,6 +14,11 @@
     :target: https://pypi.python.org/pypi/librouteros/
     :alt: License
 
+Status
+======
+
+This branch is manitenance / bugfix only. New features go to `master` branch.
+
 About
 =====
 Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_.
