@@ -15,5 +15,6 @@ qemu-system-i386 \
     -cdrom ISO_FILE.iso \
     -vnc :3
 ```
-Install every package except:
-- kvm
+
+*   Install every package except `kvm`
+*   Add `dhcp-client` on `ether1`

@@ -43,10 +43,14 @@ def connect(host, username, password, **kwargs):
     api = arguments['subclass'](protocol=protocol)
 
     try:
-        sentence = api('/login')
-        token = sentence[0]['ret']
-        encoded = encode_password(token, password)
-        api('/login', **{'name': username, 'response': encoded})
+        sentence = api('/login', **{'name': username, 'password': password})
+        try:
+            token = sentence[0]['ret']
+        except IndexError:
+            pass
+        else:
+            encoded = encode_password(token, password)
+            api('/login', **{'name': username, 'response': encoded})
     except (ConnectionError, TrapError, FatalError, MultiTrapError):
         transport.close()
         raise

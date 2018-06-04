@@ -23,7 +23,7 @@ def api_session():
         raise librouteros.ConnectionError('could not connect to device')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', params=('6.33.3', '6.43rc21'))
 def disk_image(request):
     """Create a temporary disk image backed by original one."""
     img = NamedTemporaryFile()
@@ -32,7 +32,7 @@ def disk_image(request):
         'qemu-img', 'create',
         '-f', 'qcow2',
         # Path to backing file must be absolute or relative to new image
-        '-b', str(py.path.local().join('images/routeros_6.33.3.qcow2')),
+        '-b', str(py.path.local().join('images/routeros_{}.qcow2'.format(request.param))),
         img.name,
     ]
     check_call(cmd, stdout=DEV_NULL)
