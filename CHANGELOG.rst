@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+- Support new auth method introduced in 6.43
+
 2.0.0
 ------
 
