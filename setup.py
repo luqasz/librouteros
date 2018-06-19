@@ -50,7 +50,7 @@ setup(
     },
     zip_safe=False,
     name='librouteros',
-    version='2.0.0',
+    version='2.1.0',
     description='Python implementation of MikroTik RouterOS API',
     long_description=read('README.rst'),
     author='Łukasz Kostka',
