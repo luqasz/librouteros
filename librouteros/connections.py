@@ -32,7 +32,7 @@ class Encoder:
         :param word: Word to encode.
         :returns: Encoded word.
         """
-        encoded_word = word.encode(encoding=self.encoding, errors='strict')
+        encoded_word = word.encode(encoding='ASCII', errors='strict')
         return Encoder.encodeLength(len(word)) + encoded_word
 
     @staticmethod
@@ -161,7 +161,13 @@ class ApiProtocol(Encoder, Decoder):
         if to_read:
             length += self.transport.read(to_read)
         length = self.decodeLength(length)
-        return self.transport.read(length).decode(encoding=self.encoding, errors='strict')
+        word = self.transport.read(length)
+        if b'=' not in word:
+            return word.decode()
+        _, key, value = word.split(b'=', 2)
+        value = value.decode(encoding=self.encoding, errors='strict')
+        key = key.decode(encoding='ASCII', errors='strict')
+        return '={}={}'.format(key, value)
 
     def close(self):
         self.transport.close()
