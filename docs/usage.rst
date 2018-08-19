@@ -30,8 +30,9 @@ Connecting
 
     api = connect(username='admin', password='abc', host='some.address.com')
 
-For SSL/TLS you need to create a ssl.SSLContext instance and pass it to ``connect()``.
-Bare minimal requirement for ssl to work (without certificates).
+Before connecting, ``api-ssl`` service on routeros must have a valid certificate set.
+For more information on how to generate such certificates see `MikroTik wiki <https://wiki.mikrotik.com/wiki/Manual:Create_Certificates>`_.
+After that, create your default `SSLContext <https://docs.python.org/library/ssl.html#ssl.create_default_context>`_ and fine tune for your needs.
 
 .. code-block:: python
 
@@ -41,7 +42,6 @@ Bare minimal requirement for ssl to work (without certificates).
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    ctx.set_ciphers('ADH')
     api = connect(
         username='admin',
         password='abc',
@@ -49,6 +49,7 @@ Bare minimal requirement for ssl to work (without certificates).
         ssl_wrapper=ctx.wrap_socket,
         port=8729
         )
+
 
 
 Printing elements
