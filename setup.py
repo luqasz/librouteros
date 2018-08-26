@@ -48,6 +48,7 @@ setup(
         'tests': tests_pkgs,
         'develop': dev_pkgs,
     },
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4',
     zip_safe=False,
     name='librouteros',
     version='2.1.1',
@@ -67,12 +68,8 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries'
         ]
