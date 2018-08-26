@@ -27,7 +27,7 @@ else:
 tests_pkgs = (
         'pytest-xdist==1.*',
         'pytest==3.*',      # pytest 3.x does not work on python 3.2
-        'pylama',
+        'pylava',
         'pydocstyle',
         'mock',
         )
