@@ -17,6 +17,10 @@ Librouteros - Routeros api implementation
     :target: https://pypi.python.org/pypi/librouteros/
     :alt: License
 
+.. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
+    :target: https://saythanks.io/to/luqasz
+    :alt: Say Thanks
+
 About
 _____
 Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. This library uses `semantic versioning <http://semver.org/>`_. On major version things may break, so pin version in dependencies.
