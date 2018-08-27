@@ -1,3 +1,13 @@
+2.1.1
+----------
+
+- Fix testing with pip >= 18.x
+
+2.1.0
+----------
+
+- Support new auth method introduced in 6.43
+
 2.0.0
 ------
 

@@ -11,6 +11,7 @@ python:
   - 3.4
   - 3.5
   - 3.6
+    #  - 3.7 see https://github.com/travis-ci/travis-ci/issues/9815
 addons:
   apt:
     packages:
@@ -19,9 +20,9 @@ addons:
 install:
   - pip install -e '.[tests]'
 script:
-  - pylama
   - wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
-  - py.test --pylama
+  - wget --quiet netng.pl/routeros_test_images/routeros_6.43rc21.qcow2 -O images/routeros_6.43rc21.qcow2
+  - py.test --pylava
 deploy:
   provider: pypi
   user: lkostka
