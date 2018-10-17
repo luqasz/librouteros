@@ -18,7 +18,7 @@ defaults = {
             'port': 8728,
             'saddr': '',
             'subclass': Api,
-            'encoding': 'ASCII',
+            'encoding': 'latin-1',
             'ssl_wrapper': lambda sock: sock,
             }
 
