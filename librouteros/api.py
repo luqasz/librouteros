@@ -1,8 +1,13 @@
 # -*- coding: UTF-8 -*-
 
-from posixpath import join as pjoin
+from posixpath import (
+    join as pjoin,
+)
 
-from librouteros.exceptions import TrapError, MultiTrapError
+from librouteros.exceptions import (
+    MultiTrapError,
+    TrapError,
+)
 
 
 class Parser:
@@ -115,13 +120,18 @@ class Api(Composer, Parser):
         traps = tuple(words for reply_word, words in response if reply_word == '!trap')
         if len(traps) > 1:
             traps = tuple(
-                    TrapError(message=trap['message'], category=trap.get('category'))
-                    for trap in traps
-                    )
+                TrapError(
+                    message=trap['message'],
+                    category=trap.get('category'),
+                ) for trap in traps
+            )
             raise MultiTrapError(*traps)
         elif len(traps) == 1:
             trap = traps[0]
-            raise TrapError(message=trap['message'], category=trap.get('category'))
+            raise TrapError(
+                message=trap['message'],
+                category=trap.get('category'),
+            )
 
     @staticmethod
     def joinPath(*path):

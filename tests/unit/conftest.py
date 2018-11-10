@@ -1,6 +1,11 @@
+from collections import (
+    namedtuple,
+)
+from struct import (
+    pack,
+)
+
 import pytest
-from collections import namedtuple
-from struct import pack
 
 WordLength = namedtuple('WordLength', ('integer', 'encoded'))
 TypeCast = namedtuple('TypeCast', ('api', 'python'))
@@ -20,12 +25,12 @@ def bad_length_int():
 
 
 @pytest.fixture(scope='function', params=(
-        WordLength(integer=0, encoded=b'\x00'),
-        WordLength(integer=127, encoded=b'\x7f'),
-        WordLength(integer=130, encoded=b'\x80\x82'),
-        WordLength(integer=2097140, encoded=b'\xdf\xff\xf4'),
-        WordLength(integer=268435440, encoded=b'\xef\xff\xff\xf0'),
-        ))
+    WordLength(integer=0, encoded=b'\x00'),
+    WordLength(integer=127, encoded=b'\x7f'),
+    WordLength(integer=130, encoded=b'\x80\x82'),
+    WordLength(integer=2097140, encoded=b'\xdf\xff\xf4'),
+    WordLength(integer=268435440, encoded=b'\xef\xff\xff\xf0'),
+))
 def valid_word_length(request):
     return request.param
 
@@ -37,32 +42,32 @@ def bad_first_length_bytes(request):
 
 
 @pytest.fixture(params=(
-            TypeCast(api='yes', python=True),
-            TypeCast(api='no', python=False),
-            TypeCast(api='string', python='string'),
-            TypeCast(api='none', python='none'),
-            TypeCast(api='22.2', python='22.2'),
-            TypeCast(api='22', python=22),
-            TypeCast(api='0', python=0)
-        ))
+    TypeCast(api='yes', python=True),
+    TypeCast(api='no', python=False),
+    TypeCast(api='string', python='string'),
+    TypeCast(api='none', python='none'),
+    TypeCast(api='22.2', python='22.2'),
+    TypeCast(api='22', python=22),
+    TypeCast(api='0', python=0)
+))
 def bidirectional_type_cast(request):
     """Value used for casting from/to python/api in both directions."""
     return request.param
 
 
 @pytest.fixture(params=(
-            TypeCast(api='true', python=True),
-            TypeCast(api='false', python=False),
-        ))
+    TypeCast(api='true', python=True),
+    TypeCast(api='false', python=False),
+))
 def from_api_type_cast(request):
     """Value that is casted from api to pythn."""
     return request.param
 
 
 @pytest.fixture(params=(
-        AttributeWord(raw='=.id=value', key='.id', value='value'),
-        AttributeWord(raw='=name=ether1', key='name', value='ether1'),
-        AttributeWord(raw='=comment=', key='comment', value=''),
-        ))
+    AttributeWord(raw='=.id=value', key='.id', value='value'),
+    AttributeWord(raw='=name=ether1', key='name', value='ether1'),
+    AttributeWord(raw='=comment=', key='comment', value=''),
+))
 def attribute_word(request):
     return request.param

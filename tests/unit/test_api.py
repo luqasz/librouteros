@@ -1,27 +1,37 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-from mock import MagicMock
+from mock import (
+    MagicMock,
+)
 
-from librouteros.api import Api, Composer, Parser
+from librouteros.api import (
+    Api,
+    Composer,
+    Parser,
+)
 
 
 class Test_Parser:
 
     def test_apiCast_bidirectional(self, bidirectional_type_cast):
-        assert Parser.apiCast(bidirectional_type_cast.api) == bidirectional_type_cast.python
+        assert Parser.apiCast(
+            bidirectional_type_cast.api) == bidirectional_type_cast.python
 
     def test_apiCast(self, from_api_type_cast):
-        assert Parser.apiCast(from_api_type_cast.api) == from_api_type_cast.python
+        assert Parser.apiCast(
+            from_api_type_cast.api) == from_api_type_cast.python
 
     def test_parseWord(self, attribute_word):
-        assert Parser.parseWord(attribute_word.raw) == (attribute_word.key, attribute_word.value)
+        assert Parser.parseWord(attribute_word.raw) == (
+            attribute_word.key, attribute_word.value)
 
 
 class Test_Composer:
 
     def test_pythonCast_bidirectional(self, bidirectional_type_cast):
-        assert Composer.pythonCast(bidirectional_type_cast.python) == bidirectional_type_cast.api
+        assert Composer.pythonCast(
+            bidirectional_type_cast.python) == bidirectional_type_cast.api
 
     def test_pythonCast(self):
         """
@@ -32,7 +42,8 @@ class Test_Composer:
         assert Composer.pythonCast(None) == 'None'
 
     def test_composeWord(self, attribute_word):
-        result = Composer.composeWord(key=attribute_word.key, value=attribute_word.value)
+        result = Composer.composeWord(
+            key=attribute_word.key, value=attribute_word.value)
         assert result == attribute_word.raw
 
 
@@ -45,7 +56,7 @@ class Test_Api:
         ("/ip/address/", "/ip/address"),
         ("ip/address", "/ip/address"),
         ("/ip/address", "/ip/address"),
-        ))
+    ))
     def test_joinPath_single_param(self, path, expected):
         assert self.api.joinPath(path) == expected
 
@@ -54,6 +65,6 @@ class Test_Api:
         (("ip/address", "print"), "/ip/address/print"),
         (("/ip/address", "set"), "/ip/address/set"),
         (("/", "/ip/address", "set"), "/ip/address/set"),
-        ))
+    ))
     def test_joinPath_multi_param(self, path, expected):
         assert self.api.joinPath(*path) == expected

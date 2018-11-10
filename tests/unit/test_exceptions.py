@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-from librouteros.exceptions import TrapError
+from librouteros.exceptions import (
+    TrapError,
+)
 
 
 def test_TrapError_newlines():

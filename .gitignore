@@ -15,6 +15,9 @@ MANIFEST
 .cache
 .pytest_cache
 
+# virtualenv
+.env
+
 # IDE stuff
 .idea
 .pydevproject

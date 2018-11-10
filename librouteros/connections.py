@@ -1,10 +1,23 @@
 # -*- coding: UTF-8 -*-
 
-from socket import SHUT_RDWR, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
-from struct import pack, unpack
-from logging import getLogger, NullHandler
+from logging import (
+    NullHandler,
+    getLogger,
+)
+from socket import (
+    SHUT_RDWR,
+    error as SOCKET_ERROR,
+    timeout as SOCKET_TIMEOUT,
+)
+from struct import (
+    pack,
+    unpack,
+)
 
-from librouteros.exceptions import ConnectionError, FatalError
+from librouteros.exceptions import (
+    ConnectionError,
+    FatalError,
+)
 
 LOGGER = getLogger('librouteros')
 LOGGER.addHandler(NullHandler())
@@ -56,7 +69,9 @@ class Encoder:
             ored_length = length | 0xE0000000
             offset = -4
         else:
-            raise ConnectionError('Unable to encode length of {}'.format(length))
+            raise ConnectionError(
+                'Unable to encode length of {}'.format(length)
+            )
 
         return pack('!I', ored_length)[offset:]
 
@@ -108,7 +123,9 @@ class Decoder:
             offset = b''
             XOR = 0xE0000000
         else:
-            raise ConnectionError('Unable to decode length of {}'.format(length))
+            raise ConnectionError(
+                'Unable to decode length of {}'.format(length)
+            )
 
         decoded = unpack('!I', (offset + length))[0]
         decoded ^= XOR

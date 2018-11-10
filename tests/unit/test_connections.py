@@ -1,11 +1,23 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
-from socket import SHUT_RDWR, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
-from mock import MagicMock, patch, call
+from socket import (
+    SHUT_RDWR,
+    error as SOCKET_ERROR,
+    socket,
+    timeout as SOCKET_TIMEOUT,
+)
 
+import pytest
 from librouteros import connections
-from librouteros.exceptions import ConnectionError, FatalError
+from librouteros.exceptions import (
+    ConnectionError,
+    FatalError,
+)
+from mock import (
+    MagicMock,
+    call,
+    patch,
+)
 
 
 class Test_Decoder:
@@ -19,7 +31,7 @@ class Test_Decoder:
         (b'\xbf', 1),  # 191
         (b'\xdf', 2),  # 223
         (b'\xef', 3),  # 239
-        ))
+    ))
     def test_determineLength(self, length, expected):
         assert self.decoder.determineLength(length) == expected
 
@@ -85,20 +97,24 @@ class Test_ApiProtocol:
 
     def setup(self):
         self.protocol = connections.ApiProtocol(
-                transport=MagicMock(spec=connections.SocketTransport),
-                encoding='ASCII',
-                )
+            transport=MagicMock(spec=connections.SocketTransport),
+            encoding='ASCII',
+        )
 
     @patch.object(connections.Encoder, 'encodeSentence')
     def test_writeSentence_calls_encodeSentence(self, encodeSentence_mock):
         self.protocol.writeSentence('/ip/address/print', '=key=value')
-        encodeSentence_mock.assert_called_once_with('/ip/address/print', '=key=value')
+        encodeSentence_mock.assert_called_once_with(
+            '/ip/address/print', '=key=value'
+        )
 
     @patch.object(connections.Encoder, 'encodeSentence')
     def test_writeSentence_calls_transport_write(self, encodeSentence_mock):
         """Assert that write is called with encoded sentence."""
         self.protocol.writeSentence('/ip/address/print', '=key=value')
-        self.protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
+        self.protocol.transport.write.assert_called_once_with(
+            encodeSentence_mock.return_value
+        )
 
     @patch('librouteros.connections.iter', return_value=('!fatal', 'reason'))
     def test_readSentence_raises_FatalError(self, iter_mock):
@@ -155,10 +171,10 @@ class Test_SocketTransport:
         assert self.transport.read(8) == b'returned'
         # Check if we ask only for what is left after each recv()
         assert self.transport.sock.recv.call_args_list == [
-                call(8),
-                call(4),
-                call(1),
-                ]
+            call(8),
+            call(4),
+            call(1),
+        ]
 
     @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
     def test_recv_raises_socket_errors(self, exception):

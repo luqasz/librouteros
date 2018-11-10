@@ -1,14 +1,21 @@
-from time import sleep
-from os import devnull
-from subprocess import Popen, check_call
-from tempfile import NamedTemporaryFile
 import socket
-
-import pytest
-import py.path
+from os import (
+    devnull,
+)
+from subprocess import (
+    Popen,
+    check_call,
+)
+from tempfile import (
+    NamedTemporaryFile,
+)
+from time import (
+    sleep,
+)
 
 import librouteros
-
+import py.path
+import pytest
 
 DEV_NULL = open(devnull, 'w')
 

@@ -14,11 +14,11 @@ def test_long_word(routeros):
     """
     long_value = 'a' * (256 - len('=comment='))
     ID = routeros(
-            '/ip/address/add',
-            address='172.16.1.1/24',
-            interface='ether1',
-            comment=long_value
-        )[0]['ret']
+        '/ip/address/add',
+        address='172.16.1.1/24',
+        interface='ether1',
+        comment=long_value,
+    )[0]['ret']
     for row in routeros('/ip/address/print'):
         if row['.id'] == ID:
             assert row['comment'] == long_value

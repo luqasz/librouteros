@@ -1,5 +1,8 @@
+from sys import (
+    version_info,
+)
+
 import pytest
-from sys import version_info
 
 
 @pytest.mark.skipif(version_info.major >= 3, reason='collections.ChainMap is in >= 3.3')

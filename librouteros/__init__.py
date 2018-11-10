@@ -1,26 +1,42 @@
 # -*- coding: UTF-8 -*-
 
-from socket import create_connection, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
-from binascii import unhexlify, hexlify
+from binascii import (
+    hexlify,
+    unhexlify,
+)
 from hashlib import md5
+from socket import (
+    create_connection,
+    error as SOCKET_ERROR,
+    timeout as SOCKET_TIMEOUT,
+)
+
+from librouteros.api import Api
+from librouteros.connections import (
+    ApiProtocol,
+    SocketTransport,
+)
+from librouteros.exceptions import (
+    ConnectionError,
+    FatalError,
+    MultiTrapError,
+    TrapError,
+)
+
 try:
     from collections import ChainMap
 except ImportError:
     from chainmap import ChainMap
 
-from librouteros.exceptions import TrapError, FatalError, ConnectionError, MultiTrapError
-from librouteros.connections import ApiProtocol, SocketTransport
-from librouteros.api import Api
-
 
 defaults = {
-            'timeout': 10,
-            'port': 8728,
-            'saddr': '',
-            'subclass': Api,
-            'encoding': 'ASCII',
-            'ssl_wrapper': lambda sock: sock,
-            }
+    'timeout': 10,
+    'port': 8728,
+    'saddr': '',
+    'subclass': Api,
+    'encoding': 'ASCII',
+    'ssl_wrapper': lambda sock: sock,
+}
 
 
 def connect(host, username, password, **kwargs):
