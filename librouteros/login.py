@@ -13,9 +13,7 @@ def encode_password(token, password):
 
 
 def login_token(api, username, password):
-    """
-    Login using pre routeros 6.43 authorization method.
-    """
+    """Login using pre routeros 6.43 authorization method."""
     sentence = api('/login')
     token = sentence[0]['ret']
     encoded = encode_password(token, password)
@@ -23,7 +21,5 @@ def login_token(api, username, password):
 
 
 def login_plain(api, username, password):
-    """
-    Login using post routeros 6.43 authorization method.
-    """
+    """Login using post routeros 6.43 authorization method."""
     api('/login', **{'name': username, 'password': password})
