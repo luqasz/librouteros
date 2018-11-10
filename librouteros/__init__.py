@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 from socket import create_connection, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
-from binascii import unhexlify, hexlify
-from hashlib import md5
 try:
     from collections import ChainMap
 except ImportError:
@@ -10,6 +8,7 @@ except ImportError:
 
 from librouteros.exceptions import TrapError, FatalError, ConnectionError, MultiTrapError
 from librouteros.connections import ApiProtocol, SocketTransport
+from librouteros.login import login_plain, login_token
 from librouteros.api import Api
 
 
@@ -20,6 +19,7 @@ defaults = {
             'subclass': Api,
             'encoding': 'ASCII',
             'ssl_wrapper': lambda sock: sock,
+            'login_methods': (login_token, login_plain),
             }
 
 
@@ -36,28 +36,22 @@ def connect(host, username, password, **kwargs):
     :param saddr: Source address to bind to.
     :param subclass: Subclass of Api class. Defaults to Api class from library.
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
+    :param login_methods: Tuple with callables to login methods to try in order.
     """
     arguments = ChainMap(kwargs, defaults)
     transport = create_transport(host, **arguments)
     protocol = ApiProtocol(transport=transport, encoding=arguments['encoding'])
     api = arguments['subclass'](protocol=protocol)
 
-    try:
-        # First send dummy credentials to know if we get a =ret= back.
-        # This way we know if it is a pre 6.43 auth method or not.
-        sentence = api('/login', **{'name': 'dummy_user', 'password': 'dummy_password'})
-        token = sentence[0]['ret']
-    except (TrapError, MultiTrapError):
-        # Login failed so use 6.43 auth method.
-        api('/login', **{'name': username, 'password': password})
-    except (ConnectionError, FatalError):
-        transport.close()
-        raise
-    else:
-        # We got =ret= so use pre 6.43 auth method.
-        api('/login', **{'name': username, 'response': encode_password(token, password)})
-
-    return api
+    for method in arguments['login_methods']:
+        try:
+            method(api=api, username=username, password=password)
+            return api
+        except (TrapError, MultiTrapError):
+            pass
+        except (ConnectionError, FatalError):
+            transport.close()
+            raise
 
 
 def create_transport(host, **kwargs):
@@ -68,14 +62,3 @@ def create_transport(host, **kwargs):
     except (SOCKET_ERROR, SOCKET_TIMEOUT) as error:
         raise ConnectionError(error)
     return SocketTransport(sock=sock)
-
-
-def encode_password(token, password):
-
-    token = token.encode('ascii', 'strict')
-    token = unhexlify(token)
-    password = password.encode('ascii', 'strict')
-    md = md5()
-    md.update(b'\x00' + password + token)
-    password = hexlify(md.digest())
-    return '00' + password.decode('ascii', 'strict')

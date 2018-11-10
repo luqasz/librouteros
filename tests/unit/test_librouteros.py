@@ -2,7 +2,12 @@
 
 import pytest
 
-from librouteros import encode_password, defaults, Api
+from librouteros import defaults, Api
+from librouteros.login import (
+    encode_password,
+    login_plain,
+    login_token,
+)
 
 
 def test_lib_default_arguments():
@@ -13,6 +18,7 @@ def test_lib_default_arguments():
             'subclass': Api,
             'encoding': 'ASCII',
             'ssl_wrapper': defaults['ssl_wrapper'],
+            'login_methods': (login_token, login_plain),
             } == defaults
 
 
