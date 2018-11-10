@@ -51,6 +51,21 @@ After that, create your default `SSLContext <https://docs.python.org/library/ssl
         )
 
 
+New auth method
+---------------
+
+Starting from routeros ``6.43``, new auth method was introduced. By default library will try to login using old method first (with token), then new (using plain text password) method. You can force library to try only one method:
+
+.. code-block:: python
+
+    from librouteros.login import login_plain, login_token
+
+    # for new (plain text password)
+    method = (login_plain, )
+    # for old (with token)
+    method = (login_token, )
+    api = connect(username='admin', password='abc', host='some.address.com', login_methods=method)
+
 
 Printing elements
 -----------------

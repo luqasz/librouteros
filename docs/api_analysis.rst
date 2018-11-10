@@ -3,8 +3,8 @@ Api analysis
 
 This document aims to cover in depth analysis of routeros API. Lines that begin with ``--->`` represent data received from a device. Linet that start with ``<---`` represent data send to a device. End of sentence is marked with ``EOS``.
 
-Succesfull login
-----------------
+Succesfull login (pre 6.43)
+---------------------------
 .. code-block:: none
 
     <--- /login
@@ -22,8 +22,20 @@ Succesfull login
     ---> !done
     ---> EOS
 
-Failed login attempt
---------------------
+Succesfull login (post 6.43)
+----------------------------
+.. code-block:: none
+
+    <--- /login
+    <--- =name=admin
+    <--- =password=xxxxxxxxxxxxxxx
+    <--- EOS
+
+    ---> !done
+    ---> EOS
+
+Failed login attempt (pre 6.43)
+-------------------------------
 .. code-block:: none
 
     <--- /login
