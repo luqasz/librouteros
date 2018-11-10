@@ -27,7 +27,8 @@ class RowItem:
 
 class CommandPath:
 
-    def __init__(self):
+    def __init__(self, path):
+        self._path = path
         self._args = dict()
         self._query = tuple()
 
@@ -41,3 +42,13 @@ class CommandPath:
 
     def __getitem__(self, item):
         return RowItem(name=item, path=self)
+
+    def __str__(self):
+        return str(self._path)
+
+    def __repr__(self):
+        return "<{module}.{cls} {path!r}>".format(
+            module=self.__class__.__module__,
+            cls=self.__class__.__name__,
+            path=self._path,
+        )
