@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+- Excplicit login_method parameter for login using new or old auth method.
+
 2.1.1
 ----------
 
