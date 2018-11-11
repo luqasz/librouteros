@@ -1,4 +1,4 @@
-UNRELEASED
+2.2.0
 ----------
 
 - Excplicit login_method parameter for login using new or old auth method.
