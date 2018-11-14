@@ -112,7 +112,7 @@ Adding element
 .. code-block:: python
 
     data = {'interface':'ether1', 'address':'172.31.31.1/24'}
-    ID = api.run('/ip/address/add', data)
+    ID = api('/ip/address/add', data)
     # get newly created ID
     ID[0]['ret']
     '*23'
@@ -123,4 +123,4 @@ Removing element
 .. code-block:: python
 
     params = {'.id' :'*7'}
-    api.run('/ip/address/remove', **params)
+    api('/ip/address/remove', **params)
