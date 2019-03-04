@@ -17,9 +17,9 @@ def login_token(api, username, password):
     sentence = api('/login')
     token = tuple(sentence)[0]['ret']
     encoded = encode_password(token, password)
-    api('/login', **{'name': username, 'response': encoded})
+    tuple(api('/login', **{'name': username, 'response': encoded}))
 
 
 def login_plain(api, username, password):
     """Login using post routeros 6.43 authorization method."""
-    api('/login', **{'name': username, 'password': password})
+    tuple(api('/login', **{'name': username, 'password': password}))
