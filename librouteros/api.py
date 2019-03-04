@@ -103,7 +103,7 @@ class Api(Composer, Parser):
             reply_word, words = self._readSentence()
             if reply_word == '!trap':
                 traps.append(TrapError(**words))
-            elif reply_word == '!re' and words:
+            elif reply_word in ('!re', '!done') and words:
                 yield words
 
         if len(traps) > 1:
