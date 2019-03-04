@@ -71,13 +71,14 @@ class Api(Composer, Parser):
     def __call__(self, cmd, **kwargs):
         """
         Call Api with given command.
+        Yields each row.
 
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
         """
         words = tuple(self.composeWord(key, value) for key, value in kwargs.items())
         self.protocol.writeSentence(cmd, *words)
-        return self._readResponse()
+        yield from self._readResponse()
 
     def _readSentence(self):
         """
@@ -91,37 +92,27 @@ class Api(Composer, Parser):
 
     def _readResponse(self):
         """
-        Read untill !done is received.
+        Yields each row of response untill !done is received.
 
         :throws TrapError: If one !trap is received.
         :throws MultiTrapError: If > 1 !trap is received.
-        :returns: Full response
         """
-        response = []
+        traps = []
         reply_word = None
         while reply_word != '!done':
             reply_word, words = self._readSentence()
-            response.append((reply_word, words))
+            if reply_word == '!trap':
+                traps.append(TrapError(**words))
+            elif reply_word == '!re' and words:
+                yield words
 
-        self._trapCheck(response)
-        # Remove empty sentences
-        return tuple(words for reply_word, words in response if words)
+        if len(traps) > 1:
+            raise MultiTrapError(*traps)
+        elif len(traps) == 1:
+            raise traps[0]
 
     def close(self):
         self.protocol.close()
-
-    @staticmethod
-    def _trapCheck(response):
-        traps = tuple(words for reply_word, words in response if reply_word == '!trap')
-        if len(traps) > 1:
-            traps = tuple(
-                    TrapError(message=trap['message'], category=trap.get('category'))
-                    for trap in traps
-                    )
-            raise MultiTrapError(*traps)
-        elif len(traps) == 1:
-            trap = traps[0]
-            raise TrapError(message=trap['message'], category=trap.get('category'))
 
     @staticmethod
     def joinPath(*path):
