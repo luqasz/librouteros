@@ -92,7 +92,7 @@ class Api(Composer, Parser):
 
     def _readResponse(self):
         """
-        Yields each row of response untill !done is received.
+        Yield each row of response untill !done is received.
 
         :throws TrapError: If one !trap is received.
         :throws MultiTrapError: If > 1 !trap is received.
