@@ -71,7 +71,7 @@ class Api(Composer, Parser):
     def __call__(self, cmd, **kwargs):
         """
         Call Api with given command.
-        Yields each row.
+        Yield each row.
 
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
