@@ -14,7 +14,7 @@ DEV_NULL = open(devnull, 'w')
 
 
 def api_session():
-    for x in range(10):
+    for x in range(30):
         try:
             return librouteros.connect(host='127.0.0.1', port=8728, username='admin', password='')
         except (librouteros.ConnectionError, socket.error, socket.timeout):
