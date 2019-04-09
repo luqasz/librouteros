@@ -30,9 +30,9 @@ Connecting
 
     api = connect(username='admin', password='abc', host='some.address.com')
 
-Before connecting, ``api-ssl`` service on routeros must have a valid certificate set.
-For more information on how to generate such certificates see `MikroTik wiki <https://wiki.mikrotik.com/wiki/Manual:Create_Certificates>`_.
-After that, create your default `SSLContext <https://docs.python.org/library/ssl.html#ssl.create_default_context>`_ and fine tune for your needs.
+Before connecting, ``api-ssl`` service on routeros must be enabled.
+For more information on how to generate certificates see `MikroTik wiki <https://wiki.mikrotik.com/wiki/Manual:Create_Certificates>`_.
+After that, create your default `SSLContext <https://docs.python.org/library/ssl.html#ssl.create_default_context>`_ and fine tune for your needs. Code below allows connecting to API without ceritficate.
 
 .. code-block:: python
 
@@ -41,7 +41,7 @@ After that, create your default `SSLContext <https://docs.python.org/library/ssl
 
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    ctx.set_ciphers('ADH:@SECLEVEL=0')
     api = connect(
         username='admin',
         password='abc',
