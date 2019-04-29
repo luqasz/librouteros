@@ -3,8 +3,7 @@ from collections import namedtuple
 from struct import pack
 
 WordLength = namedtuple('WordLength', ('integer', 'encoded'))
-TypeCast = namedtuple('TypeCast', ('api', 'python'))
-AttributeWord = namedtuple('AttributeWord', ('raw', 'key', 'value'))
+WordPair = namedtuple('WordPair', ('word', 'pair'))
 
 
 @pytest.fixture(scope='function')
@@ -37,32 +36,14 @@ def bad_first_length_bytes(request):
 
 
 @pytest.fixture(params=(
-            TypeCast(api='yes', python=True),
-            TypeCast(api='no', python=False),
-            TypeCast(api='string', python='string'),
-            TypeCast(api='none', python='none'),
-            TypeCast(api='22.2', python='22.2'),
-            TypeCast(api='22', python=22),
-            TypeCast(api='0', python=0)
+            WordPair(word='=key=yes', pair=('key', True)),
+            WordPair(word='=key=no', pair=('key', False)),
+            WordPair(word='=key=string', pair=('key', 'string')),
+            WordPair(word='=key=none', pair=('key', 'none')),
+            WordPair(word='=key=22.2', pair=('key', '22.2')),
+            WordPair(word='=key=22', pair=('key', 22)),
+            WordPair(word='=key=0', pair=('key', 0))
         ))
-def bidirectional_type_cast(request):
-    """Value used for casting from/to python/api in both directions."""
-    return request.param
-
-
-@pytest.fixture(params=(
-            TypeCast(api='true', python=True),
-            TypeCast(api='false', python=False),
-        ))
-def from_api_type_cast(request):
-    """Value that is casted from api to pythn."""
-    return request.param
-
-
-@pytest.fixture(params=(
-        AttributeWord(raw='=.id=value', key='.id', value='value'),
-        AttributeWord(raw='=name=ether1', key='name', value='ether1'),
-        AttributeWord(raw='=comment=', key='comment', value=''),
-        ))
-def attribute_word(request):
+def word_pair(request):
+    """Words and key,value pairs used for casting from/to python/api in both directions."""
     return request.param

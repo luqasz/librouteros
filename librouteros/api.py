@@ -3,67 +3,13 @@
 from posixpath import join as pjoin
 
 from librouteros.exceptions import TrapError, MultiTrapError
+from librouteros.protocol import (
+        composeWord,
+        parseWord,
+        )
 
 
-class Parser:
-
-    api_mapping = {'yes': True, 'true': True, 'no': False, 'false': False}
-
-    @staticmethod
-    def apiCast(value):
-        """
-        Cast value from API to python.
-
-        :returns: Python equivalent.
-        """
-        try:
-            casted = int(value)
-        except ValueError:
-            casted = Parser.api_mapping.get(value, value)
-        return casted
-
-    @staticmethod
-    def parseWord(word):
-        """
-        Split given attribute word to key, value pair.
-
-        Values are casted to python equivalents.
-
-        :param word: API word.
-        :returns: Key, value pair.
-        """
-        _, key, value = word.split('=', 2)
-        value = Parser.apiCast(value)
-        return (key, value)
-
-
-class Composer:
-
-    python_mapping = {True: 'yes', False: 'no'}
-
-    @staticmethod
-    def pythonCast(value):
-        """
-        Cast value from python to API.
-
-        :returns: Casted to API equivalent.
-        """
-        # this is necesary because 1 == True, 0 == False
-        if type(value) == int:
-            return str(value)
-        else:
-            return Composer.python_mapping.get(value, str(value))
-
-    @staticmethod
-    def composeWord(key, value):
-        """
-        Create a attribute word from key, value pair.
-        Values are casted to api equivalents.
-        """
-        return '={}={}'.format(key, Composer.pythonCast(value))
-
-
-class Api(Composer, Parser):
+class Api:
 
     def __init__(self, protocol):
         self.protocol = protocol
@@ -76,7 +22,7 @@ class Api(Composer, Parser):
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
         """
-        words = tuple(self.composeWord(key, value) for key, value in kwargs.items())
+        words = (composeWord(key, value) for key, value in kwargs.items())
         self.protocol.writeSentence(cmd, *words)
         yield from self._readResponse()
 
@@ -87,7 +33,7 @@ class Api(Composer, Parser):
         :returns: Reply word, dict with attribute words.
         """
         reply_word, words = self.protocol.readSentence()
-        words = dict(self.parseWord(word) for word in words)
+        words = dict(parseWord(word) for word in words)
         return reply_word, words
 
     def _readResponse(self):

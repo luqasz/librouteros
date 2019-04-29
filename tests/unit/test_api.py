@@ -3,37 +3,35 @@
 import pytest
 from mock import MagicMock
 
-from librouteros.api import Api, Composer, Parser
+from librouteros.api import (
+        Api,
+        )
+from librouteros.protocol import (
+        parseWord,
+        composeWord,
+        )
 
 
-class Test_Parser:
+@pytest.mark.parametrize('word,pair', (
+            ('=dynamic=true', ('dynamic', True)),
+            ('=dynamic=false', ('dynamic', False)),
+        ))
+def test_bool_parseWord(word, pair):
+    """
+    Test for parsing legacy bool values.
 
-    def test_apiCast_bidirectional(self, bidirectional_type_cast):
-        assert Parser.apiCast(bidirectional_type_cast.api) == bidirectional_type_cast.python
-
-    def test_apiCast(self, from_api_type_cast):
-        assert Parser.apiCast(from_api_type_cast.api) == from_api_type_cast.python
-
-    def test_parseWord(self, attribute_word):
-        assert Parser.parseWord(attribute_word.raw) == (attribute_word.key, attribute_word.value)
+    Older routeros versions accept yes/true/no/false as values,
+    but only return true/false.
+    """
+    assert parseWord(word) == pair
 
 
-class Test_Composer:
+def test_parseWord(word_pair):
+    assert parseWord(word_pair.word) == word_pair.pair
 
-    def test_pythonCast_bidirectional(self, bidirectional_type_cast):
-        assert Composer.pythonCast(bidirectional_type_cast.python) == bidirectional_type_cast.api
 
-    def test_pythonCast(self):
-        """
-        Do not cast None to string. MikroTik API sometime returns "none" as value.
-        Casting to "none" requires more reasearch.
-        "none" may not always be None
-        """
-        assert Composer.pythonCast(None) == 'None'
-
-    def test_composeWord(self, attribute_word):
-        result = Composer.composeWord(key=attribute_word.key, value=attribute_word.value)
-        assert result == attribute_word.raw
+def test_composeWord(word_pair):
+    assert composeWord(*word_pair.pair) == word_pair.word
 
 
 class Test_Api:
