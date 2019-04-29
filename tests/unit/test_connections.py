@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-from socket import SHUT_RDWR, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
+from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
 from mock import MagicMock, patch, call
 
 from librouteros import connections
@@ -118,9 +118,9 @@ class Test_SocketTransport:
     def setup(self):
         self.transport = connections.SocketTransport(sock=MagicMock(spec=socket))
 
-    def test_calls_shutdown(self):
+    def test_calls_socket_close(self):
         self.transport.close()
-        self.transport.sock.shutdown.assert_called_once_with(SHUT_RDWR)
+        self.transport.sock.close.assert_called_once()
 
     def test_close_shutdown_exception(self):
         self.transport.sock.shutdown.side_effect = SOCKET_ERROR
@@ -138,7 +138,7 @@ class Test_SocketTransport:
     @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
     def test_write_raises_socket_errors(self, exception):
         self.transport.sock.sendall.side_effect = exception
-        with pytest.raises(ConnectionError):
+        with pytest.raises(exception):
             self.transport.write(b'some data')
 
     def test_read_raises_when_recv_returns_empty_byte_string(self):
@@ -163,5 +163,5 @@ class Test_SocketTransport:
     @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
     def test_recv_raises_socket_errors(self, exception):
         self.transport.sock.recv.side_effect = exception
-        with pytest.raises(ConnectionError):
+        with pytest.raises(exception):
             self.transport.read(2)

@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 
-from socket import SHUT_RDWR, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
 from struct import pack, unpack
 from logging import getLogger, NullHandler
 
@@ -169,17 +168,12 @@ class SocketTransport:
     def __init__(self, sock):
         self.sock = sock
 
-    def write(self, string):
+    def write(self, data):
         """
-        Write given bytes string to socket. Loop as long as every byte in
+        Write given bytes to socket. Loop as long as every byte in
         string is written unless exception is raised.
         """
-        try:
-            self.sock.sendall(string)
-        except SOCKET_TIMEOUT as error:
-            raise ConnectionError('Socket timed out. ' + str(error))
-        except SOCKET_ERROR as error:
-            raise ConnectionError('Failed to write to socket. ' + str(error))
+        self.sock.sendall(data)
 
     def read(self, length):
         """
@@ -187,22 +181,11 @@ class SocketTransport:
         Loop as long as every byte is read unless exception is raised.
         """
         data = bytearray()
-        try:
-            while len(data) != length:
-                data += self.sock.recv((length - len(data)))
-                if not data:
-                    raise ConnectionError('Connection unexpectedly closed.')
-            return data
-        except SOCKET_TIMEOUT as error:
-            raise ConnectionError('Socket timed out. ' + str(error))
-        except SOCKET_ERROR as error:
-            raise ConnectionError('Failed to read from socket. ' + str(error))
+        while len(data) != length:
+            data += self.sock.recv((length - len(data)))
+            if not data:
+                raise ConnectionError('Connection unexpectedly closed.')
+        return data
 
     def close(self):
-        try:
-            # inform other end that we will not read and write any more
-            self.sock.shutdown(SHUT_RDWR)
-        except SOCKET_ERROR:
-            pass
-        finally:
-            self.sock.close()
+        self.sock.close()
