@@ -25,8 +25,8 @@ else:
             )
 
 tests_pkgs = (
-        'pytest-xdist==1.*',
-        'pytest==4.*',
+        'pytest-xdist==1.29.0',
+        'pytest==4.6.3',
         'pylava',
         'pydocstyle',
         'mock',
