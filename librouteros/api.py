@@ -38,7 +38,7 @@ class Api:
 
     def _readResponse(self):
         """
-        Yield each row of response untill !done is received.
+        Yield each sentence untill !done is received.
 
         :throws TrapError: If one !trap is received.
         :throws MultiTrapError: If > 1 !trap is received.
