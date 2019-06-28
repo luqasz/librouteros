@@ -1,0 +1,5 @@
+pytest-xdist==1.*
+pytest==4.*
+pylava
+pydocstyle
+mock==3.*

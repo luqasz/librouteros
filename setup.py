@@ -24,30 +24,13 @@ else:
             'chainmap'
             )
 
-tests_pkgs = (
-        'pytest-xdist==1.*',
-        'pytest==4.*',
-        'pylava',
-        'pydocstyle',
-        'mock',
-        )
-
 setup_pkgs = (
         'setuptools>=12.0.5',
         )
 
-dev_pkgs = (
-        'bumpversion',
-        )
-
 setup(
     install_requires=install_pkgs,
-    tests_require=tests_pkgs,
     setup_requires=setup_pkgs,
-    extras_require={
-        'tests': tests_pkgs,
-        'develop': dev_pkgs,
-    },
     zip_safe=False,
     name='librouteros',
     version='2.2.0',

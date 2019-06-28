@@ -18,7 +18,8 @@ addons:
       - qemu-system-i386
       - qemu-utils
 install:
-  - pip install -e '.[tests]'
+  - pip install -U -r requirements.tests.txt
+  - pip install -e .
 script:
   - wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
   - wget --quiet netng.pl/routeros_test_images/routeros_6.43rc21.qcow2 -O images/routeros_6.43rc21.qcow2
