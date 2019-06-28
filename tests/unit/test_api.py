@@ -1,9 +1,10 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-from mock import MagicMock
+from mock import MagicMock, patch
 
 from librouteros.api import Api, Composer, Parser
+from librouteros.connections import ApiProtocol
 
 
 class Test_Parser:
@@ -57,3 +58,15 @@ class Test_Api:
         ))
     def test_joinPath_multi_param(self, path, expected):
         assert self.api.joinPath(*path) == expected
+
+    @patch.object(Api, '_readResponse')
+    @patch.object(ApiProtocol, 'writeSentence')
+    def test_rawCmd_calls_writeSentence(self, writeSentence_mock, read_mock):
+        args = ('/command', '=arg1=1', '=arg2=2')
+        self.api.rawCmd(*args)
+        assert writeSentence_mock.called_once_with(*args)
+
+    @patch.object(Api, '_readResponse')
+    @patch.object(ApiProtocol, 'writeSentence')
+    def test_rawCmd_returns_from_readResponse(self, writeSentence_mock, read_mock):
+        assert self.api.rawCmd('/command', '=arg1=1', '=arg2=2') == read_mock.return_value

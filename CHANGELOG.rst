@@ -1,3 +1,8 @@
+2.3.0
+----------
+
+- Add rawCmd() method for passing custom queries.
+
 2.2.0
 ----------
 

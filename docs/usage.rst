@@ -123,3 +123,12 @@ Removing element
 
     params = {'.id' :'*7'}
     api('/ip/address/remove', **params)
+
+Plain api command
+-----------------
+
+Method allows to pass a plain (raw) command with command words to API. Usefull for writing custom queries.
+
+.. code-block:: python
+
+    api.rawCmd('/ip/address/print', '?=address=1.1.1.1')

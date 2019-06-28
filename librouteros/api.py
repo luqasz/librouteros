@@ -76,7 +76,18 @@ class Api(Composer, Parser):
         :param kwargs: Dictionary with optional arguments.
         """
         words = tuple(self.composeWord(key, value) for key, value in kwargs.items())
-        self.protocol.writeSentence(cmd, *words)
+        return self.rawCmd(cmd, *words)
+
+    def rawCmd(self, cmd, *args):
+        """
+        Call Api with given command and raw words.
+
+        End user is responsible to properly format each api word argument.
+
+        :param cmd: Command word. eg. /ip/address/print
+        :param args: Iterable with optional plain api arguments.
+        """
+        self.protocol.writeSentence(cmd, *args)
         return self._readResponse()
 
     def _readSentence(self):
