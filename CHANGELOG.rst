@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+- Fix raising TrapError when failed to login. #63
+
 2.3.0
 ----------
 
