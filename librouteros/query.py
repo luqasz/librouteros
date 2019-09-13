@@ -24,7 +24,6 @@ class RowItem:
         return str(self.name)
 
 
-
 class Query:
 
     def __init__(self, path, keys, api):
@@ -56,6 +55,7 @@ def And(e1, e2):
     yield from e1
     yield from e2
     yield '?#&'
+
 
 def Or(e1, e2):
     yield from e1
