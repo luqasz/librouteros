@@ -1,7 +1,6 @@
 from getpass import getpass
 from librouteros.query import (
-        RowItem,
-        Path,
+        Key,
         Or,
         )
 import librouteros
@@ -23,14 +22,7 @@ api = librouteros.connect(
         login_methods=(librouteros.login_plain, librouteros.login_token)
         )
 
-path = Path('/interface', api=api)
-name = RowItem('name')
-disabled = RowItem('disabled')
-for row in path.select(name, disabled).where(
-        disabled == 'no',
-        Or(
-            name == 'ether2',
-            name == 'wlan-lan',
-            ),
-        ):
+name = Key('name')
+rates = Key('supported-rates-a/g')
+for row in api.path('/interface/wireless').select(name, rates):
     print(row)

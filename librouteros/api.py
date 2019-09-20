@@ -3,6 +3,7 @@
 from posixpath import join as pjoin
 
 from librouteros.exceptions import TrapError, MultiTrapError
+from librouteros.query import Query
 
 
 class Parser:
@@ -143,3 +144,38 @@ class Api(Composer, Parser):
         >>> '/ip/address/print'
         """
         return pjoin('/', *path).rstrip('/')
+
+    def path(self, *path):
+        return Path(
+                path='',
+                api=self,
+                ).join(*path)
+
+
+class Path:
+    """Represents absolute command path."""
+
+    def __init__(self, path, api):
+        self.path = path
+        self.api = api
+
+    def select(self, key, *other):
+        keys = (key,) + other
+        return Query(path=self, keys=keys, api=self.api)
+
+    def __str__(self):
+        return self.path
+
+    def __repr__(self):
+        return "<{module}.{cls} {path!r}>".format(
+            module=self.__class__.__module__,
+            cls=self.__class__.__name__,
+            path=self.path,
+        )
+
+    def join(self, *path):
+        """Join current path with one or more path strings."""
+        return Path(
+                api = self.api,
+                path = pjoin('/', self.path, *path).rstrip('/'),
+                )

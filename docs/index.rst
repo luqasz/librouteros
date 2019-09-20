@@ -30,6 +30,7 @@ Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. Th
 
     introduction
     usage
+    query
     api_analysis
     license
     contributing
