@@ -85,7 +85,6 @@ class Test_Key:
 
 
 def test_And():
-    expr = MagicMock()
     assert tuple(And(
         (1,),
         (2,),

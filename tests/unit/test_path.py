@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
-import pytest
 from mock import (
         Mock,
-        patch,
         )
 from librouteros.api import (
         Api,

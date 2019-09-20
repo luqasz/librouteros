@@ -176,6 +176,6 @@ class Path:
     def join(self, *path):
         """Join current path with one or more path strings."""
         return Path(
-                api = self.api,
-                path = pjoin('/', self.path, *path).rstrip('/'),
+                api=self.api,
+                path=pjoin('/', self.path, *path).rstrip('/'),
                 )
