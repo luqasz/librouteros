@@ -12,7 +12,8 @@ class Key:
         yield '?={}={}'.format(self, api.Composer.pythonCast(other))
 
     def __ne__(self, other):
-        yield from self == other
+        for expr in self == other:
+            yield expr
         yield '?#!'
 
     def __lt__(self, other):
@@ -45,18 +46,26 @@ class Query:
 
 
 def And(e1, e2, *rest):
-    yield from e1
-    yield from e2
+    for expr in e1:
+        yield expr
+    for expr in e2:
+        yield expr
     for e in rest:
-        yield from e
+        for expr in e:
+            yield expr
     yield '?#&'
-    yield from ('?#&',) * len(rest)
+    for expr in ('?#&',) * len(rest):
+        yield expr
 
 
 def Or(e1, e2, *rest):
-    yield from e1
-    yield from e2
+    for expr in e1:
+        yield expr
+    for expr in e2:
+        yield expr
     for e in rest:
-        yield from e
+        for expr in e:
+            yield expr
     yield '?#|'
-    yield from ('?#|',) * len(rest)
+    for expr in ('?#|',) * len(rest):
+        yield expr
