@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 from itertools import chain
+import librouteros
 
 
 class Key:
@@ -8,7 +9,7 @@ class Key:
         self.name = name
 
     def __eq__(self, other):
-        yield '?={}={}'.format(self, api.Composer.pythonCast(other))
+        yield '?={}={}'.format(self, librouteros.api.Composer.pythonCast(other))
 
     def __ne__(self, other):
         for expr in self == other:
@@ -16,10 +17,10 @@ class Key:
         yield '?#!'
 
     def __lt__(self, other):
-        yield '?<{}={}'.format(self, api.Composer.pythonCast(other))
+        yield '?<{}={}'.format(self, librouteros.api.Composer.pythonCast(other))
 
     def __gt__(self, other):
-        yield '?>{}={}'.format(self, api.Composer.pythonCast(other))
+        yield '?>{}={}'.format(self, librouteros.api.Composer.pythonCast(other))
 
     def __str__(self):
         return str(self.name)
