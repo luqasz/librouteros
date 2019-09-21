@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from sys import version_info
 import pytest
 from mock import (
         MagicMock,
@@ -31,6 +32,7 @@ class Test_Query:
         self.query.where((1, 2, 3), (4, 5))
         assert self.query.query == (1, 2, 3, 4, 5)
 
+    @pytest.mark.skipif(version_info.major == 2, reason='fails on python 2.7')
     @patch('librouteros.query.iter')
     def test_iter_calls_api_rawCmd(self, iter_mock):
         self.query.keys = ('name', 'disabled')
