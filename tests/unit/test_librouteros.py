@@ -17,16 +17,33 @@ from librouteros.login import (
 )
 
 
-def test_lib_default_arguments():
-    assert {
-            'timeout': 10,
-            'port': 8728,
-            'saddr': '',
-            'subclass': Api,
-            'encoding': 'ASCII',
-            'ssl_wrapper': defaults['ssl_wrapper'],
-            'login_method': login_plain,
-            } == defaults
+def test_default_ssl_wrapper():
+    """Assert that wrapper returns same object as it was called with."""
+    assert defaults['ssl_wrapper'](int) is int
+
+
+@pytest.mark.parametrize("key, value",(
+    ('timeout', 10),
+    ('port', 8728),
+    ('saddr', ''),
+    ('subclass', Api),
+    ('encoding', 'ASCII'),
+    ('login_method', login_plain),
+))
+def test_defaults(key, value):
+    assert defaults[key] == value
+
+
+def test_default_keys():
+    assert set(defaults.keys()) == set((
+            'timeout',
+            'port',
+            'saddr',
+            'subclass',
+            'encoding',
+            'login_method',
+            'ssl_wrapper'
+            ))
 
 
 def test_password_encoding():
