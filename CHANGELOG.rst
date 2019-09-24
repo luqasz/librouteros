@@ -1,4 +1,4 @@
-UNRELEASED
+2.4.0
 ----------
 
 - Add query support. #11
