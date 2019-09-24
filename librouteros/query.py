@@ -14,8 +14,7 @@ class Key:
         yield '?={}={}'.format(self, pyCast(other))
 
     def __ne__(self, other):
-        for expr in self == other:
-            yield expr
+        yield from self == other
         yield '?#!'
 
     def __lt__(self, other):
@@ -48,26 +47,16 @@ class Query:
 
 
 def And(e1, e2, *rest):
-    for expr in e1:
-        yield expr
-    for expr in e2:
-        yield expr
-    for e in rest:
-        for expr in e:
-            yield expr
+    yield from e1
+    yield from e2
+    yield from chain.from_iterable(rest)
     yield '?#&'
-    for expr in ('?#&',) * len(rest):
-        yield expr
+    yield from ('?#&',) * len(rest)
 
 
 def Or(e1, e2, *rest):
-    for expr in e1:
-        yield expr
-    for expr in e2:
-        yield expr
-    for e in rest:
-        for expr in e:
-            yield expr
+    yield from e1
+    yield from e2
+    yield from chain.from_iterable(rest)
     yield '?#|'
-    for expr in ('?#|',) * len(rest):
-        yield expr
+    yield from ('?#|',) * len(rest)

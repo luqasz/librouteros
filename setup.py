@@ -2,7 +2,6 @@
 
 import os
 from setuptools import setup
-from sys import version_info
 
 here = os.path.dirname(__file__)
 
@@ -17,12 +16,8 @@ def read(fname):
     return open(os.path.join(here, fname)).read()
 
 
-if version_info.major >= 3:
-    install_pkgs = ()
-else:
-    install_pkgs = (
-            'chainmap'
-            )
+install_pkgs = (
+        )
 
 setup_pkgs = (
         'setuptools>=12.0.5',
@@ -50,12 +45,9 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries'
         ]
