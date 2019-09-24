@@ -1,3 +1,18 @@
+2.4.0
+----------
+
+- Add query support. #11
+
+2.3.1
+----------
+
+- Fix raising TrapError when failed to login. #63
+
+2.3.0
+----------
+
+- Add rawCmd() method for passing custom queries.
+
 2.2.0
 ----------
 

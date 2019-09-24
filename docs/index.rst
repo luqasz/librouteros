@@ -1,7 +1,7 @@
 Librouteros - Routeros api implementation
 =========================================
 
-.. image:: https://travis-ci.org/luqasz/librouteros.svg?branch=master
+.. image:: https://travis-ci.org/luqasz/librouteros.svg?branch=2.x
     :target: https://travis-ci.org/luqasz/librouteros
     :alt: Tests
 
@@ -30,6 +30,7 @@ Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. Th
 
     introduction
     usage
+    query
     api_analysis
     license
     contributing

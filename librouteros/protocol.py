@@ -16,15 +16,21 @@ def parseWord(word):
     return (key, value)
 
 
-def composeWord(key, value):
-    """
-    Create a attribute word from key, value pair.
-    Values are casted to api equivalents.
-    """
+
+def pyCast(value):
+    """Cast python equivalent to API."""
     mapping = {True: 'yes', False: 'no'}
     # this is necesary because 1 == True, 0 == False
     if type(value) == int:
         value = str(value)
     else:
         value = mapping.get(value, str(value))
-    return '={}={}'.format(key, value)
+    return value
+
+
+def composeWord(key, value):
+    """
+    Create a attribute word from key, value pair.
+    Values are casted to api equivalents.
+    """
+    return '={}={}'.format(key, pyCast(value))

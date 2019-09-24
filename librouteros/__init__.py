@@ -47,11 +47,13 @@ def connect(host, username, password, **kwargs):
         try:
             method(api=api, username=username, password=password)
             return api
-        except (TrapError, MultiTrapError):
-            pass
+        except (TrapError, MultiTrapError) as error:
+            trap = error
         except (ConnectionError, FatalError):
             transport.close()
             raise
+
+    raise trap
 
 
 def create_transport(host, **kwargs):

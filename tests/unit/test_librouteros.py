@@ -1,8 +1,16 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-
-from librouteros import defaults, Api
+from mock import (
+    patch,
+    Mock,
+)
+from librouteros import (
+    defaults,
+    Api,
+    TrapError,
+    connect,
+)
 from librouteros.login import (
     encode_password,
     login_plain,
@@ -34,3 +42,10 @@ def test_non_ascii_password_encoding():
                 token='259e0bc05acd6f46926dc2f809ed1bba',
                 password=u'łą'
                 )
+
+
+@patch('librouteros.create_transport')
+def test_connect_raises_when_failed_login(transport_mock):
+    failed = Mock(name='failed', side_effect=TrapError(message='failed to login'))
+    with pytest.raises(TrapError):
+        connect(host='127.0.0.1', username='admin', password='', login_methods=(failed, failed))
