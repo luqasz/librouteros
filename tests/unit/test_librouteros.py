@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-
+import socket
 import pytest
 from mock import (
     patch,
@@ -10,6 +10,7 @@ from librouteros import (
     Api,
     TrapError,
     connect,
+    create_transport,
 )
 from librouteros.login import (
     encode_password,
@@ -65,3 +66,18 @@ def test_connect_raises_when_failed_login(transport_mock):
     failed = Mock(name='failed', side_effect=TrapError(message='failed to login'))
     with pytest.raises(TrapError):
         connect(host='127.0.0.1', username='admin', password='', login_method=failed)
+
+
+@pytest.mark.parametrize('exc', (socket.error, socket.timeout))
+@patch('librouteros.create_connection')
+@patch('librouteros.SocketTransport')
+def test_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
+    kwargs = dict(
+            host='127.0.0.1',
+            port=22,
+            timeout=2,
+            saddr=''
+            )
+    transport.side_effect = exc
+    with pytest.raises(exc):
+        create_transport(**kwargs)

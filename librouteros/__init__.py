@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from socket import create_connection, error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT
+from socket import create_connection
 try:
     from collections import ChainMap
 except ImportError:
@@ -51,10 +51,6 @@ def connect(host, username, password, **kwargs):
 
 
 def create_transport(host, **kwargs):
-    try:
-        sock = create_connection((host, kwargs['port']), kwargs['timeout'], (kwargs['saddr'], 0))
-        sock = kwargs['ssl_wrapper'](sock)
-        return SocketTransport(sock)
-    except (SOCKET_ERROR, SOCKET_TIMEOUT) as error:
-        raise ConnectionError(error)
+    sock = create_connection((host, kwargs['port']), kwargs['timeout'], (kwargs['saddr'], 0))
+    sock = kwargs['ssl_wrapper'](sock)
     return SocketTransport(sock=sock)
