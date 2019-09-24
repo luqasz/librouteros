@@ -24,7 +24,7 @@ class Api:
         """
         words = (composeWord(key, value) for key, value in kwargs.items())
         self.protocol.writeSentence(cmd, *words)
-        yield from self._readResponse()
+        yield from self.readResponse()
 
     def rawCmd(self, cmd, *words):
         """
@@ -34,9 +34,9 @@ class Api:
         :param args: Iterable with optional plain api arguments.
         """
         self.protocol.writeSentence(cmd, *words)
-        yield from self._readResponse()
+        yield from self.readResponse()
 
-    def _readSentence(self):
+    def readSentence(self):
         """
         Read one sentence and parse words.
 
@@ -46,7 +46,7 @@ class Api:
         words = dict(parseWord(word) for word in words)
         return reply_word, words
 
-    def _readResponse(self):
+    def readResponse(self):
         """
         Yield each sentence untill !done is received.
 
@@ -56,7 +56,7 @@ class Api:
         traps = []
         reply_word = None
         while reply_word != '!done':
-            reply_word, words = self._readSentence()
+            reply_word, words = self.readSentence()
             if reply_word == '!trap':
                 traps.append(TrapError(**words))
             elif reply_word in ('!re', '!done') and words:
