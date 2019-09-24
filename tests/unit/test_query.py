@@ -34,10 +34,13 @@ class Test_Query:
     @patch('librouteros.query.iter')
     def test_iter_calls_api_rawCmd(self, iter_mock):
         self.query.keys = ('name', 'disabled')
+        self.query.query = ('key1', 'key2')
         iter(self.query)
         self.query.api.rawCmd.assert_called_once_with(
                 str(self.query.path.join.return_value),
                 '=.proplist=name,disabled',
+                'key1',
+                'key2',
                 )
 
 
@@ -58,10 +61,8 @@ class Test_Key:
         result = tuple(self.key == param)[0]
         assert result == '?=key_name={}'.format(expected)
 
-    @patch.object(Key, '__eq__')
-    def test_ne(self, eq_mock):
-        eq_mock.return_value = yield 'value'
-        assert tuple(self.key != 1) == (eq_mock.return_value, '?#!')
+    def test_ne(self):
+        assert tuple(self.key != 1) == ('?=key_name=1', '?#!')
 
     @pytest.mark.parametrize('param, expected', (
         (True, 'yes'),
