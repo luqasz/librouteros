@@ -40,23 +40,6 @@ class Test_Api:
     def setup(self):
         self.api = Api(protocol=MagicMock())
 
-    @pytest.mark.parametrize("path, expected", (
-        ("/ip/address/", "/ip/address"),
-        ("ip/address", "/ip/address"),
-        ("/ip/address", "/ip/address"),
-        ))
-    def test_joinPath_single_param(self, path, expected):
-        assert self.api.joinPath(path) == expected
-
-    @pytest.mark.parametrize("path, expected", (
-        (("/ip/address/", "print"), "/ip/address/print"),
-        (("ip/address", "print"), "/ip/address/print"),
-        (("/ip/address", "set"), "/ip/address/set"),
-        (("/", "/ip/address", "set"), "/ip/address/set"),
-        ))
-    def test_joinPath_multi_param(self, path, expected):
-        assert self.api.joinPath(*path) == expected
-
     @patch.object(Api, 'readResponse')
     @patch.object(ApiProtocol, 'writeSentence')
     def test_rawCmd_calls_writeSentence(self, writeSentence_mock, read_mock):

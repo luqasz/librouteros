@@ -70,16 +70,6 @@ class Api:
     def close(self):
         self.protocol.close()
 
-    @staticmethod
-    def joinPath(*path):
-        """
-        Join two or more paths forming a command word.
-
-        >>> api.joinPath('/ip', 'address', 'print')
-        >>> '/ip/address/print'
-        """
-        return pjoin('/', *path).rstrip('/')
-
     def path(self, *path):
         return Path(
                 path='',
