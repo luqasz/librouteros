@@ -19,7 +19,7 @@ defaults = {
             'subclass': Api,
             'encoding': 'ASCII',
             'ssl_wrapper': lambda sock: sock,
-            'login_methods': (login_token, login_plain),
+            'login_method': login_plain,
             }
 
 
@@ -36,24 +36,18 @@ def connect(host, username, password, **kwargs):
     :param saddr: Source address to bind to.
     :param subclass: Subclass of Api class. Defaults to Api class from library.
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
-    :param login_methods: Tuple with callables to login methods to try in order.
+    :param login_method: Callable with login method.
     """
     arguments = ChainMap(kwargs, defaults)
     transport = create_transport(host, **arguments)
     protocol = ApiProtocol(transport=transport, encoding=arguments['encoding'])
     api = arguments['subclass'](protocol=protocol)
 
-    for method in arguments['login_methods']:
-        try:
-            method(api=api, username=username, password=password)
-            return api
-        except (TrapError, MultiTrapError) as error:
-            trap = error
-        except (ConnectionError, FatalError):
-            transport.close()
-            raise
-
-    raise trap
+    try:
+        return arguments['login_method'](api=api, username=username, password=password)
+    except (ConnectionError, FatalError):
+        transport.close()
+        raise
 
 
 def create_transport(host, **kwargs):

@@ -14,7 +14,6 @@ from librouteros import (
 from librouteros.login import (
     encode_password,
     login_plain,
-    login_token,
 )
 
 
@@ -26,7 +25,7 @@ def test_lib_default_arguments():
             'subclass': Api,
             'encoding': 'ASCII',
             'ssl_wrapper': defaults['ssl_wrapper'],
-            'login_methods': (login_token, login_plain),
+            'login_method': login_plain,
             } == defaults
 
 
@@ -48,4 +47,4 @@ def test_non_ascii_password_encoding():
 def test_connect_raises_when_failed_login(transport_mock):
     failed = Mock(name='failed', side_effect=TrapError(message='failed to login'))
     with pytest.raises(TrapError):
-        connect(host='127.0.0.1', username='admin', password='', login_methods=(failed, failed))
+        connect(host='127.0.0.1', username='admin', password='', login_method=failed)
