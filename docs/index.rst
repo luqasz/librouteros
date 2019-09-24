@@ -1,7 +1,7 @@
 Librouteros - Routeros api implementation
 =========================================
 
-.. image:: https://travis-ci.org/luqasz/librouteros.svg?branch=2.x
+.. image:: https://travis-ci.org/luqasz/librouteros.svg?branch=master
     :target: https://travis-ci.org/luqasz/librouteros
     :alt: Tests
 
