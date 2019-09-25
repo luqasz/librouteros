@@ -8,13 +8,13 @@ from mock import (
 from librouteros import (
     defaults,
     Api,
-    TrapError,
     connect,
     create_transport,
 )
+from librouteros.exceptions import TrapError
 from librouteros.login import (
     encode_password,
-    login_plain,
+    plain,
 )
 
 
@@ -29,7 +29,7 @@ def test_default_ssl_wrapper():
     ('saddr', ''),
     ('subclass', Api),
     ('encoding', 'ASCII'),
-    ('login_method', login_plain),
+    ('login_method', plain),
 ))
 def test_defaults(key, value):
     assert defaults[key] == value

@@ -3,10 +3,16 @@
 from socket import create_connection
 from collections import ChainMap
 
-from librouteros.exceptions import TrapError, FatalError, ConnectionError, MultiTrapError
+from librouteros.exceptions import (
+        FatalError,
+        ConnectionError,
+        )
 from librouteros.connections import SocketTransport
 from librouteros.protocol import ApiProtocol
-from librouteros.login import login_plain, login_token
+from librouteros.login import (
+        plain,
+        token,
+        )
 from librouteros.api import Api
 
 
@@ -17,7 +23,7 @@ defaults = {
             'subclass': Api,
             'encoding': 'ASCII',
             'ssl_wrapper': lambda sock: sock,
-            'login_method': login_plain,
+            'login_method': plain,
             }
 
 
