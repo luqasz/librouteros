@@ -4,7 +4,8 @@ from socket import create_connection
 from collections import ChainMap
 
 from librouteros.exceptions import TrapError, FatalError, ConnectionError, MultiTrapError
-from librouteros.connections import ApiProtocol, SocketTransport
+from librouteros.connections import SocketTransport
+from librouteros.protocol import ApiProtocol
 from librouteros.login import login_plain, login_token
 from librouteros.api import Api
 

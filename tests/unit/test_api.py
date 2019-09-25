@@ -9,8 +9,8 @@ from librouteros.api import (
 from librouteros.protocol import (
         parseWord,
         composeWord,
+        ApiProtocol,
         )
-from librouteros.connections import ApiProtocol
 
 
 @pytest.mark.parametrize('word,pair', (
