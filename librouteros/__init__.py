@@ -1,10 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from socket import create_connection
-try:
-    from collections import ChainMap
-except ImportError:
-    from chainmap import ChainMap
+from collections import ChainMap
 
 from librouteros.exceptions import TrapError, FatalError, ConnectionError, MultiTrapError
 from librouteros.connections import ApiProtocol, SocketTransport
