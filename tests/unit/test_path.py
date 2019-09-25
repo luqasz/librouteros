@@ -6,6 +6,7 @@ from librouteros.api import (
         Api,
         Path,
         )
+from librouteros.query import Query
 
 
 def test_api_path_returns_Path():
@@ -35,3 +36,13 @@ class Test_Path:
 
     def test_join_rstrips_slash(self):
         assert self.path.join('ethernet', 'print/').path == self.path.path + '/ethernet/print'
+
+    def test_select_returns_Query(self):
+        new = self.path.select('disabled', 'name')
+        assert type(new) == Query
+
+    def test_select_Query_has_valid_attributes(self):
+        new = self.path.select('disabled', 'name')
+        assert new.api == self.path.api
+        assert new.path == self.path
+        assert new.keys == ('disabled', 'name')
