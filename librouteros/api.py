@@ -4,9 +4,10 @@ from posixpath import join as pjoin
 
 from librouteros.exceptions import TrapError, MultiTrapError
 from librouteros.protocol import (
-        composeWord,
-        parseWord,
+        compose_word,
+        parse_word,
         )
+from librouteros.query import Query
 
 
 class Api:
@@ -22,7 +23,7 @@ class Api:
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
         """
-        words = (composeWord(key, value) for key, value in kwargs.items())
+        words = (compose_word(key, value) for key, value in kwargs.items())
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
@@ -43,7 +44,7 @@ class Api:
         :returns: Reply word, dict with attribute words.
         """
         reply_word, words = self.protocol.readSentence()
-        words = dict(parseWord(word) for word in words)
+        words = dict(parse_word(word) for word in words)
         return reply_word, words
 
     def readResponse(self):
@@ -64,7 +65,7 @@ class Api:
 
         if len(traps) > 1:
             raise MultiTrapError(*traps)
-        elif len(traps) == 1:
+        if len(traps) == 1:
             raise traps[0]
 
     def close(self):
@@ -72,9 +73,9 @@ class Api:
 
     def path(self, *path):
         return Path(
-                path='',
-                api=self,
-                ).join(*path)
+            path='',
+            api=self,
+            ).join(*path)
 
 
 class Path:
@@ -101,6 +102,6 @@ class Path:
     def join(self, *path):
         """Join current path with one or more path strings."""
         return Path(
-                api=self.api,
-                path=pjoin('/', self.path, *path).rstrip('/'),
-                )
+            api=self.api,
+            path=pjoin('/', self.path, *path).rstrip('/'),
+            )

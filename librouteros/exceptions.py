@@ -1,23 +1,23 @@
 # -*- coding: UTF-8 -*-
 
 
-class LibError(Exception):
+class LibRouterosError(Exception):
     """Base exception for all other."""
 
 
-class LoginError(LibError):
-    """Login attempt errors."""
+class ConnectionClosed(LibRouterosError):
+    """Raised when connection have been closed."""
 
 
-class ConnectionError(LibError):
-    """Connection related errors."""
+class ProtocolError(LibRouterosError):
+    """Raised when e.g. encoding/decoding fails."""
 
 
-class FatalError(LibError):
+class FatalError(ProtocolError):
     """Exception raised when !fatal is received."""
 
 
-class TrapError(LibError):
+class TrapError(ProtocolError):
     """
     Exception raised when !trap is received.
 
@@ -28,6 +28,7 @@ class TrapError(LibError):
     def __init__(self, message, category=None):
         self.category = category
         self.message = message
+        super().__init__()
 
     def __str__(self):
         return str(self.message.replace('\r\n', ','))
@@ -36,7 +37,7 @@ class TrapError(LibError):
         return '{}({!r})'.format(self.__class__.__name__, str(self))
 
 
-class MultiTrapError(LibError):
+class MultiTrapError(ProtocolError):
     """
     Exception raised when multiple !trap words have been received in one response.
 
@@ -45,6 +46,7 @@ class MultiTrapError(LibError):
 
     def __init__(self, *traps):
         self.traps = traps
+        super().__init__()
 
     def __str__(self):
         return ', '.join(str(trap) for trap in self.traps)

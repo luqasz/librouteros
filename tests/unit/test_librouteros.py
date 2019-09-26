@@ -6,7 +6,7 @@ from mock import (
     Mock,
 )
 from librouteros import (
-    defaults,
+    DEFAULTS,
     Api,
     connect,
     create_transport,
@@ -20,7 +20,7 @@ from librouteros.login import (
 
 def test_default_ssl_wrapper():
     """Assert that wrapper returns same object as it was called with."""
-    assert defaults['ssl_wrapper'](int) is int
+    assert DEFAULTS['ssl_wrapper'](int) is int
 
 
 @pytest.mark.parametrize("key, value",(
@@ -32,11 +32,11 @@ def test_default_ssl_wrapper():
     ('login_method', plain),
 ))
 def test_defaults(key, value):
-    assert defaults[key] == value
+    assert DEFAULTS[key] == value
 
 
 def test_default_keys():
-    assert set(defaults.keys()) == set((
+    assert set(DEFAULTS.keys()) == set((
             'timeout',
             'port',
             'saddr',

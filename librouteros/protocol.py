@@ -3,12 +3,15 @@
 from struct import pack, unpack
 from logging import getLogger, NullHandler
 
-from librouteros.exceptions import ConnectionError, FatalError
+from librouteros.exceptions import (
+    ProtocolError,
+    FatalError,
+)
 
 LOGGER = getLogger('librouteros')
 LOGGER.addHandler(NullHandler())
 
-def parseWord(word):
+def parse_word(word):
     """
     Split given attribute word to key, value pair.
 
@@ -27,7 +30,7 @@ def parseWord(word):
 
 
 
-def pyCast(value):
+def cast_to_api(value):
     """Cast python equivalent to API."""
     mapping = {True: 'yes', False: 'no'}
     # this is necesary because 1 == True, 0 == False
@@ -38,12 +41,12 @@ def pyCast(value):
     return value
 
 
-def composeWord(key, value):
+def compose_word(key, value):
     """
     Create a attribute word from key, value pair.
     Values are casted to api equivalents.
     """
-    return '={}={}'.format(key, pyCast(value))
+    return '={}={}'.format(key, cast_to_api(value))
 
 
 class Encoder:
@@ -68,6 +71,7 @@ class Encoder:
         :param word: Word to encode.
         :returns: Encoded word.
         """
+        #pylint: disable=no-member
         encoded_word = word.encode(encoding=self.encoding, errors='strict')
         return Encoder.encodeLength(len(word)) + encoded_word
 
@@ -92,7 +96,7 @@ class Encoder:
             ored_length = length | 0xE0000000
             offset = -4
         else:
-            raise ConnectionError('Unable to encode length of {}'.format(length))
+            raise ProtocolError('Unable to encode length of {}'.format(length))
 
         return pack('!I', ored_length)[offset:]
 
@@ -110,6 +114,7 @@ class Decoder:
         """
         integer = ord(length)
 
+        #pylint: disable=no-else-return
         if integer < 128:
             return 0
         elif integer < 192:
@@ -118,8 +123,8 @@ class Decoder:
             return 2
         elif integer < 240:
             return 3
-        else:
-            raise ConnectionError('Unknown controll byte {}'.format(length))
+
+        raise ProtocolError('Unknown controll byte {}'.format(length))
 
     @staticmethod
     def decodeLength(length):
@@ -133,21 +138,21 @@ class Decoder:
 
         if bytes_length < 2:
             offset = b'\x00\x00\x00'
-            XOR = 0
+            xor = 0
         elif bytes_length < 3:
             offset = b'\x00\x00'
-            XOR = 0x8000
+            xor = 0x8000
         elif bytes_length < 4:
             offset = b'\x00'
-            XOR = 0xC00000
+            xor = 0xC00000
         elif bytes_length < 5:
             offset = b''
-            XOR = 0xE0000000
+            xor = 0xE0000000
         else:
-            raise ConnectionError('Unable to decode length of {}'.format(length))
+            raise ProtocolError('Unable to decode length of {}'.format(length))
 
         decoded = unpack('!I', (offset + length))[0]
-        decoded ^= XOR
+        decoded ^= xor
         return decoded
 
 
@@ -157,7 +162,8 @@ class ApiProtocol(Encoder, Decoder):
         self.transport = transport
         self.encoding = encoding
 
-    def log(self, direction_string, *sentence):
+    @staticmethod
+    def log(direction_string, *sentence):
         for word in sentence:
             LOGGER.debug('{0} {1!r}'.format(direction_string, word))
 
@@ -186,8 +192,7 @@ class ApiProtocol(Encoder, Decoder):
         if reply_word == '!fatal':
             self.transport.close()
             raise FatalError(words[0])
-        else:
-            return reply_word, words
+        return reply_word, words
 
     def readWord(self):
         byte = self.transport.read(1)

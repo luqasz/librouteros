@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from librouteros.exceptions import ConnectionError
+from librouteros.exceptions import ConnectionClosed
 
 
 class SocketTransport:
@@ -24,7 +24,7 @@ class SocketTransport:
         while len(data) != length:
             data += self.sock.recv((length - len(data)))
             if not data:
-                raise ConnectionError('Connection unexpectedly closed.')
+                raise ConnectionClosed('Connection unexpectedly closed.')
         return data
 
     def close(self):

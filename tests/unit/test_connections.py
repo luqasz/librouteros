@@ -5,7 +5,11 @@ from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
 from mock import MagicMock, patch, call
 
 from librouteros.connections import SocketTransport
-from librouteros.exceptions import ConnectionError, FatalError
+from librouteros.exceptions import (
+    ProtocolError,
+    FatalError,
+    ConnectionClosed,
+)
 
 
 class Test_SocketTransport:
@@ -38,7 +42,7 @@ class Test_SocketTransport:
 
     def test_read_raises_when_recv_returns_empty_byte_string(self):
         self.transport.sock.recv.return_value = b''
-        with pytest.raises(ConnectionError):
+        with pytest.raises(ConnectionClosed):
             self.transport.read(3)
 
     def test_read_reads_full_length(self):

@@ -10,7 +10,10 @@ from librouteros.protocol import (
         ApiProtocol,
         )
 from librouteros.connections import SocketTransport
-from librouteros.exceptions import ConnectionError, FatalError
+from librouteros.exceptions import (
+ProtocolError,
+FatalError,
+        )
 
 
 class Test_Decoder:
@@ -29,7 +32,7 @@ class Test_Decoder:
         assert self.decoder.determineLength(length) == expected
 
     def test_determineLength_raises(self, bad_first_length_bytes):
-        with pytest.raises(ConnectionError) as error:
+        with pytest.raises(ProtocolError) as error:
             self.decoder.determineLength(bad_first_length_bytes)
         assert str(bad_first_length_bytes) in str(error.value)
 
@@ -38,7 +41,7 @@ class Test_Decoder:
         assert result == valid_word_length.integer
 
     def test_decodeLength_raises(self, bad_length_bytes):
-        with pytest.raises(ConnectionError) as error:
+        with pytest.raises(ProtocolError) as error:
             self.decoder.decodeLength(bad_length_bytes)
         assert str(bad_length_bytes) in str(error.value)
 
@@ -54,7 +57,7 @@ class Test_Encoder:
         assert result == valid_word_length.encoded
 
     def test_encodeLength_raises_if_lenghth_is_too_big(self, bad_length_int):
-        with pytest.raises(ConnectionError) as error:
+        with pytest.raises(ProtocolError) as error:
             self.encoder.encodeLength(bad_length_int)
         assert str(bad_length_int) in str(error.value)
 

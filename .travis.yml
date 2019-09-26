@@ -19,9 +19,10 @@ install:
   - pip install -U -r requirements.tests.txt
   - pip install -e .
 script:
+  - pylint librouteros
   - wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
   - wget --quiet netng.pl/routeros_test_images/routeros_6.43rc21.qcow2 -O images/routeros_6.43rc21.qcow2
-  - py.test --pylava
+  - py.test
 deploy:
   provider: pypi
   user: lkostka

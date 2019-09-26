@@ -7,8 +7,8 @@ from librouteros.api import (
         Api,
         )
 from librouteros.protocol import (
-        parseWord,
-        composeWord,
+        parse_word,
+        compose_word,
         ApiProtocol,
         )
 
@@ -17,22 +17,22 @@ from librouteros.protocol import (
             ('=dynamic=true', ('dynamic', True)),
             ('=dynamic=false', ('dynamic', False)),
         ))
-def test_bool_parseWord(word, pair):
+def test_bool_parse_word(word, pair):
     """
     Test for parsing legacy bool values.
 
     Older routeros versions accept yes/true/no/false as values,
     but only return true/false.
     """
-    assert parseWord(word) == pair
+    assert parse_word(word) == pair
 
 
-def test_parseWord(word_pair):
-    assert parseWord(word_pair.word) == word_pair.pair
+def test_parse_word(word_pair):
+    assert parse_word(word_pair.word) == word_pair.pair
 
 
-def test_composeWord(word_pair):
-    assert composeWord(*word_pair.pair) == word_pair.word
+def test_compose_word(word_pair):
+    assert compose_word(*word_pair.pair) == word_pair.word
 
 
 class Test_Api:

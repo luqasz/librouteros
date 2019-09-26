@@ -54,25 +54,26 @@ After that, create your default `SSLContext <https://docs.python.org/library/ssl
 New auth method
 ---------------
 
-Starting from routeros ``6.43``, new auth method was introduced. By default library will try to login using old method first (with token), then new (using plain text password) method. You can force library to try only one method:
+Starting from routeros ``6.43``, plain text auth method was introduced. By default library will use plain text method. You can force library to use token method:
 
 .. code-block:: python
 
-    from librouteros.login import login_plain, login_token
+    from librouteros.login import plain, token
 
     # for new (plain text password)
-    method = (login_plain, )
+    method = plain
     # for old (with token)
-    method = (login_token, )
-    api = connect(username='admin', password='abc', host='some.address.com', login_methods=method)
+    method = token
+    api = connect(username='admin', password='abc', host='some.address.com', login_method=method)
 
 
 Printing elements
 -----------------
+Calling api will yield each result.
 
 .. code-block:: python
 
-    api(cmd='/interface/print', stats=True)
+    tuple(api(cmd='/interface/print', stats=True))
     ({'.id': '*1',
     'bytes': '418152/157562',
     'comment': '',
@@ -86,7 +87,7 @@ Printing elements
     'running': True,
     'type': 'ether'},)
 
-    api(cmd='/interface/print')
+    tuple(api(cmd='/interface/print'))
     ({'.id': '*1',
     'comment': '',
     'disabled': False,
@@ -113,7 +114,7 @@ Adding element
 
     result = api('/ip/address/add', interface='ether1', address='172.31.31.1/24')
     # get newly created .id
-    result[0]['ret']
+    tuple(result)[0]['ret']
     '*23'
 
 Removing element
@@ -122,7 +123,7 @@ Removing element
 .. code-block:: python
 
     params = {'.id' :'*7'}
-    api('/ip/address/remove', **params)
+    tuple(api('/ip/address/remove', **params))
 
 Plain api command
 -----------------
@@ -131,4 +132,4 @@ Method allows to pass a plain (raw) command with command words to API. Usefull f
 
 .. code-block:: python
 
-    api.rawCmd('/ip/address/print', '?=address=1.1.1.1')
+    tuple(api.rawCmd('/ip/address/print', '?=address=1.1.1.1'))

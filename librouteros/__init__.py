@@ -4,8 +4,8 @@ from socket import create_connection
 from collections import ChainMap
 
 from librouteros.exceptions import (
+        ConnectionClosed,
         FatalError,
-        ConnectionError,
         )
 from librouteros.connections import SocketTransport
 from librouteros.protocol import ApiProtocol
@@ -16,15 +16,15 @@ from librouteros.login import (
 from librouteros.api import Api
 
 
-defaults = {
-            'timeout': 10,
-            'port': 8728,
-            'saddr': '',
-            'subclass': Api,
-            'encoding': 'ASCII',
-            'ssl_wrapper': lambda sock: sock,
-            'login_method': plain,
-            }
+DEFAULTS = {
+    'timeout': 10,
+    'port': 8728,
+    'saddr': '',
+    'subclass': Api,
+    'encoding': 'ASCII',
+    'ssl_wrapper': lambda sock: sock,
+    'login_method': plain,
+}
 
 
 def connect(host, username, password, **kwargs):
@@ -42,14 +42,14 @@ def connect(host, username, password, **kwargs):
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
     :param login_method: Callable with login method.
     """
-    arguments = ChainMap(kwargs, defaults)
+    arguments = ChainMap(kwargs, DEFAULTS)
     transport = create_transport(host, **arguments)
     protocol = ApiProtocol(transport=transport, encoding=arguments['encoding'])
     api = arguments['subclass'](protocol=protocol)
 
     try:
         return arguments['login_method'](api=api, username=username, password=password)
-    except (ConnectionError, FatalError):
+    except (ConnectionClosed, FatalError):
         transport.close()
         raise
 
