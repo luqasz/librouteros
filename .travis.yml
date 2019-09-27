@@ -2,7 +2,7 @@ notifications:
   email:
     on_success: change
     on_failure: change
-dist: xenial
+dist: bionic
 sudo: false
 language: python
 cache: pip
