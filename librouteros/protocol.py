@@ -186,7 +186,7 @@ class ApiProtocol(Encoder, Decoder):
 
         :return: Reply word, tuple with read words.
         """
-        sentence = tuple(word for word in iter(self.readWord, b''))
+        sentence = tuple(word for word in iter(self.readWord, ''))
         self.log('--->', *sentence)
         reply_word, words = sentence[0], sentence[1:]
         if reply_word == '!fatal':
@@ -196,10 +196,14 @@ class ApiProtocol(Encoder, Decoder):
 
     def readWord(self):
         byte = self.transport.read(1)
+        # Early return check for null byte
+        if byte == b'\x00':
+            return ''
         to_read = self.determineLength(byte)
         byte += self.transport.read(to_read)
         length = self.decodeLength(byte)
-        return self.transport.read(length).decode(encoding=self.encoding, errors='strict')
+        word = self.transport.read(length)
+        return word.decode(encoding=self.encoding, errors='strict')
 
     def close(self):
         self.transport.close()
