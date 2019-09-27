@@ -47,7 +47,8 @@ def connect(host, username, password, **kwargs):
     api = arguments['subclass'](protocol=protocol)
 
     try:
-        return arguments['login_method'](api=api, username=username, password=password)
+        arguments['login_method'](api=api, username=username, password=password)
+        return api
     except (ConnectionClosed, FatalError):
         transport.close()
         raise
