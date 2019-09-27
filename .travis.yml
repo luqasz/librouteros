@@ -20,7 +20,7 @@ install:
   - pip install -e .
 script:
   - pylint librouteros
-  - yapf -dr libbrouteros
+  - yapf -dr librouteros
   - yapf -dr tests
   - wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
   - wget --quiet netng.pl/routeros_test_images/routeros_6.43rc21.qcow2 -O images/routeros_6.43rc21.qcow2
