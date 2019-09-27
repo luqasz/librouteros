@@ -7,7 +7,8 @@ import socket
 import pytest
 import py.path
 
-import librouteros
+from librouteros import connect
+from librouteros.exceptions import LibRouterosError
 
 DEV_NULL = open(devnull, 'w')
 
@@ -15,11 +16,11 @@ DEV_NULL = open(devnull, 'w')
 def api_session():
     for x in range(30):
         try:
-            return librouteros.connect(host='127.0.0.1', port=8728, username='admin', password='')
-        except (librouteros.LibRouterosError, socket.error, socket.timeout):
+            return connect(host='127.0.0.1', port=8728, username='admin', password='')
+        except (LibRouterosError, socket.error, socket.timeout):
             sleep(1)
     else:
-        raise librouteros.LibRouterosError('could not connect to device')
+        raise LibRouterosError('could not connect to device')
 
 
 @pytest.fixture(scope='session', params=('6.33.3', '6.43rc21'))
