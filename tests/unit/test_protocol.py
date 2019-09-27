@@ -5,15 +5,15 @@ from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
 from mock import MagicMock, patch, call
 
 from librouteros.protocol import (
-        Encoder,
-        Decoder,
-        ApiProtocol,
-        )
+    Encoder,
+    Decoder,
+    ApiProtocol,
+)
 from librouteros.connections import SocketTransport
 from librouteros.exceptions import (
-ProtocolError,
-FatalError,
-        )
+    ProtocolError,
+    FatalError,
+)
 
 
 class Test_Decoder:
@@ -22,12 +22,15 @@ class Test_Decoder:
         self.decoder = Decoder()
         self.decoder.encoding = 'ASCII'
 
-    @pytest.mark.parametrize("length,expected", (
-        (b'x', 0),  # 120
-        (b'\xbf', 1),  # 191
-        (b'\xdf', 2),  # 223
-        (b'\xef', 3),  # 239
-        ))
+    @pytest.mark.parametrize(
+        "length,expected",
+        (
+            (b'x', 0),        # 120
+            (b'\xbf', 1),     # 191
+            (b'\xdf', 2),     # 223
+            (b'\xef', 3),     # 239
+        )
+    )
     def test_determineLength(self, length, expected):
         assert self.decoder.determineLength(length) == expected
 
@@ -93,9 +96,9 @@ class Test_ApiProtocol:
 
     def setup(self):
         self.protocol = ApiProtocol(
-                transport=MagicMock(spec=SocketTransport),
-                encoding='ASCII',
-                )
+            transport=MagicMock(spec=SocketTransport),
+            encoding='ASCII',
+        )
 
     @patch.object(Encoder, 'encodeSentence')
     def test_writeSentence_calls_encodeSentence(self, encodeSentence_mock):

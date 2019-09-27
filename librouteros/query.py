@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 from itertools import chain
 from librouteros.protocol import (
-        cast_to_api,
-        )
+    cast_to_api,
+)
 
 
 class Key:
@@ -52,7 +52,7 @@ def And(left, right, *rest):
     yield from right
     yield from chain.from_iterable(rest)
     yield '?#&'
-    yield from ('?#&',) * len(rest)
+    yield from ('?#&', ) * len(rest)
 
 
 def Or(left, right, *rest):
@@ -61,4 +61,4 @@ def Or(left, right, *rest):
     yield from right
     yield from chain.from_iterable(rest)
     yield '?#|'
-    yield from ('?#|',) * len(rest)
+    yield from ('?#|', ) * len(rest)

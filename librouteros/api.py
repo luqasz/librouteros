@@ -4,9 +4,9 @@ from posixpath import join as pjoin
 
 from librouteros.exceptions import TrapError, MultiTrapError
 from librouteros.protocol import (
-        compose_word,
-        parse_word,
-        )
+    compose_word,
+    parse_word,
+)
 from librouteros.query import Query
 
 
@@ -75,7 +75,7 @@ class Api:
         return Path(
             path='',
             api=self,
-            ).join(*path)
+        ).join(*path)
 
 
 class Path:
@@ -86,7 +86,7 @@ class Path:
         self.api = api
 
     def select(self, key, *other):
-        keys = (key,) + other
+        keys = (key, ) + other
         return Query(path=self, keys=keys, api=self.api)
 
     def __str__(self):
@@ -104,4 +104,4 @@ class Path:
         return Path(
             api=self.api,
             path=pjoin('/', self.path, *path).rstrip('/'),
-            )
+        )

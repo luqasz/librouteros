@@ -4,19 +4,19 @@ import pytest
 from mock import MagicMock, patch
 
 from librouteros.api import (
-        Api,
-        )
+    Api,
+)
 from librouteros.protocol import (
-        parse_word,
-        compose_word,
-        ApiProtocol,
-        )
+    parse_word,
+    compose_word,
+    ApiProtocol,
+)
 
 
 @pytest.mark.parametrize('word,pair', (
-            ('=dynamic=true', ('dynamic', True)),
-            ('=dynamic=false', ('dynamic', False)),
-        ))
+    ('=dynamic=true', ('dynamic', True)),
+    ('=dynamic=false', ('dynamic', False)),
+))
 def test_bool_parse_word(word, pair):
     """
     Test for parsing legacy bool values.
@@ -47,7 +47,7 @@ class Test_Api:
         self.api.rawCmd(*args)
         assert writeSentence_mock.called_once_with(*args)
 
-    @patch.object(Api, 'readResponse', return_value=(1,2))
+    @patch.object(Api, 'readResponse', return_value=(1, 2))
     @patch.object(ApiProtocol, 'writeSentence')
     def test_rawCmd_returns_from_readResponse(self, writeSentence_mock, read_mock):
-        assert tuple(self.api.rawCmd('/command', '=arg1=1', '=arg2=2')) == (1,2)
+        assert tuple(self.api.rawCmd('/command', '=arg1=1', '=arg2=2')) == (1, 2)

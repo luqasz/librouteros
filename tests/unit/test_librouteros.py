@@ -23,28 +23,32 @@ def test_default_ssl_wrapper():
     assert DEFAULTS['ssl_wrapper'](int) is int
 
 
-@pytest.mark.parametrize("key, value",(
-    ('timeout', 10),
-    ('port', 8728),
-    ('saddr', ''),
-    ('subclass', Api),
-    ('encoding', 'ASCII'),
-    ('login_method', plain),
-))
+@pytest.mark.parametrize(
+    "key, value", (
+        ('timeout', 10),
+        ('port', 8728),
+        ('saddr', ''),
+        ('subclass', Api),
+        ('encoding', 'ASCII'),
+        ('login_method', plain),
+    )
+)
 def test_defaults(key, value):
     assert DEFAULTS[key] == value
 
 
 def test_default_keys():
-    assert set(DEFAULTS.keys()) == set((
+    assert set(DEFAULTS.keys()) == set(
+        (
             'timeout',
             'port',
             'saddr',
             'subclass',
             'encoding',
             'login_method',
-            'ssl_wrapper'
-            ))
+            'ssl_wrapper',
+        )
+    )
 
 
 def test_password_encoding():
@@ -55,10 +59,7 @@ def test_password_encoding():
 def test_non_ascii_password_encoding():
     """Only ascii characters are allowed in password."""
     with pytest.raises(UnicodeEncodeError):
-        encode_password(
-                token='259e0bc05acd6f46926dc2f809ed1bba',
-                password=u'łą'
-                )
+        encode_password(token='259e0bc05acd6f46926dc2f809ed1bba', password=u'łą')
 
 
 @patch('librouteros.create_transport')
@@ -73,11 +74,11 @@ def test_connect_raises_when_failed_login(transport_mock):
 @patch('librouteros.SocketTransport')
 def test_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
     kwargs = dict(
-            host='127.0.0.1',
-            port=22,
-            timeout=2,
-            saddr=''
-            )
+        host='127.0.0.1',
+        port=22,
+        timeout=2,
+        saddr='',
+    )
     transport.side_effect = exc
     with pytest.raises(exc):
         create_transport(**kwargs)

@@ -54,10 +54,10 @@ class Test_SocketTransport:
         assert self.transport.read(8) == b'returned'
         # Check if we ask only for what is left after each recv()
         assert self.transport.sock.recv.call_args_list == [
-                call(8),
-                call(4),
-                call(1),
-                ]
+            call(8),
+            call(4),
+            call(1),
+        ]
 
     @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
     def test_recv_raises_socket_errors(self, exception):

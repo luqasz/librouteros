@@ -1,11 +1,11 @@
 # -*- coding: UTF-8 -*-
 from mock import (
-        Mock,
-        )
+    Mock,
+)
 from librouteros.api import (
-        Api,
-        Path,
-        )
+    Api,
+    Path,
+)
 from librouteros.query import Query
 
 
@@ -21,9 +21,9 @@ class Test_Path:
 
     def setup(self):
         self.path = Path(
-                path='/interface',
-                api=Mock(),
-                )
+            path='/interface',
+            api=Mock(),
+        )
 
     def test_path_str(self):
         assert str(self.path) == self.path.path

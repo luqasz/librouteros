@@ -4,17 +4,16 @@ from socket import create_connection
 from collections import ChainMap
 
 from librouteros.exceptions import (
-        ConnectionClosed,
-        FatalError,
-        )
+    ConnectionClosed,
+    FatalError,
+)
 from librouteros.connections import SocketTransport
 from librouteros.protocol import ApiProtocol
 from librouteros.login import (
-        plain,
-        token,
-        )
+    plain,
+    token,
+)
 from librouteros.api import Api
-
 
 DEFAULTS = {
     'timeout': 10,

@@ -9,7 +9,6 @@ import py.path
 
 import librouteros
 
-
 DEV_NULL = open(devnull, 'w')
 
 
@@ -29,10 +28,13 @@ def disk_image(request):
     img = NamedTemporaryFile()
     request.addfinalizer(img.close)
     cmd = [
-        'qemu-img', 'create',
-        '-f', 'qcow2',
-        # Path to backing file must be absolute or relative to new image
-        '-b', str(py.path.local().join('images/routeros_{}.qcow2'.format(request.param))),
+        'qemu-img',
+        'create',
+        '-f',
+        'qcow2',
+        '-b',
+                                                                                     # Path to backing file must be absolute or relative to new image
+        str(py.path.local().join('images/routeros_{}.qcow2'.format(request.param))),
         img.name,
     ]
     check_call(cmd, stdout=DEV_NULL)
@@ -43,11 +45,16 @@ def disk_image(request):
 def routeros(request, disk_image):
     cmd = [
         'qemu-system-i386',
-        '-m', '64',
-        '-display', 'none',
-        '-hda', disk_image,
-        '-net', 'user,hostfwd=tcp::8728-:8728',
-        '-net', 'nic,model=e1000',
+        '-m',
+        '64',
+        '-display',
+        'none',
+        '-hda',
+        disk_image,
+        '-net',
+        'user,hostfwd=tcp::8728-:8728',
+        '-net',
+        'nic,model=e1000',
     ]
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
     request.addfinalizer(proc.kill)

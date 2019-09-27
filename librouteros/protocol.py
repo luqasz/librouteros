@@ -11,6 +11,7 @@ from librouteros.exceptions import (
 LOGGER = getLogger('librouteros')
 LOGGER.addHandler(NullHandler())
 
+
 def parse_word(word):
     """
     Split given attribute word to key, value pair.
@@ -27,7 +28,6 @@ def parse_word(word):
     except ValueError:
         value = mapping.get(value, value)
     return (key, value)
-
 
 
 def cast_to_api(value):
