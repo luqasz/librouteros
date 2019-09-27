@@ -73,6 +73,8 @@ def routeros(request, disk_image):
         'nic,model=e1000',
         '-cpu',
         'max',
+        '-accel',
+        'kvm',
     ]
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
     request.addfinalizer(proc.kill)
