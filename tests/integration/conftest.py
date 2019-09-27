@@ -16,10 +16,10 @@ def api_session():
     for x in range(30):
         try:
             return librouteros.connect(host='127.0.0.1', port=8728, username='admin', password='')
-        except (librouteros.ConnectionError, socket.error, socket.timeout):
+        except (librouteros.LibRouterosError, socket.error, socket.timeout):
             sleep(1)
     else:
-        raise librouteros.ConnectionError('could not connect to device')
+        raise librouteros.LibRouterosError('could not connect to device')
 
 
 @pytest.fixture(scope='session', params=('6.33.3', '6.43rc21'))
