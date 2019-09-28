@@ -1,8 +1,12 @@
 from time import sleep
-from os import devnull
+from os import (
+    devnull,
+    environ,
+)
 from subprocess import Popen, check_call
 from tempfile import NamedTemporaryFile
 import socket
+import platform
 
 import pytest
 import py.path
@@ -58,7 +62,12 @@ def disk_image(request):
 @pytest.fixture(scope='session')
 def routeros(request, disk_image):
     image, version = disk_image
-    # -accel hvf works on mac and -accel kvm for linux
+    accel = {
+        'Darwin': 'hvf',
+        'Linux': 'kvm',
+    }
+    if environ.get('TRAVIS') and environ.get('CI'):
+        accel['Linux'] = 'tcg'
     cmd = [
         'qemu-system-x86_64',
         '-m',
@@ -73,6 +82,8 @@ def routeros(request, disk_image):
         'nic,model=e1000',
         '-cpu',
         'max',
+        '-accel',
+        accel[platform.system()],
     ]
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
     request.addfinalizer(proc.kill)
