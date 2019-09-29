@@ -8,12 +8,11 @@ qemu-img create -f qcow2 routeros_VERSION.qcow2 64m
 
 ### Install routeros.
 ```
-qemu-system-i386 \
+qemu-system-x86_64 \
     -m 64 \
     -hda routeros_VERSION.qcow2 \
-    -net nic,model=e1000 \
+    -net nic,model=virtio \
     -cdrom ISO_FILE.iso \
-    -vnc :3
 ```
 
 *   Install every package except `kvm`

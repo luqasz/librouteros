@@ -22,7 +22,7 @@ script:
   - yapf -dr librouteros
   - yapf -dr tests
   - wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
-  - wget --quiet netng.pl/routeros_test_images/routeros_6.43rc21.qcow2 -O images/routeros_6.43rc21.qcow2
+  - wget --quiet netng.pl/routeros_test_images/routeros_6.44.5.qcow2 -O images/routeros_6.44.5.qcow2
   - pytest tests/unit
   - pytest -n auto tests/integration
 deploy:

@@ -20,7 +20,7 @@ from librouteros.login import (
 )
 
 DEV_NULL = open(devnull, 'w')
-VERSION_LOGIN = {'6.43rc21': plain, '6.33.3': token}
+VERSION_LOGIN = {'6.44.5': plain, '6.33.3': token}
 
 
 def api_session(port):
@@ -77,7 +77,7 @@ def routeros_vm(disk_image):
         '-net',
         'user,hostfwd=tcp::{}-:8728'.format(port),
         '-net',
-        'nic,model=e1000',
+        'nic,model=virtio',
         '-cpu',
         'max',
         '-accel',
@@ -101,7 +101,7 @@ def routeros_login(request):
 @pytest.fixture(scope='function')
 def routeros_api(request):
     #pylint: disable=redefined-outer-name
-    version = '6.43rc21'
+    version = '6.44.5'
     image = disk_image(version)
     port, proc = routeros_vm(image)
     request.addfinalizer(proc.kill)
