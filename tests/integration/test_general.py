@@ -8,16 +8,19 @@ def test_hostname(routeros):
 
 def test_query(routeros):
     new_address = '172.16.1.1/24'
-    ip = routeros(
+    result = routeros(
         '/ip/address/add',
         address=new_address,
         interface='ether1',
     )
-    created_id = tuple(ip)[0]['ret']
+    created_id = tuple(result)[0]['ret']
 
-    ID = Key('.id')
+    _id = Key('.id')
     address = Key('address')
-    query = routeros.path('/ip/address').select(ID, address).where(ID == created_id, address == new_address)
+    query = routeros.path('/ip/address').select(_id, address).where(
+        _id == created_id,
+        address == new_address,
+    )
     selected_data = tuple(query)
     assert len(selected_data) == 1
     assert selected_data[0]['.id'] == created_id
@@ -40,7 +43,7 @@ def test_long_word(routeros):
         interface='ether1',
         comment=long_value,
     )
-    ID = tuple(data)[0]['ret']
+    _id = tuple(data)[0]['ret']
     for row in routeros('/ip/address/print'):
-        if row['.id'] == ID:
+        if row['.id'] == _id:
             assert row['comment'] == long_value
