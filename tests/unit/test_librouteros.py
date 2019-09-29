@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import socket
 import pytest
-from mock import (
+from unittest.mock import (
     patch,
     Mock,
 )

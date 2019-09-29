@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from mock import (
+from unittest.mock import (
     Mock,
 )
 from librouteros.api import (

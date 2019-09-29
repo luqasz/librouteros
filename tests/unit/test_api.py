@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from librouteros.api import (
     Api,
