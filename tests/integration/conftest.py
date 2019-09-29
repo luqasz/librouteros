@@ -3,6 +3,7 @@ from os import (
     devnull,
     environ,
 )
+from random import randint
 from subprocess import Popen, check_call
 from tempfile import NamedTemporaryFile
 import socket
@@ -22,13 +23,13 @@ DEV_NULL = open(devnull, 'w')
 VERSION_LOGIN = {'6.43rc21': plain, '6.33.3': token}
 
 
-def api_session(login_method):
+def api_session(login_method, port):
     last_exc = None
     for x in range(30):
         try:
             return connect(
                 host='127.0.0.1',
-                port=8728,
+                port=port,
                 username='admin',
                 password='',
                 login_method=login_method,
@@ -39,7 +40,7 @@ def api_session(login_method):
     raise RuntimeError('Could not connect to device. Last exception {}'.format(last_exc))
 
 
-@pytest.fixture(scope='session', params=VERSION_LOGIN.keys())
+@pytest.fixture(scope='function', params=VERSION_LOGIN.keys())
 def disk_image(request):
     """Create a temporary disk image backed by original one."""
     img = NamedTemporaryFile()
@@ -59,9 +60,10 @@ def disk_image(request):
     return (img.name, request.param)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def routeros(request, disk_image):
     image, version = disk_image
+    port = randint(49152, 65535)
     accel = {
         'Darwin': 'hvf',
         'Linux': 'kvm',
@@ -77,7 +79,7 @@ def routeros(request, disk_image):
         '-hda',
         image,
         '-net',
-        'user,hostfwd=tcp::8728-:8728',
+        'user,hostfwd=tcp::{}-:8728'.format(port),
         '-net',
         'nic,model=e1000',
         '-cpu',
@@ -87,4 +89,5 @@ def routeros(request, disk_image):
     ]
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
     request.addfinalizer(proc.kill)
-    return api_session(login_method=VERSION_LOGIN[version])
+    return api_session(login_method=VERSION_LOGIN[version], port=port)
+
