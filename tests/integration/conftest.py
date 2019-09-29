@@ -8,9 +8,9 @@ from subprocess import Popen, check_call
 from tempfile import NamedTemporaryFile
 import socket
 import platform
+from pathlib import Path
 
 import pytest
-import py.path
 
 from librouteros import connect
 from librouteros.exceptions import LibRouterosError
@@ -46,14 +46,14 @@ def disk_image(request):
     img = NamedTemporaryFile()
     request.addfinalizer(img.close)
     # Path to backing image must be absolute or relative to new image
-    backing_img = str(py.path.local().join('images/routeros_{}.qcow2'.format(request.param)))
+    backing_img = Path().joinpath('images/routeros_{}.qcow2'.format(request.param)).absolute()
     cmd = [
         'qemu-img',
         'create',
         '-f',
         'qcow2',
         '-b',
-        backing_img,
+        str(backing_img),
         img.name,
     ]
     check_call(cmd, stdout=DEV_NULL)
