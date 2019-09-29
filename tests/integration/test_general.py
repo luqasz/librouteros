@@ -1,6 +1,27 @@
+from librouteros.query import Key
+
+
 def test_hostname(routeros):
     data = routeros('/system/identity/print')
     assert tuple(data)[0]['name'] == 'MikroTik'
+
+
+def test_query(routeros):
+    new_address = '172.16.1.1/24'
+    ip = routeros(
+        '/ip/address/add',
+        address=new_address,
+        interface='ether1',
+    )
+    created_id = tuple(ip)[0]['ret']
+
+    ID = Key('.id')
+    address = Key('address')
+    query = routeros.path('/ip/address').select(ID, address).where(ID == created_id, address == new_address)
+    selected_data = tuple(query)
+    assert len(selected_data) == 1
+    assert selected_data[0]['.id'] == created_id
+    assert selected_data[0]['address'] == new_address
 
 
 def test_long_word(routeros):
