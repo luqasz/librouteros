@@ -25,7 +25,7 @@ VERSION_LOGIN = {'6.43rc21': plain, '6.33.3': token}
 
 def api_session(login_method, port):
     last_exc = None
-    for x in range(30):
+    for _ in range(30):
         try:
             return connect(
                 host='127.0.0.1',
@@ -62,6 +62,7 @@ def disk_image(request):
 
 @pytest.fixture(scope='function')
 def routeros(request, disk_image):
+    #pylint: disable=redefined-outer-name
     image, version = disk_image
     port = randint(49152, 65535)
     accel = {
