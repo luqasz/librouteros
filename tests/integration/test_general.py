@@ -1,14 +1,33 @@
+import socket
+from time import sleep
 from librouteros.query import Key
+from librouteros import connect
+from librouteros.exceptions import LibRouterosError
 
 
-def test_hostname(routeros):
-    data = routeros('/system/identity/print')
+def test_login(routeros_login):
+    port, method = routeros_login
+    api = None
+    for _ in range(30):
+        try:
+            api = connect(
+                host='127.0.0.1',
+                port=port,
+                username='admin',
+                password='',
+                login_method=method,
+            )
+            break
+        except (LibRouterosError, socket.error, socket.timeout):
+            sleep(1)
+
+    data = api('/system/identity/print')
     assert tuple(data)[0]['name'] == 'MikroTik'
 
 
-def test_query(routeros):
+def test_query(routeros_api):
     new_address = '172.16.1.1/24'
-    result = routeros(
+    result = routeros_api(
         '/ip/address/add',
         address=new_address,
         interface='ether1',
@@ -17,7 +36,7 @@ def test_query(routeros):
 
     _id = Key('.id')
     address = Key('address')
-    query = routeros.path('/ip/address').select(_id, address).where(
+    query = routeros_api.path('/ip/address').select(_id, address).where(
         _id == created_id,
         address == new_address,
     )
@@ -27,7 +46,7 @@ def test_query(routeros):
     assert selected_data[0]['address'] == new_address
 
 
-def test_long_word(routeros):
+def test_long_word(routeros_api):
     r"""
     Assert that when word length is encoded with \x00 in it,
     library should decode this without errors.
@@ -37,13 +56,13 @@ def test_long_word(routeros):
     Check if when reading back, comment is same when set.
     """
     long_value = 'a' * (256 - len('=comment='))
-    data = routeros(
+    data = routeros_api(
         '/ip/address/add',
         address='172.16.1.1/24',
         interface='ether1',
         comment=long_value,
     )
     _id = tuple(data)[0]['ret']
-    for row in routeros('/ip/address/print'):
+    for row in routeros_api('/ip/address/print'):
         if row['.id'] == _id:
             assert row['comment'] == long_value

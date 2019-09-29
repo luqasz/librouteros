@@ -23,7 +23,7 @@ DEV_NULL = open(devnull, 'w')
 VERSION_LOGIN = {'6.43rc21': plain, '6.33.3': token}
 
 
-def api_session(login_method, port):
+def api_session(port):
     last_exc = None
     for _ in range(30):
         try:
@@ -32,7 +32,6 @@ def api_session(login_method, port):
                 port=port,
                 username='admin',
                 password='',
-                login_method=login_method,
             )
         except (LibRouterosError, socket.error, socket.timeout) as exc:
             last_exc = exc
@@ -40,13 +39,11 @@ def api_session(login_method, port):
     raise RuntimeError('Could not connect to device. Last exception {}'.format(last_exc))
 
 
-@pytest.fixture(scope='function', params=VERSION_LOGIN.keys())
-def disk_image(request):
+def disk_image(version):
     """Create a temporary disk image backed by original one."""
     img = NamedTemporaryFile()
-    request.addfinalizer(img.close)
     # Path to backing image must be absolute or relative to new image
-    backing_img = Path().joinpath('images/routeros_{}.qcow2'.format(request.param)).absolute()
+    backing_img = Path().joinpath('images/routeros_{}.qcow2'.format(version)).absolute()
     cmd = [
         'qemu-img',
         'create',
@@ -57,13 +54,11 @@ def disk_image(request):
         img.name,
     ]
     check_call(cmd, stdout=DEV_NULL)
-    return (img.name, request.param)
+    return img
 
 
-@pytest.fixture(scope='function')
-def routeros(request, disk_image):
+def routeros_vm(disk_image):
     #pylint: disable=redefined-outer-name
-    image, version = disk_image
     port = randint(49152, 65535)
     accel = {
         'Darwin': 'hvf',
@@ -78,7 +73,7 @@ def routeros(request, disk_image):
         '-display',
         'none',
         '-hda',
-        image,
+        disk_image.name,
         '-net',
         'user,hostfwd=tcp::{}-:8728'.format(port),
         '-net',
@@ -89,5 +84,26 @@ def routeros(request, disk_image):
         accel[platform.system()],
     ]
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
+    return port, proc
+
+
+@pytest.fixture(scope='function', params=VERSION_LOGIN.keys())
+def routeros_login(request):
+    #pylint: disable=redefined-outer-name
+    version = request.param
+    image = disk_image(version)
+    port, proc = routeros_vm(image)
     request.addfinalizer(proc.kill)
-    return api_session(login_method=VERSION_LOGIN[version], port=port)
+    request.addfinalizer(image.close)
+    return port, VERSION_LOGIN[version]
+
+
+@pytest.fixture(scope='function')
+def routeros_api(request):
+    #pylint: disable=redefined-outer-name
+    version = '6.43rc21'
+    image = disk_image(version)
+    port, proc = routeros_vm(image)
+    request.addfinalizer(proc.kill)
+    request.addfinalizer(image.close)
+    return api_session(port=port)
