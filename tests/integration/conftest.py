@@ -90,4 +90,3 @@ def routeros(request, disk_image):
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
     request.addfinalizer(proc.kill)
     return api_session(login_method=VERSION_LOGIN[version], port=port)
-
