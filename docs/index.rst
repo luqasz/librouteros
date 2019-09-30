@@ -29,7 +29,8 @@ Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. Th
     :maxdepth: 2
 
     introduction
-    usage
+    connect
+    path
     query
     api_analysis
     license

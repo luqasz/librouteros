@@ -99,9 +99,38 @@ class Path:
             path=self.path,
         )
 
+    def __iter__(self):
+        yield from self('print')
+
+    def __call__(self, cmd, **kwargs):
+        yield from self.api(
+            self.join(cmd).path,
+            **kwargs,
+        )
+
     def join(self, *path):
         """Join current path with one or more path strings."""
         return Path(
             api=self.api,
             path=pjoin('/', self.path, *path).rstrip('/'),
         )
+
+    def remove(self, *ids):
+        ids = ','.join(ids)
+        tuple(self(
+            'remove',
+            **{'.id': ids},
+        ))
+
+    def add(self, **kwargs):
+        ret = self(
+            'add',
+            **kwargs,
+        )
+        return tuple(ret)[0]['ret']
+
+    def update(self, **kwargs):
+        tuple(self(
+            'set',
+            **kwargs,
+        ))

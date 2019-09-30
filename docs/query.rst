@@ -7,14 +7,13 @@ Get only ``name`` and ``disabled`` keys from all interfaces.
 
 .. code-block:: python
 
+   from librouteros.query import Key
+   # Each key must be created first in order to reference it later.
    name = Key('name')
    disabled = Key('disabled')
 
    for row in api.path('/interface').select(name, disabled):
       print(row)
-
-Each key must be created first in order to reference it properly.
-
 
 Advanced Usage
 --------------

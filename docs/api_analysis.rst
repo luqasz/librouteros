@@ -22,7 +22,7 @@ Succesfull login (pre 6.43)
     ---> !done
     ---> EOS
 
-Succesfull login (post 6.43)
+Succesfull login (post 6.42)
 ----------------------------
 .. code-block:: none
 
