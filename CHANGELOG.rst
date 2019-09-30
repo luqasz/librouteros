@@ -1,3 +1,20 @@
+UNRELEASED
+----------
+
+- Introduce query support.
+- Path object for easy query and common operations.
+- yield each item instead of returning tuple of items. Greatly reduces memory usage.
+- Drop pre python 3.6 support.
+- Replace pylava with pylint.
+- Add yapf formatter.
+- Replace py.path with builtin pathlib.
+- connect() accepts only one login_method parameter.
+- Drop socker exceptions wrapping.
+- Remove ConnectionError exception.
+- Renamed LibError to LibRouterosError.
+- Changed exceptions inheritance.
+- Removed joinPath()
+
 2.4.0
 ----------
 
