@@ -1,4 +1,4 @@
-UNRELEASED
+3.0.0
 ----------
 
 - Introduce query support.

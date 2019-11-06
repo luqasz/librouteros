@@ -28,7 +28,7 @@ setup(
     setup_requires=setup_pkgs,
     zip_safe=False,
     name='librouteros',
-    version='2.4.0',
+    version='3.0.0',
     description='Python implementation of MikroTik RouterOS API',
     long_description=read('README.rst'),
     author='Łukasz Kostka',
