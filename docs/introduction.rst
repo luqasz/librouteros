@@ -20,5 +20,6 @@ Limitations
 Requirements
 ------------
 
-* Python 2 or 3, with sufficiently recent versions of `pip` and `setuptools`
+* Python 3, with sufficiently recent versions of `pip` and `setuptools`
 * Mock (for runing unit tests).
+* `qemu` for running integration tests.
