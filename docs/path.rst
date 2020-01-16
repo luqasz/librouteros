@@ -61,10 +61,11 @@ Update
 Arbitrary command
 -----------------
 For all other commands, call ``Path`` object directly.
+Remember to consume the result since it returns a generator.
 As a first argument, pass command that you wish to run without absolute path.
 
 .. code-block:: python
 
     script = api.path('system', 'script')
     # Will run /system/script/run with desired .id
-    script('run', **{'.id': '*1'})
+    tuple(script('run', **{'.id': '*1'}))
