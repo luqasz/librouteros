@@ -1,0 +1,55 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CI: yes
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Update apt
+        run: sudo apt update
+
+      - name: Install qemu
+        run: >
+          sudo apt-get install -yq --no-install-recommends
+          qemu-system-i386
+          qemu-utils
+
+      - name: Install test requirements
+        run: pip install -U -r requirements.tests.txt
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Lint
+        run: pylint librouteros
+
+      - name: Format
+        run: >
+          yapf -dr
+          librouteros
+          tests
+
+      - name: Download routeros images
+        run: |
+          wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
+          wget --quiet netng.pl/routeros_test_images/routeros_6.44.5.qcow2 -O images/routeros_6.44.5.qcow2
+
+      - name: Unit tests
+        run: pytest tests/unit
+
+      - name: Integration tests
+        run: pytest -n auto tests/integration

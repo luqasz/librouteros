@@ -64,7 +64,7 @@ def routeros_vm(disk_image):
         'Darwin': 'hvf',
         'Linux': 'kvm',
     }
-    if environ.get('TRAVIS') and environ.get('CI'):
+    if environ.get('CI'):
         accel['Linux'] = 'tcg'
     cmd = [
         'qemu-system-x86_64',
