@@ -4,7 +4,7 @@ __________
 - Add typing annotations
 
 
-3.0.0
+3.0.1
 ----------
 
 - Introduce query support.
