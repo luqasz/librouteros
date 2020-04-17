@@ -1,6 +1,8 @@
 name: CI
 
-on: [push]
+on:
+  - push
+  - pull_request
 
 jobs:
   build:
@@ -9,7 +11,10 @@ jobs:
       CI: yes
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,3 +61,10 @@ jobs:
 
       - name: Integration tests
         run: pytest -n auto tests/integration
+
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && matrix.python-version == '3.7' && success()
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
