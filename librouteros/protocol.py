@@ -206,4 +206,3 @@ class ApiProtocol(Encoder, Decoder):
 
     def close(self) -> None:
         self.transport.close()
-

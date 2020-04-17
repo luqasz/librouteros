@@ -67,4 +67,3 @@ def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
     yield from chain.from_iterable(rest)
     yield '?#|'
     yield from ('?#|', ) * len(rest)
-
