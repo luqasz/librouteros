@@ -1,21 +1,27 @@
 # -*- coding: UTF-8 -*-
 
+import typing
 from posixpath import join as pjoin
-
 from librouteros.exceptions import TrapError, MultiTrapError
 from librouteros.protocol import (
     compose_word,
     parse_word,
+    ApiProtocol,
 )
-from librouteros.query import Query
+from librouteros import query
+
+from librouteros.types import (
+    ReplyDict,
+    ResponseIter,
+)
 
 
 class Api:
 
-    def __init__(self, protocol):
+    def __init__(self, protocol: ApiProtocol):
         self.protocol = protocol
 
-    def __call__(self, cmd, **kwargs):
+    def __call__(self, cmd: str, **kwargs: typing.Any) -> ResponseIter:
         """
         Call Api with given command.
         Yield each row.
@@ -27,7 +33,7 @@ class Api:
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
-    def rawCmd(self, cmd, *words):
+    def rawCmd(self, cmd: str, *words: str) -> ResponseIter:
         """
         Call Api with given command and raw words.
         End user is responsible to properly format each api word argument.
@@ -37,17 +43,16 @@ class Api:
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
-    def readSentence(self):
+    def readSentence(self) -> typing.Tuple[str, ReplyDict]:
         """
         Read one sentence and parse words.
 
         :returns: Reply word, dict with attribute words.
         """
         reply_word, words = self.protocol.readSentence()
-        words = dict(parse_word(word) for word in words)
-        return reply_word, words
+        return reply_word, dict(parse_word(word) for word in words)
 
-    def readResponse(self):
+    def readResponse(self) -> ResponseIter:
         """
         Yield each sentence untill !done is received.
 
@@ -68,10 +73,10 @@ class Api:
         if len(traps) == 1:
             raise traps[0]
 
-    def close(self):
+    def close(self) -> None:
         self.protocol.close()
 
-    def path(self, *path):
+    def path(self, *path: str):
         return Path(
             path='',
             api=self,
@@ -81,56 +86,57 @@ class Api:
 class Path:
     """Represents absolute command path."""
 
-    def __init__(self, path, api):
+    def __init__(self, path: str, api: Api):
         self.path = path
         self.api = api
 
-    def select(self, key, *other):
+    def select(self, key: query.Key, *other: query.Key) -> query.Query:
         keys = (key, ) + other
-        return Query(path=self, keys=keys, api=self.api)
+        return query.Query(path=self, keys=keys, api=self.api)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.path
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{module}.{cls} {path!r}>".format(
             module=self.__class__.__module__,
             cls=self.__class__.__name__,
             path=self.path,
         )
 
-    def __iter__(self):
+    def __iter__(self) -> ResponseIter:
         yield from self('print')
 
-    def __call__(self, cmd, **kwargs):
+    def __call__(self, cmd: str, **kwargs: typing.Any) -> ResponseIter:
         yield from self.api(
             self.join(cmd).path,
             **kwargs,
         )
 
-    def join(self, *path):
+    def join(self, *path: str):
         """Join current path with one or more path strings."""
         return Path(
             api=self.api,
             path=pjoin('/', self.path, *path).rstrip('/'),
         )
 
-    def remove(self, *ids):
-        ids = ','.join(ids)
+    def remove(self, *ids: str) -> None:
+        joined = ','.join(ids)
         tuple(self(
             'remove',
-            **{'.id': ids},
+            **{'.id': joined},
         ))
 
-    def add(self, **kwargs):
+    def add(self, **kwargs: typing.Any) -> str:
         ret = self(
             'add',
             **kwargs,
         )
         return tuple(ret)[0]['ret']
 
-    def update(self, **kwargs):
+    def update(self, **kwargs: typing.Any) -> None:
         tuple(self(
             'set',
             **kwargs,
         ))
+

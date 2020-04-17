@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+import typing
 from socket import create_connection
 from collections import ChainMap
 
@@ -26,7 +27,7 @@ DEFAULTS = {
 }
 
 
-def connect(host, username, password, **kwargs):
+def connect(host: str, username: str, password: str, **kwargs) -> typing.Type[Api]:
     """
     Connect and login to routeros device.
     Upon success return a Api class.
@@ -54,7 +55,7 @@ def connect(host, username, password, **kwargs):
         raise
 
 
-def create_transport(host, **kwargs):
+def create_transport(host: str, **kwargs) -> SocketTransport:
     sock = create_connection((host, kwargs['port']), kwargs['timeout'], (kwargs['saddr'], 0))
     sock = kwargs['ssl_wrapper'](sock)
     return SocketTransport(sock=sock)

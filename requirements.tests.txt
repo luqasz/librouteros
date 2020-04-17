@@ -3,3 +3,4 @@ pytest==5.*
 pydocstyle
 yapf
 pylint
+mypy

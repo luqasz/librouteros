@@ -37,6 +37,9 @@ jobs:
       - name: Lint
         run: pylint librouteros
 
+      - name: Type check
+        run: mypy librouteros
+
       - name: Format
         run: >
           yapf -dr

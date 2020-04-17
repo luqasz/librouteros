@@ -17,6 +17,7 @@ MANIFEST
 #pytest cache
 .cache
 .pytest_cache
+.mypy_cache
 
 # IDE stuff
 .idea

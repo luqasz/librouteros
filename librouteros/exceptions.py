@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import typing
 
 
 class LibRouterosError(Exception):
@@ -25,15 +26,15 @@ class TrapError(ProtocolError):
     :param str message: Error message.
     """
 
-    def __init__(self, message, category=None):
+    def __init__(self, message: str, category: typing.Union[None, int] = None):
         self.category = category
         self.message = message
         super().__init__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.message.replace('\r\n', ','))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{}({!r})'.format(self.__class__.__name__, str(self))
 
 
@@ -44,9 +45,9 @@ class MultiTrapError(ProtocolError):
     :param traps: TrapError instances.
     """
 
-    def __init__(self, *traps):
+    def __init__(self, *traps: TrapError):
         self.traps = traps
         super().__init__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ', '.join(str(trap) for trap in self.traps)

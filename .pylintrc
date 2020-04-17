@@ -65,6 +65,7 @@ disable=missing-module-docstring,
         missing-function-docstring,
         unidiomatic-typecheck,
         logging-format-interpolation,
+        trailing-newlines,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
