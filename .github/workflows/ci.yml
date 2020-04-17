@@ -33,21 +33,21 @@ jobs:
           qemu-system-i386
           qemu-utils
 
-      - name: Install test requirements
-        run: pip install -U -r requirements.tests.txt
+      - name: Install pipenv
+        run: pip install pipenv
 
       - name: Install package
-        run: pip install -e .
+        run: pipenv --python python3 install
 
       - name: Lint
-        run: pylint librouteros
+        run: pipenv run pylint librouteros
 
       - name: Type check
-        run: mypy librouteros
+        run: pipenv run mypy librouteros
 
       - name: Format
         run: >
-          yapf -dr
+          pipenv run yapf -dr
           librouteros
           tests
 
@@ -57,10 +57,10 @@ jobs:
           wget --quiet netng.pl/routeros_test_images/routeros_6.44.5.qcow2 -O images/routeros_6.44.5.qcow2
 
       - name: Unit tests
-        run: pytest tests/unit
+        run: pipenv run pytest tests/unit
 
       - name: Integration tests
-        run: pytest -n auto tests/integration
+        run: pipenv run pytest -n auto tests/integration
 
       - name: Package
         run: python setup.py sdist
