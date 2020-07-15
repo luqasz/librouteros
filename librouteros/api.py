@@ -13,6 +13,7 @@ from librouteros import query
 from librouteros.types import (
     ReplyDict,
     ResponseIter,
+    Response,
 )
 
 
@@ -52,7 +53,7 @@ class Api:
         reply_word, words = self.protocol.readSentence()
         return reply_word, dict(parse_word(word) for word in words)
 
-    def readResponse(self) -> ResponseIter:
+    def readResponse(self) -> Response:
         """
         Yield each sentence untill !done is received.
 
