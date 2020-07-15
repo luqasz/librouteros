@@ -61,17 +61,19 @@ class Api:
         """
         traps = []
         reply_word = None
+        response = []
         while reply_word != '!done':
             reply_word, words = self.readSentence()
             if reply_word == '!trap':
                 traps.append(TrapError(**words))
             elif reply_word in ('!re', '!done') and words:
-                yield words
+                response.append(words)
 
         if len(traps) > 1:
             raise MultiTrapError(*traps)
         if len(traps) == 1:
             raise traps[0]
+        return response
 
     def close(self) -> None:
         self.protocol.close()
