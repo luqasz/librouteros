@@ -1,4 +1,4 @@
-UNRELEASED
+3.0.2
 ----------
 
 - Fix generator yielding #94
