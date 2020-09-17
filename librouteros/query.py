@@ -31,6 +31,11 @@ class Key:
     def __str__(self) -> str:
         return str(self.name)
 
+    def In(self, one, *elems):
+        yield from self == one
+        yield from chain.from_iterable(self == str(elem) for elem in elems)
+        yield from ('?#|', ) * len(elems)
+
 
 class Query:
 

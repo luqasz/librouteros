@@ -1,4 +1,5 @@
 import socket
+import pytest
 from time import sleep
 from librouteros.query import Key
 from librouteros import connect
@@ -44,6 +45,23 @@ def test_query(routeros_api):
     assert len(selected_data) == 1
     assert selected_data[0]['.id'] == created_id
     assert selected_data[0]['address'] == new_address
+
+
+@pytest.mark.parametrize(
+    'addresses', (
+        {'172.16.1.1/24', '172.16.1.2/24'},
+        {'172.16.1.1/24', '172.16.1.2/24', '1.1.1.1/24'},
+        {'172.16.1.2/24'},
+    )
+)
+def test_query_In_operator(routeros_api, addresses):
+    addr_path = routeros_api.path('/ip/address')
+    for addr in addresses:
+        addr_path.add(interface='ether1', address=addr)
+
+    address = Key('address')
+    query = addr_path.select(address).where(address.In(*addresses))
+    assert addresses == set(row['address'] for row in query)
 
 
 def test_long_word(routeros_api):
