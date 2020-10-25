@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+* Add In operator
+
 3.0.2
 ----------
 
