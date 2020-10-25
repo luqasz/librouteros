@@ -14,6 +14,3 @@ mypy = "*"
 bumpversion = "*"
 twine = "*"
 pytest-xdist = "*"
-
-[requires]
-python_version = "3.7"
