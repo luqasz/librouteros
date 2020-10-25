@@ -24,17 +24,27 @@ Syntax is very simmilar to a SQL query.
 
    name = Key('name')
    disabled = Key('disabled')
-   for row in api.path('/interface').select(name, disabled).where(
+   query = api.path('/interface').select(name, disabled).where(
            disabled == False,
            Or(
                name == 'ether2',
                name == 'wlan-lan',
                ),
-           ):
+           )
 
 Above code demonstrates how to select ``name``, ``disabled`` fields where each interface is disabled
 and ``name`` is equal to one of ``ether2``, ``wlan-lan``.
 If you do not specify any logical operation within `where()`, them it defaults to `And()`.
+Above example can be rewritten using `In` operator.
+
+.. code-block:: python
+
+   name = Key('name')
+   disabled = Key('disabled')
+   query = api.path('/interface').select(name, disabled).where(
+           disabled == False,
+           name.In('ether2', 'wlan-lan'),
+           )
 
 Usable operators
 ----------------
@@ -45,6 +55,7 @@ operator example
 ``!=``   ``name != 'ether2'``
 ``>``    ``mtu > 1500``
 ``<``    ``mtu < 1400``
+``In``   ``name.In('ether1', 'ether2', 'wlan1')``
 ======== =========
 
 
