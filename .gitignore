@@ -24,3 +24,5 @@ MANIFEST
 .pydevproject
 .settings
 .vscode
+
+Pipfile.lock
