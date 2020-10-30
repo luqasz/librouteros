@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          lfs: true
 
       - name: Install package
         run: pipenv --python python3 install
@@ -38,6 +40,9 @@ jobs:
 
       - name: Unit tests
         run: pipenv run pytest tests/unit
+
+      - name: ls
+        run: ls -lh images/
 
       - name: Integration tests
         run: pipenv run pytest -n auto tests/integration
