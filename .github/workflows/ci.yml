@@ -21,9 +21,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install pipenv
-        run: pip3 install pipenv
-
       - name: Install package
         run: pipenv --python python3 install
 
