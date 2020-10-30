@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    container: lukaszkostka/librouteros:buster
     env:
       CI: yes
     strategy:
@@ -23,18 +23,6 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Update apt
-        run: sudo apt update
-
-      - name: Install qemu
-        run: >
-          sudo apt-get install -yq --no-install-recommends
-          qemu-system-i386
-          qemu-utils
-
-      - name: Install pipenv
-        run: pip install pipenv
 
       - name: Install package
         run: pipenv --python python3 install
