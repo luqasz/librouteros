@@ -39,6 +39,9 @@ jobs:
       - name: Unit tests
         run: pipenv run pytest tests/unit
 
+      - name: ls
+        run: ls -lh images/
+
       - name: Integration tests
         run: pipenv run pytest -n auto tests/integration
 
