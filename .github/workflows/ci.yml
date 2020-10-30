@@ -47,13 +47,8 @@ jobs:
       - name: Integration tests
         run: pipenv run pytest -n auto tests/integration
 
-      - name: Package
-        run: python setup.py sdist
-        if: success()
-
       - name: Publish package
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && matrix.python-version == '3.7' && success()
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
+        env:
+          TWINE_PASSWORD: ${{ secrets.pypi_password }}
+          TWINE_USERNAME: __token__
