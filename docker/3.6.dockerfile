@@ -9,3 +9,4 @@ RUN apt-get install -y --no-install-recommends \
       wget
 
 RUN pip install pipenv
+RUN pip install twine
