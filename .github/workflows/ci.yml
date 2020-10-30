@@ -36,11 +36,6 @@ jobs:
           librouteros
           tests
 
-      - name: Download routeros images
-        run: |
-          wget --quiet netng.pl/routeros_test_images/routeros_6.33.3.qcow2 -O images/routeros_6.33.3.qcow2
-          wget --quiet netng.pl/routeros_test_images/routeros_6.44.5.qcow2 -O images/routeros_6.44.5.qcow2
-
       - name: Unit tests
         run: pipenv run pytest tests/unit
 
