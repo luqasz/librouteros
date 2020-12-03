@@ -57,5 +57,5 @@ def connect(host: str, username: str, password: str, **kwargs) -> typing.Type[Ap
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
     sock = create_connection((host, kwargs['port']), kwargs['timeout'], (kwargs['saddr'], 0))
-    sock = kwargs['ssl_wrapper'](sock)
+    sock = kwargs['ssl_wrapper'](sock, server_hostname=host)
     return SocketTransport(sock=sock)
