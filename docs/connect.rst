@@ -38,6 +38,14 @@ and fine tune for your needs. Code below allows connecting to API without ceritf
         port=8729
         )
 
+If you need to pass any other parameters like ``server_name``,
+use `partial <https://docs.python.org/3/library/functools.html#functools.partial>`_.
+
+.. code-block:: python
+
+    from functools import partial
+    ssl_wrapper=partial(ctx.wrap_socket, server_hostname='some.address.com')
+
 Auth methods
 ------------
 
