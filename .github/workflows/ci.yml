@@ -44,6 +44,9 @@ jobs:
       - name: Integration tests
         run: pipenv run pytest -n auto tests/integration
 
+      - name: LS
+        run: ls
+
       - name: Publish package
         run: upload.sh
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && matrix.python-version == '3.7' && success()
