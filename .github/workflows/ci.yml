@@ -21,7 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          lfs: true
+          lfs: false
+
+      - name: Move images
+        run: mv /opt/* $GITHUB_WORKSPACE/images/
 
       - name: Install package
         run: pipenv --python python3 install

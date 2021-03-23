@@ -1,3 +1,0 @@
-images/routeros_6.33.3.qcow2 filter=lfs diff=lfs merge=lfs -text
-images/routeros_6.43rc21.qcow2 filter=lfs diff=lfs merge=lfs -text
-images/routeros_6.44.5.qcow2 filter=lfs diff=lfs merge=lfs -text
