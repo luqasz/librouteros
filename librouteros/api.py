@@ -101,11 +101,7 @@ class Path:
         return self.path
 
     def __repr__(self) -> str:
-        return "<{module}.{cls} {path!r}>".format(
-            module=self.__class__.__module__,
-            cls=self.__class__.__name__,
-            path=self.path,
-        )
+        return f"<{self.__class__.__name__} {self}>"
 
     def __iter__(self) -> ResponseIter:
         yield from self('print')
