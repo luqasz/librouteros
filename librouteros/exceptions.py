@@ -35,7 +35,7 @@ class TrapError(ProtocolError):
         return str(self.message.replace('\r\n', ','))
 
     def __repr__(self) -> str:
-        return '{}({!r})'.format(self.__class__.__name__, str(self))
+        return f'{self.__class__.__name__}({self})'
 
 
 class MultiTrapError(ProtocolError):

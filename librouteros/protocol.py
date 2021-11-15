@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import typing
-from struct import pack, unpack
+from struct import pack, unpack #pylint: disable=no-name-in-module
 from logging import getLogger, NullHandler
 
 from librouteros.exceptions import (
@@ -46,7 +46,7 @@ def compose_word(key: str, value: typing.Any) -> str:
     Create a attribute word from key, value pair.
     Values are casted to api equivalents.
     """
-    return '={}={}'.format(key, cast_to_api(value))
+    return f'={key}={cast_to_api(value)}'
 
 
 class Encoder:
@@ -95,7 +95,7 @@ class Encoder:
             ored_length = length | 0xE0000000
             offset = -4
         else:
-            raise ProtocolError('Unable to encode length of {}'.format(length))
+            raise ProtocolError(f'Unable to encode length of {length}')
 
         return pack('!I', ored_length)[offset:]
 
@@ -123,7 +123,7 @@ class Decoder:
         elif integer < 240:
             return 3
 
-        raise ProtocolError('Unknown controll byte {!r}'.format(length))
+        raise ProtocolError(f'Unknown controll byte {length!r}')
 
     @staticmethod
     def decodeLength(length: bytes) -> int:
@@ -148,7 +148,7 @@ class Decoder:
             offset = b''
             xor = 0xE0000000
         else:
-            raise ProtocolError('Unable to decode length of {!r}'.format(length))
+            raise ProtocolError(f'Unable to decode length of {length!r}')
 
         decoded: int = unpack('!I', (offset + length))[0]
         decoded ^= xor
@@ -164,9 +164,8 @@ class ApiProtocol(Encoder, Decoder):
     @staticmethod
     def log(direction_string: str, *sentence: str) -> None:
         for word in sentence:
-            LOGGER.debug('{0} {1!r}'.format(direction_string, word))
-
-        LOGGER.debug('{0} EOS'.format(direction_string))
+            LOGGER.debug(f'{direction_string} {word!r}')
+        LOGGER.debug(f'{direction_string} EOS')
 
     def writeSentence(self, cmd: str, *words: str) -> None:
         """

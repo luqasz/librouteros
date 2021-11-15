@@ -16,17 +16,17 @@ class Key:
         self.name = name
 
     def __eq__(self, other):
-        yield '?={}={}'.format(self, cast_to_api(other))
+        yield f'?={self}={cast_to_api(other)}'
 
     def __ne__(self, other):
         yield from self == other
         yield '?#!'
 
     def __lt__(self, other):
-        yield '?<{}={}'.format(self, cast_to_api(other))
+        yield f'?<{self}={cast_to_api(other)}'
 
     def __gt__(self, other):
-        yield '?>{}={}'.format(self, cast_to_api(other))
+        yield f'?>{self}={cast_to_api(other)}'
 
     def __str__(self) -> str:
         return str(self.name)
@@ -52,7 +52,7 @@ class Query:
 
     def __iter__(self) -> ResponseIter:
         keys = ','.join(str(key) for key in self.keys)
-        keys = '=.proplist={}'.format(keys)
+        keys = f'=.proplist={keys}'
         cmd = str(self.path.join('print'))
         return iter(self.api.rawCmd(cmd, keys, *self.query))
 

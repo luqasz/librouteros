@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import typing
-from binascii import unhexlify, hexlify
+from binascii import unhexlify, hexlify #pylint: disable=no-name-in-module
 from hashlib import md5
 
 
