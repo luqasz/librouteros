@@ -1,4 +1,4 @@
-UNRELEASED
+3.2.0
 ----------
 
 * Ignore character decoding errors
