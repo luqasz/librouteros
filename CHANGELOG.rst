@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+* Ignore character decoding errors
+
 3.1.0
 ----------
 
