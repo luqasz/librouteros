@@ -202,7 +202,7 @@ class ApiProtocol(Encoder, Decoder):
         byte += self.transport.read(to_read)
         length = self.decodeLength(byte)
         word = self.transport.read(length)
-        return word.decode(encoding=self.encoding, errors='strict')
+        return word.decode(encoding=self.encoding, errors='ignore')
 
     def close(self) -> None:
         self.transport.close()

@@ -97,7 +97,7 @@ class Test_ApiProtocol:
     def setup(self):
         self.protocol = ApiProtocol(
             transport=MagicMock(spec=SocketTransport),
-            encoding='ASCII',
+            encoding='utf-8',
         )
 
     @patch.object(Encoder, 'encodeSentence')
@@ -118,6 +118,12 @@ class Test_ApiProtocol:
             self.protocol.readSentence()
         assert str(error.value) == 'reason'
         assert self.protocol.transport.close.call_count == 1
+
+    def test_decoding_ignores_character_errors(self):
+        word = b'\x11\xfb\x95' + 'łąć'.encode('utf-8')
+        length = Encoder.encodeLength(len(word))
+        self.protocol.transport.read.side_effect = (length, b'', word)
+        assert self.protocol.readWord() == '\x11łąć'
 
     def test_close(self):
         self.protocol.close()
