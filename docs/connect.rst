@@ -11,7 +11,7 @@ Unencrypted
         username='admin',
         password='abc',
         host='some.address.com',
-    )
+        )
 
 Encrypted
 ---------
@@ -44,7 +44,10 @@ use `partial <https://docs.python.org/3/library/functools.html#functools.partial
 .. code-block:: python
 
     from functools import partial
-    ssl_wrapper=partial(ctx.wrap_socket, server_hostname='some.address.com')
+    ssl_wrapper=partial(
+        ctx.wrap_socket,
+        server_hostname='some.address.com',
+        )
 
 Auth methods
 ------------
@@ -60,7 +63,12 @@ By default library will use plain text method. You can force library to use toke
     method = plain
     # for pre 6.43 (with token)
     method = token
-    api = connect(username='admin', password='abc', host='some.address.com', login_method=method)
+    api = connect(
+        username='admin',
+        password='abc',
+        host='some.address.com',
+        login_method=method,
+        )
 
 .. note::
 
