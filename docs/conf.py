@@ -65,4 +65,6 @@ htmlhelp_basename = 'librouteros'
 
 html_theme_options = {
     'fixed_sidebar': True,
+    'github_user': 'luqasz',
+    'github_repo': 'librouteros',
 }
