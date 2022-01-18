@@ -1,13 +1,13 @@
-FROM python:3.8
+FROM python:3.8-slim
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update; \
+    apt-get install -y --no-install-recommends --no-install-suggests \
       qemu-system-i386 \
-      qemu-utils \
-      wget
+      qemu-utils; \
+  pip install --no-cache-dir -U setuptools pip twine pipenv; \
+  apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+  rm -rf /var/lib/apt/lists/*
 
 COPY images/*.qcow2 /opt/
-RUN pip install -U setuptools pip
-RUN pip install twine pipenv
