@@ -1,4 +1,4 @@
-pytest-xdist==1.*
+pytest-xdist==2.*
 pytest==5.*
 pydocstyle
 yapf
