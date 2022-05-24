@@ -12,12 +12,6 @@ def bad_length_bytes():
     return b'\xff\xff\xff\xff\xff'
 
 
-@pytest.fixture(scope='function')
-def bad_length_int():
-    """Length must be < 268435456"""
-    return 268435456
-
-
 @pytest.fixture(
     scope='function',
     params=(

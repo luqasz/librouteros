@@ -59,10 +59,11 @@ class Test_Encoder:
         result = self.encoder.encodeLength(valid_word_length.integer)
         assert result == valid_word_length.encoded
 
-    def test_encodeLength_raises_if_lenghth_is_too_big(self, bad_length_int):
+    def test_encodeLength_raises_if_lenghth_is_too_big(self):
+        """Length must be < 268435456"""
+        invalid = 268435456
         with pytest.raises(ProtocolError) as error:
-            self.encoder.encodeLength(bad_length_int)
-        assert str(bad_length_int) in str(error.value)
+            self.encoder.encodeLength(invalid)
 
     @patch.object(Encoder, 'encodeLength', return_value=b'len_')
     def test_encodeWord(self, encodeLength_mock):
