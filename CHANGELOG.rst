@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+* Fix non ASCII API word encoding
+
 3.2.0
 ----------
 

@@ -71,10 +71,18 @@ class Test_Encoder:
         with pytest.raises(UnicodeEncodeError):
             self.encoder.encodeWord(u'łą')
 
-    def test_utf_8_word_encoding(self):
-        """Assert that utf-8 encoding works."""
+    @patch.object(Encoder, 'encodeLength', return_value=b'')
+    def test_utf_8_word_encoding(self, enc_len_mock):
+        """
+        Assert that len is taken from bytes, not utf8 word itself.
+
+        len('ł') == 1
+        'ł'.encode(encoding='UTF8') == 2
+        """
         self.encoder.encoding = 'utf-8'
-        assert self.encoder.encodeWord(u'łą').endswith(b'\xc5\x82\xc4\x85')
+        word = 'ł'
+        self.encoder.encodeWord(word)
+        enc_len_mock.assert_called_once_with(len(word.encode(self.encoder.encoding)))
 
     @patch.object(Encoder, 'encodeWord', return_value=b'')
     def test_encodeSentence(self, encodeWord_mock):
