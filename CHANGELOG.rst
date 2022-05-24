@@ -1,4 +1,4 @@
-UNRELEASED
+3.2.1
 ----------
 
 * Fix non ASCII API word encoding
