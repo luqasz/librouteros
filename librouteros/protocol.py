@@ -72,7 +72,7 @@ class Encoder:
         """
         #pylint: disable=no-member
         encoded_word = word.encode(encoding=self.encoding, errors='strict') # type: ignore
-        return Encoder.encodeLength(len(word)) + encoded_word
+        return Encoder.encodeLength(len(encoded_word)) + encoded_word
 
     @staticmethod
     def encodeLength(length: int) -> bytes:
