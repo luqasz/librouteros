@@ -65,11 +65,6 @@ class Test_Encoder:
         with pytest.raises(ProtocolError) as error:
             self.encoder.encodeLength(invalid)
 
-    @patch.object(Encoder, 'encodeLength', return_value=b'len_')
-    def test_encodeWord(self, encodeLength_mock):
-        assert self.encoder.encodeWord('word') == b'len_word'
-        assert encodeLength_mock.call_count == 1
-
     def test_non_ASCII_word_encoding(self):
         """When encoding is ASCII, word may only contain ASCII characters."""
         self.encoder.encoding = 'ASCII'
