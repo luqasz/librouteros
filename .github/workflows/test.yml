@@ -1,0 +1,76 @@
+name: Run tests
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - $default-branch
+  workflow_call:
+
+jobs:
+  test:
+    name: Test, lint, format check
+    runs-on: ubuntu-20.04
+    container:
+      image: lukaszkostka/librouteros:${{ matrix.python-version }}
+      env:
+        CI: yes
+    strategy:
+      matrix:
+        python-version:
+          - 3.7
+          - 3.8
+          - 3.9
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: false
+
+      - name: Move images
+        run: mv /opt/* $GITHUB_WORKSPACE/images/
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cache
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .venv
+            .mypy_cache
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install library
+        run: poetry install --no-interaction
+
+      - name: Lint
+        run: poetry run pylint librouteros
+
+      - name: Type check
+        run: poetry run mypy librouteros
+
+      - name: Format
+        run: >
+          poetry run yapf -dr
+          librouteros
+          tests
+
+      - name: Unit tests
+        run: poetry run pytest tests/unit
+
+      - name: Integration tests
+        run: poetry run pytest -n auto tests/integration

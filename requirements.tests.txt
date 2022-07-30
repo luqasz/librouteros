@@ -1,6 +1,0 @@
-pytest-xdist==1.*
-pytest==5.*
-pydocstyle
-yapf
-pylint
-mypy

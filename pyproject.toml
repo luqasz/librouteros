@@ -1,3 +1,74 @@
+[tool.poetry]
+name = "librouteros"
+version = "3.2.1"
+description = "Python implementation of MikroTik RouterOS API"
+authors = ["Łukasz Kostka <lukasz.g.kostka@gmail.com>"]
+license = "GNU GPLv2"
+readme = "README.rst"
+documentation="https://librouteros.readthedocs.io"
+repository="https://github.com/luqasz/librouteros"
+keywords=[
+  "mikrotik",
+  "routeros",
+  "api",
+]
+classifiers=[
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Software Development :: Libraries"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7.2"
+toml = "^0.10.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.0"
+yapf = "^0.32.0"
+pylint = "^2.13.7"
+pytest-xdist = "^2.5.0"
+mypy = "^0.971"
+bump2version = "^1.0.1"
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta:__legacy__"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.yapf]
+based_on_style = "pep8"
+spaces_before_comment = "4,8"
+split_before_logical_operator = true
+align_closing_bracket_with_visual_indent = true
+blank_line_before_nested_class_or_def = true
+blank_lines_around_top_level_definition = 2
+column_limit = 120
+dedent_closing_brackets = true
+coalesce_brackets = false
+each_dict_entry_on_separate_line = true
+indent_dictionary_value = false
+split_arguments_when_comma_terminated = true
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+
+[tool.pylint.messages_control]
+disable = [
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "unidiomatic-typecheck",
+  "logging-format-interpolation",
+  "trailing-newlines",
+  "logging-fstring-interpolation",
+]
+method-naming-style = "camelCase"
+class-naming-style = "PascalCase"
