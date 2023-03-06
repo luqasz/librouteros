@@ -34,7 +34,7 @@ toml = "^0.10.2"
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"
 yapf = "^0.32.0"
-pylint = "^2.16.2"
+pylint = "^2.16.3"
 pytest-xdist = "^3.2.0"
 mypy = "^1.0"
 bump2version = "^1.0.1"
