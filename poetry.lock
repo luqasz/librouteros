@@ -535,13 +535,13 @@ files = [
 
 [[package]]
 name = "yapf"
-version = "0.40.0"
+version = "0.40.1"
 description = "A formatter for Python code."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "yapf-0.40.0-py3-none-any.whl", hash = "sha256:63386557876c2686cb29d8c422b2d1e484f29f7a278821f91515b5c5adf569a7"},
-    {file = "yapf-0.40.0.tar.gz", hash = "sha256:7eeb8c404e386f16e24cbd785103dbc573f51cbb68e65a35f4392e0233f3d7bc"},
+    {file = "yapf-0.40.1-py3-none-any.whl", hash = "sha256:b8bfc1f280949153e795181768ca14ef43d7312629a06c43e7abd279323af313"},
+    {file = "yapf-0.40.1.tar.gz", hash = "sha256:958587eb5c8ec6c860119a9c25d02addf30a44f75aa152a4220d30e56a98037c"},
 ]
 
 [package.dependencies]
@@ -567,4 +567,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7.2"
-content-hash = "6b7904a45816560efd9efb1a723fe7e1af9e0b8b1783c2ba74860cd771e7198b"
+content-hash = "8abe27c5f0c4da800b9bde3af3046b9007f5d4c2f706ec242bc9392c58311ed8"
