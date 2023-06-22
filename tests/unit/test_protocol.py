@@ -18,7 +18,7 @@ from librouteros.exceptions import (
 
 class Test_Decoder:
 
-    def setup(self):
+    def setup_method(self):
         self.decoder = Decoder()
         self.decoder.encoding = 'ASCII'
 
@@ -51,7 +51,7 @@ class Test_Decoder:
 
 class Test_Encoder:
 
-    def setup(self):
+    def setup_method(self):
         self.encoder = Encoder()
         self.encoder.encoding = 'ASCII'
 
@@ -98,7 +98,7 @@ class Test_Encoder:
 
 class Test_ApiProtocol:
 
-    def setup(self):
+    def setup_method(self):
         self.protocol = ApiProtocol(
             transport=MagicMock(spec=SocketTransport),
             encoding='utf-8',

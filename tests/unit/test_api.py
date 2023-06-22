@@ -37,7 +37,7 @@ def test_compose_word(word_pair):
 
 class Test_Api:
 
-    def setup(self):
+    def setup_method(self):
         self.api = Api(protocol=MagicMock())
 
     @patch.object(Api, 'readResponse')

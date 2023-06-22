@@ -11,7 +11,7 @@ from librouteros.query import (
 
 class Test_Query:
 
-    def setup(self):
+    def setup_method(self):
         self.query = Query(
             path=MagicMock(),
             api=MagicMock(),
@@ -43,7 +43,7 @@ class Test_Query:
 
 class Test_Key:
 
-    def setup(self):
+    def setup_method(self):
         self.key = Key(name='key_name', )
 
     @pytest.mark.parametrize('param, expected', (

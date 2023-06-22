@@ -14,7 +14,7 @@ from librouteros.exceptions import (
 
 class Test_SocketTransport:
 
-    def setup(self):
+    def setup_method(self):
         self.transport = SocketTransport(sock=MagicMock(spec=socket))
 
     def test_close_shutdown_exception(self):

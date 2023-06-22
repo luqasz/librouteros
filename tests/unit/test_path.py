@@ -19,7 +19,7 @@ def test_api_path_returns_Path():
 
 class Test_Path:
 
-    def setup(self):
+    def setup_method(self):
         self.path = Path(
             path='/interface',
             api=MagicMock(),
