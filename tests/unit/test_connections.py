@@ -2,12 +2,10 @@
 
 import pytest
 from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock
 
 from librouteros.connections import SocketTransport
 from librouteros.exceptions import (
-    ProtocolError,
-    FatalError,
     ConnectionClosed,
 )
 

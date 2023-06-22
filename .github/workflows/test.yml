@@ -57,8 +57,8 @@ jobs:
       - name: Install library
         run: poetry install --no-interaction
 
-      - name: Lint
-        run: poetry run pylint librouteros
+      - name: Run Ruff
+        run: ruff check --format=github .
 
       - name: Type check
         run: poetry run mypy librouteros

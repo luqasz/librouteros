@@ -1,8 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import pytest
-from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 from librouteros.protocol import (
     Encoder,
@@ -62,7 +61,7 @@ class Test_Encoder:
     def test_encodeLength_raises_if_lenghth_is_too_big(self):
         """Length must be < 268435456"""
         invalid = 268435456
-        with pytest.raises(ProtocolError) as error:
+        with pytest.raises(ProtocolError):
             self.encoder.encodeLength(invalid)
 
     def test_non_ASCII_word_encoding(self):
