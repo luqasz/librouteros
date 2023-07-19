@@ -17,7 +17,7 @@ Get only ``name`` and ``disabled`` keys from all interfaces.
 
 Advanced Usage
 --------------
-Adding ``where()``, allows to fine tune serch criteria.
+Adding ``where()``, allows to fine tune search criteria.
 Syntax is very simmilar to a SQL query.
 
 .. code-block:: python
