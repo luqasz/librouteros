@@ -1,7 +1,7 @@
 Api analysis
 ============
 
-This document aims to cover in depth analysis of routeros API. Lines that begin with ``--->`` represent data received from a device. Linet that start with ``<---`` represent data send to a device. End of sentence is marked with ``EOS``.
+This document aims to cover in depth analysis of routeros API. Lines that begin with ``--->`` represent data received from a device. Lines that start with ``<---`` represent data send to a device. End of sentence is marked with ``EOS``.
 
 Succesfull login (pre 6.43)
 ---------------------------
