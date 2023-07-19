@@ -61,5 +61,5 @@ operator example
 
 Logical operators
 -----------------
-``And``, ``Or``. Ecah operator takes at least two expressions and performs a logical operation translating it to API
+``And``, ``Or``. Each operator takes at least two expressions and performs a logical operation translating it to API
 query equivalents.
