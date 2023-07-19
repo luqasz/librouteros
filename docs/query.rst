@@ -17,7 +17,7 @@ Get only ``name`` and ``disabled`` keys from all interfaces.
 
 Advanced Usage
 --------------
-Adding ``where()``, allows to fine tune serch criteria.
+Adding ``where()``, allows to fine tune search criteria.
 Syntax is very simmilar to a SQL query.
 
 .. code-block:: python
@@ -61,5 +61,5 @@ operator example
 
 Logical operators
 -----------------
-``And``, ``Or``. Ecah operator takes at least two expressions and performs a logical operation translating it to API
+``And``, ``Or``. Each operator takes at least two expressions and performs a logical operation translating it to API
 query equivalents.
