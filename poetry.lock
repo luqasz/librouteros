@@ -434,17 +434,18 @@ files = [
 
 [[package]]
 name = "ruff-lsp"
-version = "0.0.39"
+version = "0.0.40"
 description = "A Language Server Protocol implementation for Ruff."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "ruff_lsp-0.0.39-py3-none-any.whl", hash = "sha256:60f7dbe1c34e3ed9729d72bc42c0b6227d45a9808977f511fa29af8820984817"},
-    {file = "ruff_lsp-0.0.39.tar.gz", hash = "sha256:faab8b836040df6ded8b1e3eca11a11ab7b7108b14e2f5d5deff8cc131676881"},
+    {file = "ruff_lsp-0.0.40-py3-none-any.whl", hash = "sha256:8be548244252cef9ad5f6379fbe944d78ba24c09de28c390220d4a98168a6908"},
+    {file = "ruff_lsp-0.0.40.tar.gz", hash = "sha256:15e7b4a500a11cca34040348a689830ea5739dc2edb0ad51a05deec293bfacf7"},
 ]
 
 [package.dependencies]
 lsprotocol = ">=2023.0.0a1"
+packaging = ">=23.1"
 pygls = ">=1.0.1"
 ruff = ">=0.0.274"
 typing-extensions = "*"
@@ -657,4 +658,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7.2"
-content-hash = "954a89db9805f20cc4859d1ad36e35a8c51f08b6a78673eba2991eeca69fd77a"
+content-hash = "57db8d3c837031ff6c24cfa12165ded3210a2dddeaa6e5b5445d6f7359578a0d"
