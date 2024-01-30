@@ -39,7 +39,7 @@ mypy = "^1.4"
 bump2version = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
-ruff = ">=0.0.274,<0.1.15"
+ruff = ">=0.0.274,<0.1.16"
 ruff-lsp = ">=0.0.35,<0.0.41"
 python-lsp-server = "^1.7.3"
 
