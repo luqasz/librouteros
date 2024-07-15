@@ -16,7 +16,7 @@ jobs:
       - test
     runs-on: ubuntu-20.04
     container:
-      image: lukaszkostka/librouteros:3.9
+      image: lukaszkostka/librouteros:3.12
     steps:
       - name: Checkout
         uses: actions/checkout@v2

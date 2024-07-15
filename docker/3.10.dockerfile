@@ -1,4 +1,4 @@
-FROM python:3.6-slim
+FROM python:3.10-slim
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -12,3 +12,4 @@ RUN apt-get update; \
   rm -rf /var/lib/apt/lists/*
 
 COPY images/*.qcow2 /opt/
+

@@ -1,6 +1,7 @@
 UNRELEASED
 ----------
 
+* Drop python 3.7 support (end of life)
 * Drop python 3.6 support (end of life)
 
 3.2.1
