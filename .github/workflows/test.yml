@@ -60,7 +60,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run Ruff
-        run: poetry run ruff check --format=github .
+        run: poetry run ruff check .
 
       - name: Type check
         run: poetry run mypy librouteros
