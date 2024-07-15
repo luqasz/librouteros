@@ -18,6 +18,7 @@ def test_api_path_returns_Path():
 
 
 class Test_Path:
+
     def setup_method(self):
         self.path = Path(
             path="/interface",
@@ -53,7 +54,9 @@ class Test_Path:
         assert self.path.api.return_value.__iter__.call_count == 1
 
     def test_add(self):
-        self.path.api.return_value = ({"ret": "*1"},)
+        self.path.api.return_value = ({
+            "ret": "*1"
+        }, )
         new = {"interface": "ether1", "address": "172.1.1.1/24"}
         new_id = self.path.add(**new)
         self.path.api.assert_called_once_with("/interface/add", **new)

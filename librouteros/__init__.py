@@ -17,13 +17,13 @@ from librouteros.login import (
 from librouteros.api import Api
 
 DEFAULTS = {
-    'timeout': 10,
-    'port': 8728,
-    'saddr': '',
-    'subclass': Api,
-    'encoding': 'ASCII',
-    'ssl_wrapper': lambda sock: sock,
-    'login_method': plain,
+    "timeout": 10,
+    "port": 8728,
+    "saddr": "",
+    "subclass": Api,
+    "encoding": "ASCII",
+    "ssl_wrapper": lambda sock: sock,
+    "login_method": plain,
 }
 
 
@@ -44,11 +44,11 @@ def connect(host: str, username: str, password: str, **kwargs) -> typing.Type[Ap
     """
     arguments = ChainMap(kwargs, DEFAULTS)
     transport = create_transport(host, **arguments)
-    protocol = ApiProtocol(transport=transport, encoding=arguments['encoding'])
-    api = arguments['subclass'](protocol=protocol)
+    protocol = ApiProtocol(transport=transport, encoding=arguments["encoding"])
+    api = arguments["subclass"](protocol=protocol)
 
     try:
-        arguments['login_method'](api=api, username=username, password=password)
+        arguments["login_method"](api=api, username=username, password=password)
         return api
     except (ConnectionClosed, FatalError):
         transport.close()
@@ -56,6 +56,6 @@ def connect(host: str, username: str, password: str, **kwargs) -> typing.Type[Ap
 
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
-    sock = create_connection((host, kwargs['port']), kwargs['timeout'], (kwargs['saddr'], 0))
-    sock = kwargs['ssl_wrapper'](sock)
+    sock = create_connection((host, kwargs["port"]), kwargs["timeout"], (kwargs["saddr"], 0))
+    sock = kwargs["ssl_wrapper"](sock)
     return SocketTransport(sock=sock)
