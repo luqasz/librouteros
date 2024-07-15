@@ -19,7 +19,7 @@ jobs:
       image: lukaszkostka/librouteros:3.12
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           lfs: false
 
@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-3.9-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.poerty-cache.outputs.cache-hit != 'true'
