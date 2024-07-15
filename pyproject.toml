@@ -64,5 +64,8 @@ split_arguments_when_comma_terminated = true
 [tool.ruff]
 line-length = 120
 
+# [tool.ruff.lint]
+# ignore = ["E721"]
+
 [tool.pytest.ini_options]
 addopts = "-ra"

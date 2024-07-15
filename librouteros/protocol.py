@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import typing
-from struct import pack, unpack #pylint: disable=no-name-in-module
+from struct import pack, unpack
 from logging import getLogger, NullHandler
 
 from librouteros.exceptions import (
@@ -10,7 +10,7 @@ from librouteros.exceptions import (
 )
 from librouteros.connections import SocketTransport
 
-LOGGER = getLogger('librouteros')
+LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())
 
 
@@ -23,20 +23,20 @@ def parse_word(word: str) -> typing.Tuple[str, typing.Any]:
     :param word: API word.
     :returns: Key, value pair.
     """
-    mapping = {'yes': True, 'true': True, 'no': False, 'false': False}
-    _, key, value = word.split('=', 2)
+    mapping = {"yes": True, "true": True, "no": False, "false": False}
+    _, key, value = word.split("=", 2)
     try:
-        value = int(value)                # type: ignore
+        value = int(value)  # type: ignore
     except ValueError:
-        value = mapping.get(value, value) # type: ignore
+        value = mapping.get(value, value)  # type: ignore
     return (key, value)
 
 
 def cast_to_api(value: typing.Any) -> str:
     """Cast python equivalent to API."""
-    mapping = {True: 'yes', False: 'no'}
+    mapping = {True: "yes", False: "no"}
     # this is necesary because 1 == True, 0 == False
-    if type(value) == int:
+    if type(value) == int:  # noqa: E721
         return str(value)
     return mapping.get(value, str(value))
 
@@ -46,11 +46,10 @@ def compose_word(key: str, value: typing.Any) -> str:
     Create a attribute word from key, value pair.
     Values are casted to api equivalents.
     """
-    return f'={key}={cast_to_api(value)}'
+    return f"={key}={cast_to_api(value)}"
 
 
 class Encoder:
-
     def encodeSentence(self, *words: str) -> bytes:
         """
         Encode given sentence in API format.
@@ -58,9 +57,9 @@ class Encoder:
         :param words: Words to endoce.
         :returns: Encoded sentence.
         """
-        encoded = b''.join(self.encodeWord(word) for word in words)
+        encoded = b"".join(self.encodeWord(word) for word in words)
         # append EOS (end of sentence) byte
-        encoded += b'\x00'
+        encoded += b"\x00"
         return encoded
 
     def encodeWord(self, word: str) -> bytes:
@@ -70,8 +69,8 @@ class Encoder:
         :param word: Word to encode.
         :returns: Encoded word.
         """
-        #pylint: disable=no-member
-        encoded_word = word.encode(encoding=self.encoding, errors='strict') # type: ignore
+        # pylint: disable=no-member
+        encoded_word = word.encode(encoding=self.encoding, errors="strict")  # type: ignore
         return Encoder.encodeLength(len(encoded_word)) + encoded_word
 
     @staticmethod
@@ -95,13 +94,12 @@ class Encoder:
             ored_length = length | 0xE0000000
             offset = -4
         else:
-            raise ProtocolError(f'Unable to encode length of {length}')
+            raise ProtocolError(f"Unable to encode length of {length}")
 
-        return pack('!I', ored_length)[offset:]
+        return pack("!I", ored_length)[offset:]
 
 
 class Decoder:
-
     @staticmethod
     def determineLength(length: bytes) -> int:
         """
@@ -113,7 +111,7 @@ class Decoder:
         """
         integer = ord(length)
 
-        #pylint: disable=no-else-return
+        # pylint: disable=no-else-return
         if integer < 128:
             return 0
         elif integer < 192:
@@ -123,7 +121,7 @@ class Decoder:
         elif integer < 240:
             return 3
 
-        raise ProtocolError(f'Unknown controll byte {length!r}')
+        raise ProtocolError(f"Unknown controll byte {length!r}")
 
     @staticmethod
     def decodeLength(length: bytes) -> int:
@@ -136,27 +134,26 @@ class Decoder:
         bytes_length = len(length)
 
         if bytes_length < 2:
-            offset = b'\x00\x00\x00'
+            offset = b"\x00\x00\x00"
             xor = 0
         elif bytes_length < 3:
-            offset = b'\x00\x00'
+            offset = b"\x00\x00"
             xor = 0x8000
         elif bytes_length < 4:
-            offset = b'\x00'
+            offset = b"\x00"
             xor = 0xC00000
         elif bytes_length < 5:
-            offset = b''
+            offset = b""
             xor = 0xE0000000
         else:
-            raise ProtocolError(f'Unable to decode length of {length!r}')
+            raise ProtocolError(f"Unable to decode length of {length!r}")
 
-        decoded: int = unpack('!I', (offset + length))[0]
+        decoded: int = unpack("!I", (offset + length))[0]
         decoded ^= xor
         return decoded
 
 
 class ApiProtocol(Encoder, Decoder):
-
     def __init__(self, transport: SocketTransport, encoding: str):
         self.transport = transport
         self.encoding = encoding
@@ -164,8 +161,8 @@ class ApiProtocol(Encoder, Decoder):
     @staticmethod
     def log(direction_string: str, *sentence: str) -> None:
         for word in sentence:
-            LOGGER.debug(f'{direction_string} {word!r}')
-        LOGGER.debug(f'{direction_string} EOS')
+            LOGGER.debug(f"{direction_string} {word!r}")
+        LOGGER.debug(f"{direction_string} EOS")
 
     def writeSentence(self, cmd: str, *words: str) -> None:
         """
@@ -175,7 +172,7 @@ class ApiProtocol(Encoder, Decoder):
         :param words: Aditional words.
         """
         encoded = self.encodeSentence(cmd, *words)
-        self.log('<---', cmd, *words)
+        self.log("<---", cmd, *words)
         self.transport.write(encoded)
 
     def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
@@ -184,10 +181,10 @@ class ApiProtocol(Encoder, Decoder):
 
         :return: Reply word, tuple with read words.
         """
-        sentence = tuple(word for word in iter(self.readWord, ''))
-        self.log('--->', *sentence)
+        sentence = tuple(word for word in iter(self.readWord, ""))
+        self.log("--->", *sentence)
         reply_word, words = sentence[0], sentence[1:]
-        if reply_word == '!fatal':
+        if reply_word == "!fatal":
             self.transport.close()
             raise FatalError(words[0])
         return reply_word, words
@@ -195,13 +192,13 @@ class ApiProtocol(Encoder, Decoder):
     def readWord(self) -> str:
         byte = self.transport.read(1)
         # Early return check for null byte
-        if byte == b'\x00':
-            return ''
+        if byte == b"\x00":
+            return ""
         to_read = self.determineLength(byte)
         byte += self.transport.read(to_read)
         length = self.decodeLength(byte)
         word = self.transport.read(length)
-        return word.decode(encoding=self.encoding, errors='ignore')
+        return word.decode(encoding=self.encoding, errors="ignore")
 
     def close(self) -> None:
         self.transport.close()
