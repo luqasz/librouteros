@@ -49,6 +49,8 @@ def disk_image(version):
         'create',
         '-f',
         'qcow2',
+        '-F',
+        'qcow2',
         '-b',
         str(backing_img),
         img.name,
