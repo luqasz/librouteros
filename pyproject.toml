@@ -32,7 +32,7 @@ python = "^3.8.0"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^8.3.2"
+pytest = "^8.3.3"
 yapf = "^0.40.2"
 pytest-xdist = "^3.5.0"
 mypy = "^1.11"
