@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # If your documentation needs a minimal Sphinx version, state it here.
