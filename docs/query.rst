@@ -34,8 +34,8 @@ Syntax is very simmilar to a SQL query.
 
 Above code demonstrates how to select ``name``, ``disabled`` fields where each interface is disabled
 and ``name`` is equal to one of ``ether2``, ``wlan-lan``.
-If you do not specify any logical operation within `where()`, them it defaults to `And()`.
-Above example can be rewritten using `In` operator.
+If you do not specify any logical operation within ``where()``, them it defaults to `And()`.
+Above example can be rewritten using ``In`` operator.
 
 .. code-block:: python
 
