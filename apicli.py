@@ -11,7 +11,8 @@ from sys import stdout, stdin
 from select import select
 from os import linesep
 
-from librouteros import connect, ConnectionError, TrapError, FatalError
+from librouteros import connect
+from librouteros.exceptions import TrapError, FatalError
 
 argParser = ArgumentParser(description='mikrotik api cli interface')
 argParser.add_argument(
