@@ -4,7 +4,6 @@ from librouteros.exceptions import ConnectionClosed
 
 
 class SocketTransport:
-
     def __init__(self, sock: socket):
         self.sock = sock
 
@@ -24,7 +23,7 @@ class SocketTransport:
         while len(data) != length:
             data += self.sock.recv((length - len(data)))
             if not data:
-                raise ConnectionClosed('Connection unexpectedly closed.')
+                raise ConnectionClosed("Connection unexpectedly closed.")
         return data
 
     def close(self) -> None:

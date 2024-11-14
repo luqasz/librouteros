@@ -11,7 +11,7 @@ from librouteros.connections import SocketTransport
 from librouteros.protocol import ApiProtocol
 from librouteros.login import (
     plain,
-    token,                      # noqa: F401 BACK_COMP
+    token,  # noqa: F401 BACK_COMP
 )
 from librouteros.api import Api
 

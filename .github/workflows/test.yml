@@ -65,7 +65,7 @@ jobs:
 
       - name: Format
         run: >
-          poetry run yapf -dr
+          poetry run ruff format --diff
           librouteros
           tests
 
