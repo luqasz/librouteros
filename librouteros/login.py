@@ -27,3 +27,8 @@ def token(api: typing.Any, username: str, password: str) -> None:
 def plain(api: typing.Any, username: str, password: str) -> None:
     """Login using post routeros 6.43 authorization method."""
     tuple(api('/login', **{'name': username, 'password': password}))
+
+async def async_plain(api, username, password):
+    async for response in api('/login', **{'name': username, 'password': password}):
+        # Process the response
+        pass

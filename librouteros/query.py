@@ -73,3 +73,32 @@ def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
     yield from chain.from_iterable(rest)
     yield '?#|'
     yield from ('?#|', ) * len(rest)
+
+class AsyncQuery:
+    def __init__(self, path, keys: typing.Sequence[Key], api):
+        self.path = path
+        self.keys = keys
+        self.api = api
+        self.query: typing.Tuple[str, ...] = tuple()
+
+    def where(self, *args: str):
+        self.query = tuple(chain.from_iterable(args))
+        return self
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if not hasattr(self, 'iterator'):
+            keys = ','.join(str(key) for key in self.keys)
+            keys = f'=.proplist={keys}'
+            cmd = str(self.path.join('print'))
+            self.iterator = self.api.rawCmd(cmd, keys, *self.query).__aiter__()
+
+        try:
+            return await self.iterator.__anext__()
+        except StopAsyncIteration:
+            raise StopAsyncIteration
+
+    def __iter__(self):
+        raise TypeError("Use 'async for' instead of 'for' to iterate over Query results.")

@@ -8,7 +8,7 @@ from librouteros.exceptions import (
     ProtocolError,
     FatalError,
 )
-from librouteros.connections import SocketTransport
+from librouteros.connections import SocketTransport, AsyncSocketTransport
 
 LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())
@@ -205,3 +205,61 @@ class ApiProtocol(Encoder, Decoder):
 
     def close(self) -> None:
         self.transport.close()
+
+class AsyncApiProtocol(Encoder, Decoder):
+    def __init__(self, transport: AsyncSocketTransport, encoding: str):
+        self.transport = transport
+        self.encoding = encoding
+
+    @staticmethod
+    def log(direction_string: str, *sentence: str) -> None:
+        for word in sentence:
+            LOGGER.debug(f"{direction_string} {word!r}")
+        LOGGER.debug(f"{direction_string} EOS")
+
+    async def writeSentence(self, cmd: str, *words: str) -> None:
+        """
+        Write encoded sentence.
+
+        :param cmd: Command word.
+        :param words: Aditional words.
+        """
+        encoded = self.encodeSentence(cmd, *words)
+        self.log("<---", cmd, *words)
+        await self.transport.write(encoded)
+
+    async def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
+        """
+        Read every word untill empty word (NULL byte) is received.
+
+        :return: Reply word, tuple with read words.
+        """
+        # sentence = tuple(word for word in iter(await self.readWord, ""))
+        sentence = []
+        while True:
+            word = await self.readWord()
+            if word == "":
+                break
+            sentence.append(word)
+
+        sentence = tuple(sentence)
+        self.log("--->", *sentence)
+        reply_word, words = sentence[0], sentence[1:]
+        if reply_word == "!fatal":
+            await self.transport.close()
+            raise FatalError(words[0])
+        return reply_word, words
+
+    async def readWord(self) -> str:
+        byte = await self.transport.read(1)
+        # Early return check for null byte
+        if byte == b"\x00":
+            return ""
+        to_read = self.determineLength(byte)
+        byte += await self.transport.read(to_read)
+        length = self.decodeLength(byte)
+        word = await self.transport.read(length)
+        return word.decode(encoding=self.encoding, errors="ignore")
+
+    async def close(self) -> None:
+        await self.transport.close()
