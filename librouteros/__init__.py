@@ -102,5 +102,8 @@ def create_transport(host: str, **kwargs) -> SocketTransport:
 
 
 async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
-    reader, writer = await asyncio.open_connection(host=host, port=kwargs["port"])
+    reader, writer = await asyncio.wait_for(
+        asyncio.open_connection(host=host, port=kwargs["port"]),
+        timeout=kwargs["timeout"],
+    )
     return AsyncSocketTransport(reader=reader, writer=writer)
