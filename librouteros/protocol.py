@@ -9,6 +9,7 @@ from librouteros.exceptions import (
     FatalError,
 )
 from librouteros.connections import SocketTransport, AsyncSocketTransport
+import asyncio
 
 LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())
@@ -207,9 +208,10 @@ class ApiProtocol(Encoder, Decoder):
         self.transport.close()
 
 class AsyncApiProtocol(Encoder, Decoder):
-    def __init__(self, transport: AsyncSocketTransport, encoding: str):
+    def __init__(self, transport: AsyncSocketTransport, encoding: str, timeout: float):
         self.transport = transport
         self.encoding = encoding
+        self.timeout = timeout
 
     @staticmethod
     def log(direction_string: str, *sentence: str) -> None:
@@ -218,6 +220,9 @@ class AsyncApiProtocol(Encoder, Decoder):
         LOGGER.debug(f"{direction_string} EOS")
 
     async def writeSentence(self, cmd: str, *words: str) -> None:
+        await asyncio.wait_for(self.__writeSentence(cmd, *words), timeout=self.timeout)
+
+    async def __writeSentence(self, cmd: str, *words: str) -> None:
         """
         Write encoded sentence.
 
@@ -229,6 +234,9 @@ class AsyncApiProtocol(Encoder, Decoder):
         await self.transport.write(encoded)
 
     async def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
+        return await asyncio.wait_for(self.__readSentence(), timeout=self.timeout)
+
+    async def __readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
         """
         Read every word untill empty word (NULL byte) is received.
 
