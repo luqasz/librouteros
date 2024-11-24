@@ -1,6 +1,7 @@
 UNRELEASED
 ----------
 
+* Allow empty `select()`
 * Drop python 3.7 support (end of life)
 * Drop python 3.6 support (end of life)
 
