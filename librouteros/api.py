@@ -92,8 +92,7 @@ class Path:
         self.path = path
         self.api = api
 
-    def select(self, key: query.Key, *other: query.Key) -> query.Query:
-        keys = (key,) + other
+    def select(self, *keys: query.Key) -> query.Query:
         return query.Query(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:

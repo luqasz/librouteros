@@ -79,3 +79,7 @@ class Test_Path:
         self.path.api.assert_called_once_with("/system/script/run")
         # Check if returned generator was consumed
         assert self.path.api.return_value.__iter__.call_count == 1
+
+    def test_select_without_keys(self):
+        query = self.path.select()
+        assert isinstance(query, Query)
