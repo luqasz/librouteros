@@ -1,4 +1,4 @@
-UNRELEASED
+3.3.0
 ----------
 
 * Allow empty `select()`
