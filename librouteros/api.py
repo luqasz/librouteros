@@ -247,26 +247,31 @@ class AyncPath:
             path=pjoin("/", self.path, *path).rstrip("/"),
         )
 
-    def remove(self, *ids: str) -> None:
+    async def remove(self, *ids: str) -> None:
         joined = ",".join(ids)
-        tuple(
-            self(
+        response = [
+            response
+            async for response in self(
                 "remove",
                 **{".id": joined},
             )
-        )
+        ]
 
-    def add(self, **kwargs: typing.Any) -> str:
-        ret = self(
-            "add",
-            **kwargs,
-        )
-        return tuple(ret)[0]["ret"]
+    async def add(self, **kwargs: typing.Any) -> str:
+        response = [
+            response
+            async for response in self(
+                "add",
+                **kwargs,
+            )
+        ]
+        return response[0]["ret"]
 
-    def update(self, **kwargs: typing.Any) -> None:
-        tuple(
-            self(
+    async def update(self, **kwargs: typing.Any) -> None:
+        response = [
+            response
+            async for response in self(
                 "set",
                 **kwargs,
             )
-        )
+        ]
