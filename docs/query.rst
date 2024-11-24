@@ -46,6 +46,17 @@ Above example can be rewritten using ``In`` operator.
            name.In('ether2', 'wlan-lan'),
            )
 
+Select all keys/fields.
+
+.. code-block:: python
+
+   name = Key('name')
+   disabled = Key('disabled')
+   query = api.path('/interface').select().where(
+           disabled == False,
+           name.In('ether2', 'wlan-lan'),
+           )
+
 Usable operators
 ----------------
 ======== =========
