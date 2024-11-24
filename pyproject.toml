@@ -33,32 +33,21 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.3.3"
-yapf = "^0.43.0"
 pytest-xdist = "^3.5.0"
 mypy = "^1.13"
 bump2version = "^1.0.1"
-ruff = ">=0.5.1"
+ruff = ">=0.7.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.yapf]
-based_on_style = "pep8"
-spaces_before_comment = "4,8"
-split_before_logical_operator = true
-align_closing_bracket_with_visual_indent = true
-blank_line_before_nested_class_or_def = true
-blank_lines_around_top_level_definition = 2
-column_limit = 120
-dedent_closing_brackets = true
-coalesce_brackets = false
-each_dict_entry_on_separate_line = true
-indent_dictionary_value = false
-split_arguments_when_comma_terminated = true
-
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 80
 
 [tool.pytest.ini_options]
 addopts = "-ra"

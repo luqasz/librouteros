@@ -18,7 +18,6 @@ from librouteros.types import (
 
 
 class Api:
-
     def __init__(self, protocol: ApiProtocol):
         self.protocol = protocol
 
@@ -63,11 +62,11 @@ class Api:
         traps = []
         reply_word = None
         response = []
-        while reply_word != '!done':
+        while reply_word != "!done":
             reply_word, words = self.readSentence()
-            if reply_word == '!trap':
+            if reply_word == "!trap":
                 traps.append(TrapError(**words))
-            elif reply_word in ('!re', '!done') and words:
+            elif reply_word in ("!re", "!done") and words:
                 response.append(words)
 
         if len(traps) > 1:
@@ -81,7 +80,7 @@ class Api:
 
     def path(self, *path: str):
         return Path(
-            path='',
+            path="",
             api=self,
         ).join(*path)
 
@@ -94,7 +93,7 @@ class Path:
         self.api = api
 
     def select(self, key: query.Key, *other: query.Key) -> query.Query:
-        keys = (key, ) + other
+        keys = (key,) + other
         return query.Query(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:
@@ -104,7 +103,7 @@ class Path:
         return f"<{self.__class__.__name__} {self}>"
 
     def __iter__(self) -> ResponseIter:
-        yield from self('print')
+        yield from self("print")
 
     def __call__(self, cmd: str, **kwargs: typing.Any) -> ResponseIter:
         yield from self.api(
@@ -116,25 +115,29 @@ class Path:
         """Join current path with one or more path strings."""
         return Path(
             api=self.api,
-            path=pjoin('/', self.path, *path).rstrip('/'),
+            path=pjoin("/", self.path, *path).rstrip("/"),
         )
 
     def remove(self, *ids: str) -> None:
-        joined = ','.join(ids)
-        tuple(self(
-            'remove',
-            **{'.id': joined},
-        ))
+        joined = ",".join(ids)
+        tuple(
+            self(
+                "remove",
+                **{".id": joined},
+            )
+        )
 
     def add(self, **kwargs: typing.Any) -> str:
         ret = self(
-            'add',
+            "add",
             **kwargs,
         )
-        return tuple(ret)[0]['ret']
+        return tuple(ret)[0]["ret"]
 
     def update(self, **kwargs: typing.Any) -> None:
-        tuple(self(
-            'set',
-            **kwargs,
-        ))
+        tuple(
+            self(
+                "set",
+                **kwargs,
+            )
+        )
