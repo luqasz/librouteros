@@ -6,7 +6,7 @@ from unittest.mock import (
     Mock,
 )
 from librouteros import (
-    DEFAULTS,
+    SYNC_DEFAULTS,
     Api,
     connect,
     create_transport,
@@ -20,7 +20,7 @@ from librouteros.login import (
 
 def test_default_ssl_wrapper():
     """Assert that wrapper returns same object as it was called with."""
-    assert DEFAULTS['ssl_wrapper'](int) is int
+    assert SYNC_DEFAULTS['ssl_wrapper'](int) is int
 
 
 @pytest.mark.parametrize(
@@ -34,11 +34,11 @@ def test_default_ssl_wrapper():
     )
 )
 def test_defaults(key, value):
-    assert DEFAULTS[key] == value
+    assert SYNC_DEFAULTS[key] == value
 
 
 def test_default_keys():
-    assert set(DEFAULTS.keys()) == set(
+    assert set(SYNC_DEFAULTS.keys()) == set(
         (
             'timeout',
             'port',
