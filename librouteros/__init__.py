@@ -84,7 +84,7 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
     """
     arguments = ChainMap(kwargs, ASYNC_DEFAULTS)
     transport = await async_create_transport(host, **arguments)
-    protocol = AsyncApiProtocol(transport=transport, encoding=arguments["encoding"], timeout=kwargs["timeout"])
+    protocol = AsyncApiProtocol(transport=transport, encoding=arguments["encoding"], timeout=arguments["timeout"])
     api: AsyncApi = arguments["subclass"](protocol=protocol)
 
     try:
