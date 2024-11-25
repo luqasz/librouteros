@@ -27,9 +27,9 @@ def parse_word(word: str) -> typing.Tuple[str, typing.Any]:
     mapping = {"yes": True, "true": True, "no": False, "false": False}
     _, key, value = word.split("=", 2)
     try:
-        value = int(value)                # type: ignore
+        value = int(value)  # type: ignore
     except ValueError:
-        value = mapping.get(value, value) # type: ignore
+        value = mapping.get(value, value)  # type: ignore
     return (key, value)
 
 
@@ -37,7 +37,7 @@ def cast_to_api(value: typing.Any) -> str:
     """Cast python equivalent to API."""
     mapping = {True: "yes", False: "no"}
     # this is necesary because 1 == True, 0 == False
-    if type(value) == int: # noqa: E721
+    if type(value) == int:  # noqa: E721
         return str(value)
     return mapping.get(value, str(value))
 
@@ -51,7 +51,6 @@ def compose_word(key: str, value: typing.Any) -> str:
 
 
 class Encoder:
-
     def encodeSentence(self, *words: str) -> bytes:
         """
         Encode given sentence in API format.
@@ -72,7 +71,7 @@ class Encoder:
         :returns: Encoded word.
         """
         # pylint: disable=no-member
-        encoded_word = word.encode(encoding=self.encoding, errors="strict") # type: ignore
+        encoded_word = word.encode(encoding=self.encoding, errors="strict")  # type: ignore
         return Encoder.encodeLength(len(encoded_word)) + encoded_word
 
     @staticmethod
@@ -102,7 +101,6 @@ class Encoder:
 
 
 class Decoder:
-
     @staticmethod
     def determineLength(length: bytes) -> int:
         """
@@ -157,7 +155,6 @@ class Decoder:
 
 
 class ApiProtocol(Encoder, Decoder):
-
     def __init__(self, transport: SocketTransport, encoding: str):
         self.transport = transport
         self.encoding = encoding

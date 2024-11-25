@@ -24,14 +24,15 @@ def test_default_ssl_wrapper():
 
 
 @pytest.mark.parametrize(
-    "key, value", (
-        ('timeout', 10),
-        ('port', 8728),
-        ('saddr', ''),
-        ('subclass', Api),
-        ('encoding', 'ASCII'),
-        ('login_method', plain),
-    )
+    "key, value",
+    (
+        ("timeout", 10),
+        ("port", 8728),
+        ("saddr", ""),
+        ("subclass", Api),
+        ("encoding", "ASCII"),
+        ("login_method", plain),
+    ),
 )
 def test_defaults(key, value):
     assert SYNC_DEFAULTS[key] == value
@@ -40,44 +41,44 @@ def test_defaults(key, value):
 def test_default_keys():
     assert set(SYNC_DEFAULTS.keys()) == set(
         (
-            'timeout',
-            'port',
-            'saddr',
-            'subclass',
-            'encoding',
-            'login_method',
-            'ssl_wrapper',
+            "timeout",
+            "port",
+            "saddr",
+            "subclass",
+            "encoding",
+            "login_method",
+            "ssl_wrapper",
         )
     )
 
 
 def test_password_encoding():
-    result = encode_password('259e0bc05acd6f46926dc2f809ed1bba', 'test')
-    assert result == '00c7fd865183a43a772dde231f6d0bff13'
+    result = encode_password("259e0bc05acd6f46926dc2f809ed1bba", "test")
+    assert result == "00c7fd865183a43a772dde231f6d0bff13"
 
 
 def test_non_ascii_password_encoding():
     """Only ascii characters are allowed in password."""
     with pytest.raises(UnicodeEncodeError):
-        encode_password(token='259e0bc05acd6f46926dc2f809ed1bba', password=u'łą')
+        encode_password(token="259e0bc05acd6f46926dc2f809ed1bba", password="łą")
 
 
-@patch('librouteros.create_transport')
+@patch("librouteros.create_transport")
 def test_connect_raises_when_failed_login(transport_mock):
-    failed = Mock(name='failed', side_effect=TrapError(message='failed to login'))
+    failed = Mock(name="failed", side_effect=TrapError(message="failed to login"))
     with pytest.raises(TrapError):
-        connect(host='127.0.0.1', username='admin', password='', login_method=failed)
+        connect(host="127.0.0.1", username="admin", password="", login_method=failed)
 
 
-@pytest.mark.parametrize('exc', (socket.error, socket.timeout))
-@patch('librouteros.create_connection')
-@patch('librouteros.SocketTransport')
+@pytest.mark.parametrize("exc", (socket.error, socket.timeout))
+@patch("librouteros.create_connection")
+@patch("librouteros.SocketTransport")
 def test_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
     kwargs = dict(
-        host='127.0.0.1',
+        host="127.0.0.1",
         port=22,
         timeout=2,
-        saddr='',
+        saddr="",
     )
     transport.side_effect = exc
     with pytest.raises(exc):

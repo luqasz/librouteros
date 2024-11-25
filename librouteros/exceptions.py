@@ -32,10 +32,10 @@ class TrapError(ProtocolError):
         super().__init__()
 
     def __str__(self) -> str:
-        return str(self.message.replace('\r\n', ','))
+        return str(self.message.replace("\r\n", ","))
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({self})'
+        return f"{self.__class__.__name__}({self})"
 
 
 class MultiTrapError(ProtocolError):
@@ -50,4 +50,4 @@ class MultiTrapError(ProtocolError):
         super().__init__()
 
     def __str__(self) -> str:
-        return ', '.join(str(trap) for trap in self.traps)
+        return ", ".join(str(trap) for trap in self.traps)

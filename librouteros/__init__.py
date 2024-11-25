@@ -13,8 +13,8 @@ from librouteros.connections import SocketTransport, AsyncSocketTransport
 from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 from librouteros.login import (
     plain,
-    async_plain,
     token,  # noqa: F401 BACK_COMP
+    async_plain
 )
 from librouteros.api import Api, AsyncApi
 

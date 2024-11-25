@@ -18,7 +18,7 @@ Get only ``name`` and ``disabled`` keys from all interfaces.
 Advanced Usage
 --------------
 Adding ``where()``, allows to fine tune search criteria.
-Syntax is very simmilar to a SQL query.
+Syntax is very similar to a SQL query.
 
 .. code-block:: python
 
@@ -42,6 +42,17 @@ Above example can be rewritten using ``In`` operator.
    name = Key('name')
    disabled = Key('disabled')
    query = api.path('/interface').select(name, disabled).where(
+           disabled == False,
+           name.In('ether2', 'wlan-lan'),
+           )
+
+Select all keys/fields.
+
+.. code-block:: python
+
+   name = Key('name')
+   disabled = Key('disabled')
+   query = api.path('/interface').select().where(
            disabled == False,
            name.In('ether2', 'wlan-lan'),
            )
