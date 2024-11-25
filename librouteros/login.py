@@ -29,7 +29,4 @@ def plain(api: typing.Any, username: str, password: str) -> None:
     tuple(api("/login", **{"name": username, "password": password}))
 
 async def async_plain(api, username, password):
-    responses = [
-        response
-        async for response in api('/login', **{'name': username, 'password': password})
-    ]
+    [response async for response in api("/login", **{"name": username, "password": password})]

@@ -251,7 +251,7 @@ class AyncPath:
 
     async def remove(self, *ids: str) -> None:
         joined = ",".join(ids)
-        response = [
+        [
             response
             async for response in self(
                 "remove",
@@ -270,7 +270,7 @@ class AyncPath:
         return response[0]["ret"]
 
     async def update(self, **kwargs: typing.Any) -> None:
-        response = [
+        [
             response
             async for response in self(
                 "set",
