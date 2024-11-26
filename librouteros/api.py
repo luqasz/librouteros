@@ -137,11 +137,12 @@ class Path:
 
     def update(self, **kwargs: typing.Any) -> None:
         tuple(
-              self(
-                  "set",
-                  **kwargs,
-              )
-          )
+            self(
+                "set",
+                **kwargs,
+            )
+        )
+
 
 class AsyncApi:
     def __init__(self, protocol: AsyncApiProtocol):

@@ -72,6 +72,7 @@ def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
     yield "?#|"
     yield from ("?#|",) * len(rest)
 
+
 class AsyncQuery:
     def __init__(self, path, keys: typing.Sequence[Key], api):
         self.path = path

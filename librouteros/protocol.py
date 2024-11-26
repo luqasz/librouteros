@@ -204,6 +204,7 @@ class ApiProtocol(Encoder, Decoder):
     def close(self) -> None:
         self.transport.close()
 
+
 class AsyncApiProtocol(Encoder, Decoder):
     def __init__(self, transport: AsyncSocketTransport, encoding: str, timeout: float):
         self.transport = transport

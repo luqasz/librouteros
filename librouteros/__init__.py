@@ -14,7 +14,7 @@ from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 from librouteros.login import (
     plain,
     token,  # noqa: F401 BACK_COMP
-    async_plain
+    async_plain,
 )
 from librouteros.api import Api, AsyncApi
 

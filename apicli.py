@@ -3,7 +3,6 @@
 
 """Command line interface for debugging purpouses."""
 
-
 import logging
 import getpass
 from argparse import ArgumentParser
@@ -14,19 +13,16 @@ from os import linesep
 from librouteros import connect
 from librouteros.exceptions import TrapError, FatalError
 
-argParser = ArgumentParser(description='mikrotik api cli interface')
-argParser.add_argument(
-        'host', type=str,
-        help="host to with to connect. may be fqdn, ipv4 or ipv6 address")
-argParser.add_argument('-u', '--user', type=str, required=True, help="username")
-argParser.add_argument(
-        '-p', '--port', type=int, default=8728, help="port to connect to (default 8728)")
+argParser = ArgumentParser(description="mikrotik api cli interface")
+argParser.add_argument("host", type=str, help="host to with to connect. may be fqdn, ipv4 or ipv6 address")
+argParser.add_argument("-u", "--user", type=str, required=True, help="username")
+argParser.add_argument("-p", "--port", type=int, default=8728, help="port to connect to (default 8728)")
 args = argParser.parse_args()
 
-mainlog = logging.getLogger('librouteros')
+mainlog = logging.getLogger("librouteros")
 console = logging.StreamHandler(stdout)
 mainlog.setLevel(logging.DEBUG)
-formatter = logging.Formatter(fmt='%(message)s')
+formatter = logging.Formatter(fmt="%(message)s")
 console.setFormatter(formatter)
 mainlog.addHandler(console)
 
@@ -72,5 +68,5 @@ def main():
             api.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
