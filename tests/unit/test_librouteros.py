@@ -20,7 +20,7 @@ from librouteros.login import (
 
 def test_default_ssl_wrapper():
     """Assert that wrapper returns same object as it was called with."""
-    assert SYNC_DEFAULTS['ssl_wrapper'](int) is int
+    assert SYNC_DEFAULTS["ssl_wrapper"](int) is int
 
 
 @pytest.mark.parametrize(
