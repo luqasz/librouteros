@@ -240,14 +240,14 @@ class AsyncApiProtocol(Encoder, Decoder):
         :return: Reply word, tuple with read words.
         """
         # sentence = tuple(word for word in iter(await self.readWord, ""))
-        sentence = []
+        temp_sentence = []
         while True:
             word = await self.readWord()
             if word == "":
                 break
-            sentence.append(word)
+            temp_sentence.append(word)
 
-        sentence = tuple(sentence)
+        sentence = tuple(temp_sentence)
         self.log("--->", *sentence)
         reply_word, words = sentence[0], sentence[1:]
         if reply_word == "!fatal":
