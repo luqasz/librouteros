@@ -31,3 +31,11 @@ def plain(api: typing.Any, username: str, password: str) -> None:
 
 async def async_plain(api, username, password):
     [response async for response in api("/login", **{"name": username, "password": password})]
+
+
+async def async_token(api: typing.Any, username: str, password: str) -> None:
+    """Login using pre routeros 6.43 authorization method."""
+    sentence = [response async for response in api("/login")]
+    tok = sentence[0]["ret"]
+    encoded = encode_password(tok, password)
+    [response async for response in api("/login", **{"name": username, "response": encoded})]
