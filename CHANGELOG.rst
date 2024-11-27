@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+* Fix empty `select()` `=.proplist=` argument
+
 3.3.0
 ----------
 
