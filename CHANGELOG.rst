@@ -1,4 +1,4 @@
-UNRELEASED
+3.3.1
 ----------
 
 * Fix empty `select()` `=.proplist=` argument
