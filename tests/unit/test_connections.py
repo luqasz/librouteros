@@ -1,8 +1,11 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
-from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
+from socket import error as SOCKET_ERROR
+from socket import socket
+from socket import timeout as SOCKET_TIMEOUT
 from unittest.mock import MagicMock
+
+import pytest
 
 from librouteros.connections import SocketTransport
 from librouteros.exceptions import (
@@ -10,7 +13,7 @@ from librouteros.exceptions import (
 )
 
 
-class Test_SocketTransport:
+class TestSocketTransport:
     def setup_method(self):
         self.transport = SocketTransport(sock=MagicMock(spec=socket))
 

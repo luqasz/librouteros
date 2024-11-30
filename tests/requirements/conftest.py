@@ -1,6 +1,7 @@
-import pytest
-from subprocess import check_output
 import sys
+from subprocess import check_output
+
+import pytest
 
 
 @pytest.fixture

@@ -1,9 +1,11 @@
 import socket
-import pytest
 from time import sleep
-from librouteros.query import Key
+
+import pytest
+
 from librouteros import connect
 from librouteros.exceptions import LibRouterosError
+from librouteros.query import Key
 
 
 def test_login(routeros_login):

@@ -2,6 +2,7 @@
 from unittest.mock import (
     MagicMock,
 )
+
 from librouteros.api import (
     Api,
     Path,
@@ -17,7 +18,7 @@ def test_api_path_returns_Path():
     assert isinstance(new, Path)
 
 
-class Test_Path:
+class TestPath:
     def setup_method(self):
         self.path = Path(
             path="/interface",

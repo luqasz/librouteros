@@ -1,15 +1,17 @@
 # -*- coding: UTF-8 -*-
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from librouteros.query import (
-    Query,
-    Key,
     And,
+    Key,
     Or,
+    Query,
 )
 
 
-class Test_Query:
+class TestQuery:
     def setup_method(self):
         self.query = Query(
             path=MagicMock(),
@@ -51,7 +53,7 @@ class Test_Query:
         )
 
 
-class Test_Key:
+class TestKey:
     def setup_method(self):
         self.key = Key(
             name="key_name",

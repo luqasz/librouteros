@@ -2,18 +2,18 @@
 
 import typing
 from posixpath import join as pjoin
-from librouteros.exceptions import TrapError, MultiTrapError
+
+from librouteros import query
+from librouteros.exceptions import MultiTrapError, TrapError
 from librouteros.protocol import (
+    ApiProtocol,
     compose_word,
     parse_word,
-    ApiProtocol,
 )
-from librouteros import query
-
 from librouteros.types import (
     ReplyDict,
-    ResponseIter,
     Response,
+    ResponseIter,
 )
 
 

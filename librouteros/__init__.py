@@ -1,19 +1,19 @@
 # -*- coding: UTF-8 -*-
 
-from socket import create_connection
 from collections import ChainMap
+from socket import create_connection
 
+from librouteros.api import Api
+from librouteros.connections import SocketTransport
 from librouteros.exceptions import (
     ConnectionClosed,
     FatalError,
 )
-from librouteros.connections import SocketTransport
-from librouteros.protocol import ApiProtocol
 from librouteros.login import (
     plain,
     token,  # noqa: F401 BACK_COMP
 )
-from librouteros.api import Api
+from librouteros.protocol import ApiProtocol
 
 DEFAULTS = {
     "timeout": 10,

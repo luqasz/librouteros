@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 from socket import socket
+
 from librouteros.exceptions import ConnectionClosed
 
 

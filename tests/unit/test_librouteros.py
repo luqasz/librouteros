@@ -1,10 +1,12 @@
 # -*- coding: UTF-8 -*-
 import socket
-import pytest
 from unittest.mock import (
-    patch,
     Mock,
+    patch,
 )
+
+import pytest
+
 from librouteros import (
     DEFAULTS,
     Api,

@@ -1,14 +1,14 @@
 # -*- coding: UTF-8 -*-
 
 import typing
+from logging import NullHandler, getLogger
 from struct import pack, unpack
-from logging import getLogger, NullHandler
 
-from librouteros.exceptions import (
-    ProtocolError,
-    FatalError,
-)
 from librouteros.connections import SocketTransport
+from librouteros.exceptions import (
+    FatalError,
+    ProtocolError,
+)
 
 LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())

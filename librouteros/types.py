@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 
 from typing import (
+    Any,
     Dict,
     Iterator,
-    Any,
     List,
 )
 

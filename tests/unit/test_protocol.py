@@ -1,21 +1,22 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
 from unittest.mock import MagicMock, patch
 
-from librouteros.protocol import (
-    Encoder,
-    Decoder,
-    ApiProtocol,
-)
+import pytest
+
 from librouteros.connections import SocketTransport
 from librouteros.exceptions import (
-    ProtocolError,
     FatalError,
+    ProtocolError,
+)
+from librouteros.protocol import (
+    ApiProtocol,
+    Decoder,
+    Encoder,
 )
 
 
-class Test_Decoder:
+class TestDecoder:
     def setup_method(self):
         self.decoder = Decoder()
         self.decoder.encoding = "ASCII"
@@ -47,7 +48,7 @@ class Test_Decoder:
         assert str(bad_length_bytes) in str(error.value)
 
 
-class Test_Encoder:
+class TestEncoder:
     def setup_method(self):
         self.encoder = Encoder()
         self.encoder.encoding = "ASCII"
@@ -82,18 +83,18 @@ class Test_Encoder:
         enc_len_mock.assert_called_once_with(len(word.encode(self.encoder.encoding)))
 
     @patch.object(Encoder, "encodeWord", return_value=b"")
-    def test_encodeSentence(self, encodeWord_mock):
+    def test_encodeSentence(self, encode_word_mock):
         r"""
         Assert that:
             \x00 is appended to the sentence
             encodeWord is called == len(sentence)
         """
         encoded = self.encoder.encodeSentence("first", "second")
-        assert encodeWord_mock.call_count == 2
+        assert encode_word_mock.call_count == 2
         assert encoded[-1:] == b"\x00"
 
 
-class Test_ApiProtocol:
+class TestApiProtocol:
     def setup_method(self):
         self.protocol = ApiProtocol(
             transport=MagicMock(spec=SocketTransport),
@@ -101,15 +102,15 @@ class Test_ApiProtocol:
         )
 
     @patch.object(Encoder, "encodeSentence")
-    def test_writeSentence_calls_encodeSentence(self, encodeSentence_mock):
+    def test_writeSentence_calls_encodeSentence(self, encode_sentence_mock):
         self.protocol.writeSentence("/ip/address/print", "=key=value")
-        encodeSentence_mock.assert_called_once_with("/ip/address/print", "=key=value")
+        encode_sentence_mock.assert_called_once_with("/ip/address/print", "=key=value")
 
     @patch.object(Encoder, "encodeSentence")
-    def test_writeSentence_calls_transport_write(self, encodeSentence_mock):
+    def test_writeSentence_calls_transport_write(self, encode_sentence_mock):
         """Assert that write is called with encoded sentence."""
         self.protocol.writeSentence("/ip/address/print", "=key=value")
-        self.protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
+        self.protocol.transport.write.assert_called_once_with(encode_sentence_mock.return_value)
 
     @patch("librouteros.protocol.iter", return_value=("!fatal", "reason"))
     def test_readSentence_raises_FatalError(self, iter_mock):

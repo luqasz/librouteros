@@ -3,8 +3,8 @@
 import pytest
 
 from librouteros.protocol import (
-    parse_word,
     compose_word,
+    parse_word,
 )
 
 

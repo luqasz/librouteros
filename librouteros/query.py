@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import typing
 from itertools import chain
+
 from librouteros.protocol import (
     cast_to_api,
 )
