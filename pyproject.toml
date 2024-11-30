@@ -51,3 +51,26 @@ docstring-code-line-length = 80
 
 [tool.pytest.ini_options]
 addopts = "-ra"
+
+[tool.ruff.lint]
+extend-select = [
+    "B011",
+    "BLE001",
+    "I001",
+    "I002",
+    "N801",
+    "N803",
+    "N805",
+    "N806",
+    "N807",
+    "N815",
+    "N816",
+    "N817",
+    "N999",
+    "PLE",
+    "RUF021",
+    "RUF030",
+    "S102",
+    "T201",
+    "T203",
+]
