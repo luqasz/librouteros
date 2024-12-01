@@ -1,3 +1,8 @@
+3.3.1
+----------
+
+* Fix empty `select()` `=.proplist=` argument
+
 3.3.0
 ----------
 

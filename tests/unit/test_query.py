@@ -28,13 +28,24 @@ class Test_Query:
         assert self.query.query == (1, 2, 3, 4, 5)
 
     @patch("librouteros.query.iter")
-    def test_iter_calls_api_rawCmd(self, iter_mock):
+    def test_iter_with_proplist(self, iter_mock):
         self.query.keys = ("name", "disabled")
         self.query.query = ("key1", "key2")
         iter(self.query)
         self.query.api.rawCmd.assert_called_once_with(
             str(self.query.path.join.return_value),
             "=.proplist=name,disabled",
+            "key1",
+            "key2",
+        )
+
+    @patch("librouteros.query.iter")
+    def test_iter_no_proplist(self, iter_mock):
+        self.query.keys = ()
+        self.query.query = ("key1", "key2")
+        iter(self.query)
+        self.query.api.rawCmd.assert_called_once_with(
+            str(self.query.path.join.return_value),
             "key1",
             "key2",
         )
