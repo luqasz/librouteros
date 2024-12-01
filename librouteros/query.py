@@ -88,6 +88,7 @@ class AsyncQuery:
         return self
 
     def __aiter__(self):
+        cmd = str(self.path.join("print"))
         words = tuple(self.query)
         if len(self.keys) > 0:
             keys = ",".join(str(key) for key in self.keys)
