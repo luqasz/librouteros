@@ -222,8 +222,7 @@ class AyncPath:
         self.path = path
         self.api = api
 
-    def select(self, key: query.Key, *other: query.Key) -> query.AsyncQuery:
-        keys = (key,) + other
+    def select(self, *keys: query.Key) -> query.AsyncQuery:
         return query.AsyncQuery(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:
