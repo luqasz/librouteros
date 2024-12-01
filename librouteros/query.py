@@ -93,4 +93,4 @@ class AsyncQuery:
         return iter(self.api.rawCmd(cmd, *words))
 
     def __iter__(self):
-        raise TypeError("Use 'async for' instead of 'for' to iterate over Query results.")
+        raise AttributeError("Use 'async for' instead of 'for' to iterate over Query results.")
