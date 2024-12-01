@@ -94,7 +94,7 @@ class AsyncQuery:
             keys = ",".join(str(key) for key in self.keys)
             keys = f"=.proplist={keys}"
             words = (keys,) + words
-        return iter(self.api.rawCmd(cmd, *words))
+        return self.api.rawCmd(cmd, *words)
 
     def __iter__(self):
         raise AttributeError("Use 'async for' instead of 'for' to iterate over Query results.")
