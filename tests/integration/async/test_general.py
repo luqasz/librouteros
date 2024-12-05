@@ -25,7 +25,7 @@ async def test_login(routeros_login_async):
 
     # data = api("/system/identity/print")
     result = [r async for r in api("/system/identity/print")]
-    assert result[0]["name"] == "Mikrotik-Sachin"
+    assert result[0]["name"] == "Mikrotik"
 
 
 @pytest.mark.asyncio

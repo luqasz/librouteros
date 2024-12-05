@@ -206,7 +206,7 @@ class ApiProtocol(Encoder, Decoder):
 
 
 class AsyncApiProtocol(Encoder, Decoder):
-    def __init__(self, transport: AsyncSocketTransport, encoding: str, timeout: float):
+    def __init__(self, transport: AsyncSocketTransport, encoding: str, timeout: float = 10):
         self.transport = transport
         self.encoding = encoding
         self.timeout = timeout
