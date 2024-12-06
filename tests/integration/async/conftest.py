@@ -30,6 +30,7 @@ async def api_session_async(port):
                 port=port,
                 username="admin",
                 password="",
+                timeout=60,
             )
         except (LibRouterosError, socket.error, socket.timeout) as exc:
             last_exc = exc
