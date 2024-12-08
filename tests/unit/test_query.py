@@ -6,6 +6,7 @@ from librouteros.query import (
     Key,
     And,
     Or,
+    AsyncQuery,
 )
 
 
@@ -16,16 +17,26 @@ class Test_Query:
             api=MagicMock(),
             keys=MagicMock(),
         )
+        self.async_query = AsyncQuery(
+            path=MagicMock(),
+            api=MagicMock(),
+            keys=MagicMock(),
+        )
 
     def test_after_init_query_is_empty_tuple(self):
         assert self.query.query == tuple()
+        assert self.async_query.query == tuple()
 
     def test_where_returns_self(self):
         assert self.query.where() == self.query
+        assert self.async_query.where() == self.async_query
 
     def test_where_chains_from_args(self):
         self.query.where((1, 2, 3), (4, 5))
         assert self.query.query == (1, 2, 3, 4, 5)
+
+        self.async_query.where((1, 2, 3), (4, 5))
+        assert self.async_query.query == (1, 2, 3, 4, 5)
 
     @patch("librouteros.query.iter")
     def test_iter_with_proplist(self, iter_mock):
@@ -39,6 +50,17 @@ class Test_Query:
             "key2",
         )
 
+    def test_iter_with_proplist_async(self):
+        self.async_query.keys = ("name", "disabled")
+        self.async_query.query = ("key1", "key2")
+        self.async_query.__aiter__()
+        self.async_query.api.rawCmd.assert_called_once_with(
+            str(self.async_query.path.join.return_value),
+            "=.proplist=name,disabled",
+            "key1",
+            "key2",
+        )
+
     @patch("librouteros.query.iter")
     def test_iter_no_proplist(self, iter_mock):
         self.query.keys = ()
@@ -46,6 +68,16 @@ class Test_Query:
         iter(self.query)
         self.query.api.rawCmd.assert_called_once_with(
             str(self.query.path.join.return_value),
+            "key1",
+            "key2",
+        )
+
+    def test_iter_no_proplist_async(self):
+        self.async_query.keys = ()
+        self.async_query.query = ("key1", "key2")
+        self.async_query.__aiter__()
+        self.async_query.api.rawCmd.assert_called_once_with(
+            str(self.async_query.path.join.return_value),
             "key1",
             "key2",
         )

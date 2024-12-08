@@ -11,16 +11,28 @@ import platform
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
 
-from librouteros import connect
+from librouteros import connect, async_connect
 from librouteros.exceptions import LibRouterosError
 from librouteros.login import (
     plain,
     token,
+    async_plain,
+    async_token,
 )
 
 DEV_NULL = open(devnull, "w")
-VERSION_LOGIN = {"6.44.5": plain, "6.33.3": token}
+VERSION_LOGIN = {
+    "6.44.5": {
+        "sync": plain,
+        "async": async_plain,
+    },
+    "6.33.3": {
+        "sync": token,
+        "async": async_token,
+    },
+}
 
 
 def api_session(port):
@@ -32,6 +44,23 @@ def api_session(port):
                 port=port,
                 username="admin",
                 password="",
+            )
+        except (LibRouterosError, socket.error, socket.timeout) as exc:
+            last_exc = exc
+            sleep(1)
+    raise RuntimeError("Could not connect to device. Last exception {}".format(last_exc))
+
+
+async def api_session_async(port):
+    last_exc = None
+    for _ in range(30):
+        try:
+            return await async_connect(
+                host="127.0.0.1",
+                port=port,
+                username="admin",
+                password="",
+                timeout=60,
             )
         except (LibRouterosError, socket.error, socket.timeout) as exc:
             last_exc = exc
@@ -97,7 +126,11 @@ def routeros_login(request):
     port, proc = routeros_vm(image)
     request.addfinalizer(proc.kill)
     request.addfinalizer(image.close)
-    return port, VERSION_LOGIN[version]
+
+    def get_login_method(exc_type):
+        return port, VERSION_LOGIN[version][exc_type]
+
+    return get_login_method
 
 
 @pytest.fixture(scope="function")
@@ -109,3 +142,14 @@ def routeros_api(request):
     request.addfinalizer(proc.kill)
     request.addfinalizer(image.close)
     return api_session(port=port)
+
+
+@pytest_asyncio.fixture(scope="function")
+async def routeros_api_async(request):
+    # pylint: disable=redefined-outer-name
+    version = "6.44.5"
+    image = disk_image(version)
+    port, proc = routeros_vm(image)
+    request.addfinalizer(proc.kill)
+    request.addfinalizer(image.close)
+    return await api_session_async(port=port)

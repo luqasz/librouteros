@@ -3,12 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from librouteros.protocol import (
-    Encoder,
-    Decoder,
-    ApiProtocol,
-)
-from librouteros.connections import SocketTransport
+from librouteros.protocol import Encoder, Decoder, ApiProtocol, AsyncApiProtocol
+from librouteros.connections import SocketTransport, AsyncSocketTransport
 from librouteros.exceptions import (
     ProtocolError,
     FatalError,
@@ -99,32 +95,66 @@ class Test_ApiProtocol:
             transport=MagicMock(spec=SocketTransport),
             encoding="utf-8",
         )
+        self.async_protocol = AsyncApiProtocol(
+            transport=MagicMock(spec=AsyncSocketTransport),
+            encoding="utf-8",
+        )
 
+    @pytest.mark.asyncio
     @patch.object(Encoder, "encodeSentence")
-    def test_writeSentence_calls_encodeSentence(self, encodeSentence_mock):
+    async def test_writeSentence_calls_encodeSentence(self, encodeSentence_mock):
         self.protocol.writeSentence("/ip/address/print", "=key=value")
         encodeSentence_mock.assert_called_once_with("/ip/address/print", "=key=value")
 
+        # async
+        await self.async_protocol.writeSentence("/ip/address/print", "=key=value")
+        encodeSentence_mock.assert_called_with("/ip/address/print", "=key=value")
+
+    @pytest.mark.asyncio
     @patch.object(Encoder, "encodeSentence")
-    def test_writeSentence_calls_transport_write(self, encodeSentence_mock):
+    async def test_writeSentence_calls_transport_write(self, encodeSentence_mock):
         """Assert that write is called with encoded sentence."""
         self.protocol.writeSentence("/ip/address/print", "=key=value")
         self.protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
 
+        # async
+        await self.async_protocol.writeSentence("/ip/address/print", "=key=value")
+        self.async_protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
+
+    @pytest.mark.asyncio
     @patch("librouteros.protocol.iter", return_value=("!fatal", "reason"))
-    def test_readSentence_raises_FatalError(self, iter_mock):
+    async def test_readSentence_raises_FatalError(self, iter_mock):
         """Assert that FatalError is raised with its reason."""
         with pytest.raises(FatalError) as error:
             self.protocol.readSentence()
         assert str(error.value) == "reason"
         assert self.protocol.transport.close.call_count == 1
 
-    def test_decoding_ignores_character_errors(self):
+    @pytest.mark.asyncio
+    @patch("librouteros.protocol.AsyncApiProtocol.readWord", side_effect=["!fatal", "reason", ""])
+    async def test_async_readSentence_raises_FatalError(self, readWord_mock):
+        """Assert that FatalError is raised with its reason."""
+        with pytest.raises(FatalError) as error:
+            await self.async_protocol.readSentence()
+        assert str(error.value) == "reason"
+        assert self.async_protocol.transport.close.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_decoding_ignores_character_errors(self):
         word = b"\x11\xfb\x95" + "łąć".encode("utf-8")
         length = Encoder.encodeLength(len(word))
         self.protocol.transport.read.side_effect = (length, b"", word)
         assert self.protocol.readWord() == "\x11łąć"
 
-    def test_close(self):
+        # async
+        self.async_protocol.transport.read.side_effect = (length, b"", word)
+        assert await self.async_protocol.readWord() == "\x11łąć"
+
+    @pytest.mark.asyncio
+    async def test_close(self):
         self.protocol.close()
         self.protocol.transport.close.assert_called_once_with()
+
+        # async
+        await self.async_protocol.close()
+        self.async_protocol.transport.close.assert_called_once_with()

@@ -6,8 +6,15 @@ Unencrypted
 
 .. code-block:: python
 
-    from librouteros import connect
+    from librouteros import connect, async_connect
     api = connect(
+        username='admin',
+        password='abc',
+        host='some.address.com',
+        )
+    
+    # For async version use async_connect
+    api = await async_connect(
         username='admin',
         password='abc',
         host='some.address.com',
