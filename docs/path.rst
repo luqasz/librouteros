@@ -25,7 +25,14 @@ Get all
     # This also will work, as well as anything else you can do with iterables
     for item in interfaces:
         print(item)
-
+    
+    # async version
+    async for item in interfaces:
+        print(item)
+    
+    # or you can use list comprehension
+    items = [item async for item in interfaces]
+    
 Add
 ---
 
@@ -34,6 +41,9 @@ Add
     # Will return newly created .id
     path.add(interface='ether1', address='172.31.31.1/24')
 
+    # async version
+    await path.add(interface='ether1', address='172.31.31.1/24')
+
 Remove
 ------
 
@@ -41,6 +51,9 @@ Remove
 
     # Pass each .id as an argument.
     path.remove('*1', '*2')
+
+    # async version
+    await path.remove('*1', '*2')
 
 .. note::
 
@@ -53,6 +66,9 @@ Update
 
     params = {'disabled': True, '.id' :'*7'}
     path.update(**params)
+
+    # async version
+    await path.update(**params)
 
 .. note::
 
@@ -69,3 +85,6 @@ As a first argument, pass command that you wish to run without absolute path.
     script = api.path('system', 'script')
     # Will run /system/script/run with desired .id
     tuple(script('run', **{'.id': '*1'}))
+
+    # async version
+    [item async for item in script('run', **{'.id': '*1'})]

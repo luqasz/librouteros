@@ -6,9 +6,10 @@ from unittest.mock import (
     Mock,
 )
 from librouteros import (
-    DEFAULTS,
+    SYNC_DEFAULTS,
     Api,
     connect,
+    async_connect,
     create_transport,
 )
 from librouteros.exceptions import TrapError
@@ -20,7 +21,7 @@ from librouteros.login import (
 
 def test_default_ssl_wrapper():
     """Assert that wrapper returns same object as it was called with."""
-    assert DEFAULTS["ssl_wrapper"](int) is int
+    assert SYNC_DEFAULTS["ssl_wrapper"](int) is int
 
 
 @pytest.mark.parametrize(
@@ -35,11 +36,11 @@ def test_default_ssl_wrapper():
     ),
 )
 def test_defaults(key, value):
-    assert DEFAULTS[key] == value
+    assert SYNC_DEFAULTS[key] == value
 
 
 def test_default_keys():
-    assert set(DEFAULTS.keys()) == set(
+    assert set(SYNC_DEFAULTS.keys()) == set(
         (
             "timeout",
             "port",
@@ -70,6 +71,14 @@ def test_connect_raises_when_failed_login(transport_mock):
         connect(host="127.0.0.1", username="admin", password="", login_method=failed)
 
 
+@pytest.mark.asyncio
+@patch("librouteros.async_create_transport")
+async def test_async_connect_raises_when_failed_login(transport_mock):
+    failed = Mock(name="failed", side_effect=TrapError(message="failed to login"))
+    with pytest.raises(TrapError):
+        await async_connect(host="127.0.0.1", username="admin", password="", login_method=failed)
+
+
 @pytest.mark.parametrize("exc", (socket.error, socket.timeout))
 @patch("librouteros.create_connection")
 @patch("librouteros.SocketTransport")
@@ -83,3 +92,19 @@ def test_create_connection_does_not_wrap_socket_exceptions(create_connection, tr
     transport.side_effect = exc
     with pytest.raises(exc):
         create_transport(**kwargs)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("exc", (socket.error, socket.timeout))
+@patch("librouteros.create_connection")
+@patch("librouteros.SocketTransport")
+async def test_async_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
+    kwargs = dict(
+        host="127.0.0.1",
+        port=22,
+        timeout=2,
+        saddr="",
+    )
+    transport.side_effect = exc
+    with pytest.raises(exc):
+        await create_transport(**kwargs)

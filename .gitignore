@@ -26,3 +26,5 @@ MANIFEST
 .vscode
 
 Pipfile.lock
+
+.venv
