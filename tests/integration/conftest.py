@@ -1,13 +1,11 @@
 from time import sleep
 from os import (
     devnull,
-    environ,
 )
 from random import randint
 from subprocess import Popen, check_call
 from tempfile import NamedTemporaryFile
 import socket
-import platform
 from pathlib import Path
 
 import pytest
