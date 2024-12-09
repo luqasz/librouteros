@@ -31,15 +31,13 @@ classifiers=[
 python = "^3.8.0"
 toml = "^0.10.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+pytest-asyncio = "^0.24.0"
 pytest = "^8.3.4"
 pytest-xdist = "^3.5.0"
 mypy = "^1.13"
 bump2version = "^1.0.1"
 ruff = ">=0.7.1"
-
-[tool.poetry.group.dev.dependencies]
-pytest-asyncio = "^0.24.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -54,3 +52,5 @@ docstring-code-line-length = 80
 
 [tool.pytest.ini_options]
 addopts = "-ra"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
