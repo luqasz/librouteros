@@ -44,6 +44,7 @@ def api_session(port):
                 port=port,
                 username="admin",
                 password="",
+                timeout=60,
             )
         except (LibRouterosError, socket.error, socket.timeout) as exc:
             last_exc = exc
@@ -91,12 +92,6 @@ def disk_image(version):
 def routeros_vm(disk_image):
     # pylint: disable=redefined-outer-name
     port = randint(49152, 65535)
-    accel = {
-        "Darwin": "hvf",
-        "Linux": "kvm",
-    }
-    if environ.get("CI"):
-        accel["Linux"] = "tcg"
     cmd = [
         "qemu-system-x86_64",
         "-m",
@@ -111,8 +106,6 @@ def routeros_vm(disk_image):
         "nic,model=virtio",
         "-cpu",
         "max",
-        "-accel",
-        accel[platform.system()],
     ]
     proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
     return port, proc
