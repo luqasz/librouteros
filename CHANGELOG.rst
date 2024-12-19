@@ -1,4 +1,4 @@
-UNRELEASED
+3.4.0
 ----------
 
 * Add async support
