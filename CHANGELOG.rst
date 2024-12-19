@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+* Add async support
+
 3.3.1
 ----------
 
