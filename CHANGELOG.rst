@@ -1,4 +1,4 @@
-UNRELEASED
+3.4.1
 ----------
 
 * Revert `SYNC_DEFAULTS` to `DEFAULTS`
