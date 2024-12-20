@@ -18,7 +18,7 @@ from librouteros.login import (
 )
 from librouteros.api import Api, AsyncApi
 
-SYNC_DEFAULTS = {
+DEFAULTS = {
     "timeout": 10,
     "port": 8728,
     "saddr": "",
@@ -54,7 +54,7 @@ def connect(host: str, username: str, password: str, **kwargs) -> Api:
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
     :param login_method: Callable with login method.
     """
-    arguments = ChainMap(kwargs, SYNC_DEFAULTS)
+    arguments = ChainMap(kwargs, DEFAULTS)
     transport = create_transport(host, **arguments)
     protocol = ApiProtocol(transport=transport, encoding=arguments["encoding"])
     api: Api = arguments["subclass"](protocol=protocol)
