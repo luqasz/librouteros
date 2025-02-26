@@ -2,18 +2,19 @@
 name = "librouteros"
 version = "3.4.1"
 description = "Python implementation of MikroTik RouterOS API"
-authors = ["Łukasz Kostka <lukasz.g.kostka@gmail.com>"]
+authors = [
+  { name = "Łukasz Kostka", email = "lukasz.g.kostka@gmail.com" },
+]
 license = "GPL-2.0-or-later"
 readme = "README.rst"
-documentation="https://librouteros.readthedocs.io"
-repository="https://github.com/luqasz/librouteros"
-requires-python = ">=3.8.0"
-keywords=[
+license-files = ["LICENSE"]
+requires-python = ">=3.9.0"
+keywords = [
   "mikrotik",
   "routeros",
   "api",
 ]
-classifiers=[
+classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
@@ -25,17 +26,27 @@ classifiers=[
   "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Topic :: Software Development :: Libraries"
+  "Topic :: Software Development :: Libraries",
 ]
+
+[project.urls]
+Homepage = "https://github.com/luqasz/librouteros"
+Issues = "https://github.com/luqasz/librouteros/issues"
+Documentation = "https://librouteros.readthedocs.io"
 
 [dependency-groups]
 dev = [
-"pytest==8.*",
-"pytest-xdist==3.*",
-"mypy==1.*",
-"bump2version==1.*",
-"ruff==0.7.*",
+  "pytest==8.*",
+  "pytest-xdist==3.*",
+  "mypy==1.*",
+  "bump2version==1.*",
+  "ruff==0.7.*",
+  "pytest-asyncio>=0.24.0",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 120
