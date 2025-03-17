@@ -28,3 +28,5 @@ MANIFEST
 Pipfile.lock
 
 .venv
+*.qcow2
+docs/_build
