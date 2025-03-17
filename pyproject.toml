@@ -1,6 +1,8 @@
 [project]
 name = "librouteros"
-version = "3.4.1"
+dynamic = [
+  "version",
+]
 description = "Python implementation of MikroTik RouterOS API"
 authors = [
   { name = "Łukasz Kostka", email = "lukasz.g.kostka@gmail.com" },
@@ -13,20 +15,6 @@ keywords = [
   "mikrotik",
   "routeros",
   "api",
-]
-classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Intended Audience :: Developers",
-  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
-  "Operating System :: MacOS",
-  "Operating System :: Microsoft :: Windows",
-  "Operating System :: POSIX",
-  "Operating System :: Unix",
-  "Programming Language :: Python :: 3.6",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Topic :: Software Development :: Libraries",
 ]
 
 [project.urls]
@@ -45,8 +33,20 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { git_describe_command = "git describe" }
+
+[tool.hatch.build.targets.sdist]
+ignore-vcs = false
+exclude = [
+  "/.github/*",
+  "/docs/*",
+  "/tests/*",
+]
 
 [tool.ruff]
 line-length = 120
