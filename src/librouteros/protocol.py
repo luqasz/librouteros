@@ -70,7 +70,6 @@ class Encoder:
         :param word: Word to encode.
         :returns: Encoded word.
         """
-        # pylint: disable=no-member
         encoded_word = word.encode(encoding=self.encoding, errors="strict")  # type: ignore
         return Encoder.encodeLength(len(encoded_word)) + encoded_word
 
@@ -112,7 +111,6 @@ class Decoder:
         """
         integer = ord(length)
 
-        # pylint: disable=no-else-return
         if integer < 128:
             return 0
         elif integer < 192:

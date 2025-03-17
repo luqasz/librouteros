@@ -30,7 +30,6 @@ class Key:
     def __str__(self) -> str:
         return str(self.name)
 
-    # pylint: disable=invalid-name
     def In(self, one, *elems):
         yield from self == one
         yield from chain.from_iterable(self == str(elem) for elem in elems)
@@ -59,7 +58,6 @@ class Query:
 
 
 def And(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
-    # pylint: disable=invalid-name
     yield from left
     yield from right
     yield from chain.from_iterable(rest)
@@ -68,7 +66,6 @@ def And(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
 
 
 def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
-    # pylint: disable=invalid-name
     yield from left
     yield from right
     yield from chain.from_iterable(rest)

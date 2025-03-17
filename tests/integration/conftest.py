@@ -88,7 +88,6 @@ def disk_image(version):
 
 
 def routeros_vm(disk_image):
-    # pylint: disable=redefined-outer-name
     port = randint(49152, 65535)
     cmd = [
         "qemu-system-x86_64",
@@ -111,7 +110,6 @@ def routeros_vm(disk_image):
 
 @pytest.fixture(scope="function", params=VERSION_LOGIN.keys())
 def routeros_login(request):
-    # pylint: disable=redefined-outer-name
     version = request.param
     image = disk_image(version)
     port, proc = routeros_vm(image)
@@ -126,7 +124,6 @@ def routeros_login(request):
 
 @pytest.fixture(scope="function")
 def routeros_api(request):
-    # pylint: disable=redefined-outer-name
     version = "6.44.5"
     image = disk_image(version)
     port, proc = routeros_vm(image)
@@ -137,7 +134,6 @@ def routeros_api(request):
 
 @pytest_asyncio.fixture(scope="function")
 async def routeros_api_async(request):
-    # pylint: disable=redefined-outer-name
     version = "6.44.5"
     image = disk_image(version)
     port, proc = routeros_vm(image)

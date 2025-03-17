@@ -1,12 +1,11 @@
 # -*- coding: UTF-8 -*-
 
 import typing
-from binascii import unhexlify, hexlify  # pylint: disable=no-name-in-module
 from hashlib import md5
+from binascii import unhexlify, hexlify
 
 
 def encode_password(token: str, password: str) -> str:
-    # pylint: disable=redefined-outer-name
     token_bytes = token.encode("ascii", "strict")
     token_bytes = unhexlify(token)
     password_bytes = password.encode("ascii", "strict")
