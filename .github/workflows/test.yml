@@ -61,4 +61,4 @@ jobs:
         run: uv run pytest tests/unit
 
       - name: Integration tests
-        run: uv run pytest tests/integration
+        run: uv run pytest -n auto tests/integration
