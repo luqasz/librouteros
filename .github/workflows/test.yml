@@ -49,12 +49,12 @@ jobs:
         run: uv run ruff check .
 
       - name: Type check
-        run: uv run mypy src/librouteros
+        run: uv run mypy src
 
       - name: Format
         run: >
           uv run ruff format --diff
-          librouteros
+          src
           tests
 
       - name: Unit tests
