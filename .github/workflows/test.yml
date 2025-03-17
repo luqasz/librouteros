@@ -34,43 +34,29 @@ jobs:
       - name: Move images
         run: mv /opt/* $GITHUB_WORKSPACE/images/
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-
-      - name: Load cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .venv
-            .mypy_cache
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Install library
-        run: poetry install --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Run Ruff
-        run: poetry run ruff check .
+        run: uv run ruff check .
 
       - name: Type check
-        run: poetry run mypy librouteros
+        run: uv run mypy librouteros
 
       - name: Format
         run: >
-          poetry run ruff format --diff
+          uv run ruff format --diff
           librouteros
           tests
 
       - name: Unit tests
-        run: poetry run pytest tests/unit
+        run: uv run pytest tests/unit
 
       - name: Integration tests
-        run: poetry run pytest tests/integration
+        run: uv run pytest tests/integration
