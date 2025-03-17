@@ -49,7 +49,7 @@ jobs:
         run: uv run ruff check .
 
       - name: Type check
-        run: uv run mypy librouteros
+        run: uv run mypy src/librouteros
 
       - name: Format
         run: >
