@@ -29,6 +29,8 @@ dev = [
   "mypy==1.*",
   "ruff==0.*",
   "pytest-asyncio>=0.24.0",
+  "stamina>=25.1.0",
+  "ipdb>=0.13.13",
 ]
 
 [build-system]

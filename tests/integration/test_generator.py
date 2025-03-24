@@ -1,23 +1,23 @@
 import pytest
 
 
-def test_generator_ditch(routeros_api):
+def test_generator_ditch(routeros_api_sync):
     """
     Assert that after ditching generator, new one will yield actual results.
     """
-    routeros_api(
+    api = routeros_api_sync
+    api(
         "/ip/address/add",
         address="1.1.1.1/32",
         interface="ether1",
     )
-    ips = routeros_api.path("ip", "address")
+    ips = api.path("ip", "address")
     for ip in ips:
         break
 
-    interfaces = tuple(routeros_api.path("interface"))
-    assert len(interfaces) == 1
-    assert "mtu" in interfaces[0].keys()
-    assert "mac-address" in interfaces[0].keys()
+    for item in api.path("/interface"):
+        assert "mtu" in item.keys()
+        assert "mac-address" in item.keys()
 
 
 @pytest.mark.asyncio

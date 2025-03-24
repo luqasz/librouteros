@@ -1,18 +1,17 @@
-from time import sleep
 from os import (
     devnull,
 )
 from random import randint
-from subprocess import Popen, check_call
+from subprocess import Popen, check_call, PIPE
 from tempfile import NamedTemporaryFile
 import socket
 from pathlib import Path
 
 import pytest
 import pytest_asyncio
+import stamina
 
 from librouteros import connect, async_connect
-from librouteros.exceptions import LibRouterosError
 from librouteros.login import (
     plain,
     token,
@@ -21,57 +20,38 @@ from librouteros.login import (
 )
 
 DEV_NULL = open(devnull, "w")
-VERSION_LOGIN = {
+
+# All routeros vms which can be launched.
+ROUTEROS_VMS = {
     "6.44.5": {
         "sync": plain,
         "async": async_plain,
+        "username": "admin",
+        "password": "",
     },
     "6.33.3": {
         "sync": token,
         "async": async_token,
+        "username": "admin",
+        "password": "",
+    },
+    "7.18.2": {
+        "sync": plain,
+        "async": async_plain,
+        "username": "admin",
+        "password": "password",
     },
 }
 
-
-def api_session(port):
-    last_exc = None
-    for _ in range(30):
-        try:
-            return connect(
-                host="127.0.0.1",
-                port=port,
-                username="admin",
-                password="",
-                timeout=60,
-            )
-        except (LibRouterosError, socket.error, socket.timeout) as exc:
-            last_exc = exc
-            sleep(1)
-    raise RuntimeError("Could not connect to device. Last exception {}".format(last_exc))
+# Routeros vms which differ in login methods.
+ROUTEROS_LOGIN_VMS = ("6.44.5", "6.33.3")
 
 
-async def api_session_async(port):
-    last_exc = None
-    for _ in range(30):
-        try:
-            return await async_connect(
-                host="127.0.0.1",
-                port=port,
-                username="admin",
-                password="",
-                timeout=60,
-            )
-        except (LibRouterosError, socket.error, socket.timeout) as exc:
-            last_exc = exc
-            sleep(1)
-    raise RuntimeError("Could not connect to device. Last exception {}".format(last_exc))
-
-
-def disk_image(version):
+def setup_qemu_disk(version):
     """Create a temporary disk image backed by original one."""
     img = NamedTemporaryFile()
     # Path to backing image must be absolute or relative to new image
-    backing_img = Path().joinpath("images/routeros_{}.qcow2".format(version)).absolute()
+    backing_img = Path().joinpath(f"images/routeros_{version}.qcow2").absolute()
     cmd = [
         "qemu-img",
         "create",
@@ -87,7 +67,7 @@ def disk_image(version):
     return img
 
 
-def routeros_vm(disk_image):
+def setup_qemu_vm(disk_image):
     port = randint(49152, 65535)
     cmd = [
         "qemu-system-x86_64",
@@ -103,40 +83,53 @@ def routeros_vm(disk_image):
         "nic,model=virtio",
         "-cpu",
         "max",
+        "-accel",
+        "tcg",
     ]
-    proc = Popen(cmd, stdout=DEV_NULL, close_fds=True)
+    proc = Popen(cmd, stdout=DEV_NULL, stderr=PIPE, close_fds=True)
+    if proc.poll() is not None and proc.poll() != 0:
+        raise pytest.fail("Failed to execute qemu {}".format(proc.stderr.read()))
     return port, proc
 
 
-@pytest.fixture(scope="function", params=VERSION_LOGIN.keys())
-def routeros_login(request):
+@pytest.fixture(params=ROUTEROS_VMS.keys())
+def routeros_vm(request):
+    """
+    Setup routeros VM and return connect() arguments callable.
+    """
     version = request.param
-    image = disk_image(version)
-    port, proc = routeros_vm(image)
+    host = "localhost"
+    image = setup_qemu_disk(version)
+    port, proc = setup_qemu_vm(image)
     request.addfinalizer(proc.kill)
     request.addfinalizer(image.close)
+    for attempt in stamina.retry_context(
+        on=(socket.error, socket.timeout),
+        wait_initial=1,
+        timeout=90,
+    ):
+        with attempt:
+            sock = socket.create_connection((host, port), 1, ("", 0))
+            sock.close()
 
-    def get_login_method(exc_type):
-        return port, VERSION_LOGIN[version][exc_type]
+    def params(ltype):
+        return {
+            "host": host,
+            "port": port,
+            "login_method": ROUTEROS_VMS[version][ltype],
+            "timeout": 90,
+            "username": ROUTEROS_VMS[version]["username"],
+            "password": ROUTEROS_VMS[version]["password"],
+        }
 
-    return get_login_method
-
-
-@pytest.fixture(scope="function")
-def routeros_api(request):
-    version = "6.44.5"
-    image = disk_image(version)
-    port, proc = routeros_vm(image)
-    request.addfinalizer(proc.kill)
-    request.addfinalizer(image.close)
-    return api_session(port=port)
+    return params
 
 
-@pytest_asyncio.fixture(scope="function")
-async def routeros_api_async(request):
-    version = "6.44.5"
-    image = disk_image(version)
-    port, proc = routeros_vm(image)
-    request.addfinalizer(proc.kill)
-    request.addfinalizer(image.close)
-    return await api_session_async(port=port)
+@pytest.fixture()
+def routeros_api_sync(request, routeros_vm):
+    return connect(**routeros_vm("sync"))
+
+
+@pytest_asyncio.fixture()
+async def routeros_api_async(request, routeros_vm):
+    return await async_connect(**routeros_vm("async"))
