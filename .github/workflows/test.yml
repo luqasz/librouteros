@@ -30,7 +30,7 @@ jobs:
           fetch-tags: true
 
       - name: Create docker image
-        run: docker create --name images lukaszkostka/librouteros_images:latest
+        run: docker create --name images lukaszkostka/librouteros_images:latest /dev/null
 
       - name: Move vm images
         run: docker cp images:/opt/. $GITHUB_WORKSPACE/images/
