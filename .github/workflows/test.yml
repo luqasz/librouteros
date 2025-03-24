@@ -35,6 +35,9 @@ jobs:
       - name: Move vm images
         run: docker cp images:/opt/. $GITHUB_WORKSPACE/images/
 
+      - name: debug
+        run: tree $GITHUB_WORKSPACE
+
       - name: Remove docker image
         run: docker rm images
 
