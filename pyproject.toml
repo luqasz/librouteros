@@ -37,6 +37,9 @@ dev = [
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+[tool.uv]
+python-preference = "only-system"
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { git_describe_command = "git describe" }
