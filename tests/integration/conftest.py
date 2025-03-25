@@ -23,12 +23,6 @@ DEV_NULL = open(devnull, "w")
 
 # All routeros vms which can be launched.
 ROUTEROS_VMS = {
-    "6.44.5": {
-        "sync": plain,
-        "async": async_plain,
-        "username": "admin",
-        "password": "",
-    },
     "6.33.3": {
         "sync": token,
         "async": async_token,
@@ -44,7 +38,7 @@ ROUTEROS_VMS = {
 }
 
 # Routeros vms which differ in login methods.
-ROUTEROS_LOGIN_VMS = ("6.44.5", "6.33.3")
+ROUTEROS_LOGIN_VMS = ("7.18.2", "6.33.3")
 
 
 def setup_qemu_disk(version):
