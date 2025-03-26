@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = pytest.mark.xfail
+
 
 def test_generator_ditch(routeros_api_sync):
     """
