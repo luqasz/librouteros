@@ -127,7 +127,6 @@ def routeros_api_sync(request, routeros_vm):
         pytest.xfail(f"Failed to connect {e}")
 
 
-@pytest.mark.xfail(raises=(socket.error, socket.timeout))
 @pytest_asyncio.fixture()
 async def routeros_api_async(request, routeros_vm):
     try:
