@@ -19,6 +19,9 @@ from librouteros.login import (
     async_token,
 )
 
+# Disable stamina WARNING  stamina:_logging.py:23 stamina.retry_scheduled
+stamina.instrumentation.set_on_retry_hooks([])
+
 DEV_NULL = open(devnull, "w")
 
 # All routeros vms which can be launched.
