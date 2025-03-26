@@ -86,7 +86,6 @@ def setup_qemu_vm(disk_image):
     return port, proc
 
 
-@pytest.mark.xfail(raises=(socket.error, socket.timeout))
 @pytest.fixture(params=ROUTEROS_VMS.keys())
 def routeros_vm(request):
     """
@@ -120,13 +119,18 @@ def routeros_vm(request):
     return params
 
 
-@pytest.mark.xfail(raises=(socket.error, socket.timeout))
 @pytest.fixture()
 def routeros_api_sync(request, routeros_vm):
-    return connect(**routeros_vm("sync"))
+    try:
+        return connect(**routeros_vm("sync"))
+    except (socket.error, socket.timeout) as e:
+        pytest.xfail(f"Failed to connect {e}")
 
 
 @pytest.mark.xfail(raises=(socket.error, socket.timeout))
 @pytest_asyncio.fixture()
 async def routeros_api_async(request, routeros_vm):
-    return await async_connect(**routeros_vm("async"))
+    try:
+        return await async_connect(**routeros_vm("async"))
+    except (socket.error, socket.timeout) as e:
+        pytest.xfail(f"Failed to connect {e}")
