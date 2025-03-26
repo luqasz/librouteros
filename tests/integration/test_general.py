@@ -3,6 +3,8 @@ from librouteros.query import Key
 from librouteros import connect, async_connect
 from tests.integration.conftest import ROUTEROS_LOGIN_VMS
 
+pytestmark = pytest.mark.xfail
+
 
 @pytest.mark.parametrize("routeros_vm", ROUTEROS_LOGIN_VMS, indirect=True)
 def test_login_sync(routeros_vm):

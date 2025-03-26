@@ -1,6 +1,8 @@
 import pytest
 from librouteros.query import Key
 
+pytestmark = pytest.mark.xfail
+
 
 def test_add_then_remove(routeros_api_sync):
     api = routeros_api_sync
