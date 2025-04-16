@@ -36,7 +36,7 @@ def parse_word(word: str) -> typing.Tuple[str, typing.Any]:
 def cast_to_api(value: typing.Any) -> str:
     """Cast python equivalent to API."""
     mapping = {True: "yes", False: "no"}
-    # this is necesary because 1 == True, 0 == False
+    # Required because 1 == True, 0 == False
     if type(value) == int:  # noqa: E721
         return str(value)
     return mapping.get(value, str(value))
@@ -55,7 +55,7 @@ class Encoder:
         """
         Encode given sentence in API format.
 
-        :param words: Words to endoce.
+        :param words: Words to encode.
         :returns: Encoded sentence.
         """
         encoded = b"".join(self.encodeWord(word) for word in words)
@@ -168,7 +168,7 @@ class ApiProtocol(Encoder, Decoder):
         Write encoded sentence.
 
         :param cmd: Command word.
-        :param words: Aditional words.
+        :param words: Additional words.
         """
         encoded = self.encodeSentence(cmd, *words)
         self.log("<---", cmd, *words)
@@ -176,7 +176,7 @@ class ApiProtocol(Encoder, Decoder):
 
     def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
         """
-        Read every word untill empty word (NULL byte) is received.
+        Read every word until empty word (NULL byte) is received.
 
         :return: Reply word, tuple with read words.
         """
@@ -223,7 +223,7 @@ class AsyncApiProtocol(Encoder, Decoder):
         Write encoded sentence.
 
         :param cmd: Command word.
-        :param words: Aditional words.
+        :param words: Additional words.
         """
         encoded = self.encodeSentence(cmd, *words)
         self.log("<---", cmd, *words)
@@ -234,7 +234,7 @@ class AsyncApiProtocol(Encoder, Decoder):
 
     async def __readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
         """
-        Read every word untill empty word (NULL byte) is received.
+        Read every word until empty word (NULL byte) is received.
 
         :return: Reply word, tuple with read words.
         """
