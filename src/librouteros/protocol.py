@@ -14,6 +14,9 @@ import asyncio
 LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())
 
+# big is network byte order
+API_BYTE_ORDER = "big"
+
 
 def parse_word(word: str) -> typing.Tuple[str, typing.Any]:
     """
@@ -50,109 +53,99 @@ def compose_word(key: str, value: typing.Any) -> str:
     return f"={key}={cast_to_api(value)}"
 
 
-class Encoder:
-    def encodeSentence(self, *words: str) -> bytes:
-        """
-        Encode given sentence in API format.
+def encode_sentence(encoding: str, *words: str) -> bytes:
+    """
+    Encode given sentence in API format.
 
-        :param words: Words to encode.
-        :returns: Encoded sentence.
-        """
-        encoded = b"".join(self.encodeWord(word) for word in words)
-        # append EOS (end of sentence) byte
-        encoded += b"\x00"
-        return encoded
-
-    def encodeWord(self, word: str) -> bytes:
-        """
-        Encode word in API format.
-
-        :param word: Word to encode.
-        :returns: Encoded word.
-        """
-        encoded_word = word.encode(encoding=self.encoding, errors="strict")  # type: ignore
-        return Encoder.encodeLength(len(encoded_word)) + encoded_word
-
-    @staticmethod
-    def encodeLength(length: int) -> bytes:
-        """
-        Encode given length in mikrotik format.
-
-        :param length: Integer < 268435456.
-        :returns: Encoded length.
-        """
-        if length < 128:
-            ored_length = length
-            offset = -1
-        elif length < 16384:
-            ored_length = length | 0x8000
-            offset = -2
-        elif length < 2097152:
-            ored_length = length | 0xC00000
-            offset = -3
-        elif length < 268435456:
-            ored_length = length | 0xE0000000
-            offset = -4
-        else:
-            raise ProtocolError(f"Unable to encode length of {length}")
-
-        return pack("!I", ored_length)[offset:]
+    :param words: Words to encode.
+    :returns: Encoded sentence.
+    """
+    encoded = b"".join(encode_word(encoding, word) for word in words)
+    # append EOS (end of sentence) byte
+    encoded += b"\x00"
+    return encoded
 
 
-class Decoder:
-    @staticmethod
-    def determineLength(length: bytes) -> int:
-        """
-        Given first read byte, determine how many more bytes
-        needs to be known in order to get fully encoded length.
+def encode_word(encoding: str, word: str) -> bytes:
+    """
+    Encode word in API format.
 
-        :param length: First read byte.
-        :return: How many bytes to read.
-        """
-        integer = ord(length)
-
-        if integer < 128:
-            return 0
-        elif integer < 192:
-            return 1
-        elif integer < 224:
-            return 2
-        elif integer < 240:
-            return 3
-
-        raise ProtocolError(f"Unknown controll byte {length!r}")
-
-    @staticmethod
-    def decodeLength(length: bytes) -> int:
-        """
-        Decode length based on given bytes.
-
-        :param length: Bytes string to decode.
-        :return: Decoded length.
-        """
-        bytes_length = len(length)
-
-        if bytes_length < 2:
-            offset = b"\x00\x00\x00"
-            xor = 0
-        elif bytes_length < 3:
-            offset = b"\x00\x00"
-            xor = 0x8000
-        elif bytes_length < 4:
-            offset = b"\x00"
-            xor = 0xC00000
-        elif bytes_length < 5:
-            offset = b""
-            xor = 0xE0000000
-        else:
-            raise ProtocolError(f"Unable to decode length of {length!r}")
-
-        decoded: int = unpack("!I", (offset + length))[0]
-        decoded ^= xor
-        return decoded
+    :param word: Word to encode.
+    :returns: Encoded word.
+    """
+    encoded_word = word.encode(encoding=encoding, errors="strict")  # type: ignore
+    return encode_length(len(encoded_word)) + encoded_word
 
 
-class ApiProtocol(Encoder, Decoder):
+def encode_length(length: int) -> bytes:
+    """
+    Encode given length in mikrotik api format.
+
+    :param length: Integer < 0x10000000
+    :returns: Encoded length
+    """
+    if length < 0x80:
+        return length.to_bytes(1)
+    elif length < 0x4000:
+        val = length | 0x8000
+        return val.to_bytes(2, API_BYTE_ORDER)  # type: ignore[arg-type]
+    elif length < 0x200000:
+        val = length | 0xC00000
+        return val.to_bytes(3, API_BYTE_ORDER)  # type: ignore[arg-type]
+    elif length < 0x10000000:
+        val = length | 0xE0000000
+        return val.to_bytes(4, API_BYTE_ORDER)  # type: ignore[arg-type]
+    else:
+        raise ProtocolError(f"Unable to encode length {length!r}")
+
+
+def decode_length(length: bytes) -> int:
+    """
+    Decode api length based on given bytes.
+
+    :param length: Bytes string to decode
+    :return: Decoded length
+    """
+    ctl_byte = length[0]
+
+    if ctl_byte < 0x80:
+        return int.from_bytes(length, API_BYTE_ORDER)  # type: ignore[arg-type]
+    elif ctl_byte < 0xC0:
+        val = int.from_bytes(length[:2], API_BYTE_ORDER)  # type: ignore[arg-type]
+        return val ^ 0x8000
+    elif ctl_byte < 0xE0:
+        val = int.from_bytes(length[:3], API_BYTE_ORDER)  # type: ignore[arg-type]
+        return val ^ 0xC00000
+    elif ctl_byte < 0xF0:
+        val = int.from_bytes(length[:4], API_BYTE_ORDER)  # type: ignore[arg-type]
+        return val ^ 0xE0000000
+    else:
+        raise ProtocolError(f"Unable to decode length {length!r}")
+
+
+def determine_length(length: bytes) -> int:
+    """
+    Given first read byte, determine how many more bytes
+    needs to be known in order to get fully encoded length.
+
+    :param length: First read byte.
+    :return: How many bytes to read.
+    """
+    ctl_byte = length[0]
+
+    if ctl_byte < 128:
+        return 0
+    elif ctl_byte < 192:
+        return 1
+    elif ctl_byte < 224:
+        return 2
+    elif ctl_byte < 240:
+        return 3
+
+    raise ProtocolError(f"Unknown controll byte {length!r}")
+
+
+class ApiProtocol:
     def __init__(self, transport: SocketTransport, encoding: str):
         self.transport = transport
         self.encoding = encoding
@@ -170,7 +163,7 @@ class ApiProtocol(Encoder, Decoder):
         :param cmd: Command word.
         :param words: Additional words.
         """
-        encoded = self.encodeSentence(cmd, *words)
+        encoded = encode_sentence(self.encoding, cmd, *words)
         self.log("<---", cmd, *words)
         self.transport.write(encoded)
 
@@ -193,9 +186,9 @@ class ApiProtocol(Encoder, Decoder):
         # Early return check for null byte
         if byte == b"\x00":
             return ""
-        to_read = self.determineLength(byte)
+        to_read = determine_length(byte)
         byte += self.transport.read(to_read)
-        length = self.decodeLength(byte)
+        length = decode_length(byte)
         word = self.transport.read(length)
         return word.decode(encoding=self.encoding, errors="ignore")
 
@@ -203,7 +196,7 @@ class ApiProtocol(Encoder, Decoder):
         self.transport.close()
 
 
-class AsyncApiProtocol(Encoder, Decoder):
+class AsyncApiProtocol:
     def __init__(self, transport: AsyncSocketTransport, encoding: str, timeout: typing.Optional[float] = None):
         self.transport = transport
         self.encoding = encoding
@@ -225,7 +218,7 @@ class AsyncApiProtocol(Encoder, Decoder):
         :param cmd: Command word.
         :param words: Additional words.
         """
-        encoded = self.encodeSentence(cmd, *words)
+        encoded = encode_sentence(self.encoding, cmd, *words)
         self.log("<---", cmd, *words)
         await self.transport.write(encoded)
 
@@ -259,9 +252,9 @@ class AsyncApiProtocol(Encoder, Decoder):
         # Early return check for null byte
         if byte == b"\x00":
             return ""
-        to_read = self.determineLength(byte)
+        to_read = determine_length(byte)
         byte += await self.transport.read(to_read)
-        length = self.decodeLength(byte)
+        length = decode_length(byte)
         word = await self.transport.read(length)
         return word.decode(encoding=self.encoding, errors="ignore")
 

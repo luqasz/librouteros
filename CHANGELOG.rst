@@ -1,3 +1,8 @@
+UNRELEASED
+----------
+
+* Drop Encoder, Decoder classes
+
 3.4.1
 ----------
 
