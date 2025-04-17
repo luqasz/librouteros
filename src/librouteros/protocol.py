@@ -210,8 +210,7 @@ class AsyncApiProtocol:
         """
         encoded = encode_sentence(self.encoding, cmd, *words)
         log("<---", cmd, *words)
-        async with asyncio.timeout(self.timeout):
-            await self.transport.write(encoded)
+        await asyncio.wait_for(self.transport.write(encoded), self.timeout)
 
     async def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
         """
@@ -219,14 +218,17 @@ class AsyncApiProtocol:
 
         :return: Reply word, tuple with read words.
         """
-        sentence = []
-        async with asyncio.timeout(self.timeout):
+
+        async def inner():
+            sentence = []
             while True:
                 word = await self.readWord()
                 if word == "":
                     break
                 sentence.append(word)
+            return tuple(sentence)
 
+        sentence = await asyncio.wait_for(inner(), self.timeout)
         log("--->", *sentence)
         reply_word, words = sentence[0], sentence[1:]
         if reply_word == "!fatal":
