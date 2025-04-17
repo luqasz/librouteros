@@ -63,3 +63,6 @@ docstring-code-line-length = 80
 addopts = "-ra"
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
+
+[tool.mypy]
+ignore_missing_imports = true
