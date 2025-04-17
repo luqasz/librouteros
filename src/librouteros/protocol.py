@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 import typing
-from struct import pack, unpack
 from logging import getLogger, NullHandler
 
 from librouteros.exceptions import (
@@ -145,16 +144,16 @@ def determine_length(length: bytes) -> int:
     raise ProtocolError(f"Unknown controll byte {length!r}")
 
 
+def log(direction_string: str, *sentence: str) -> None:
+    for word in sentence:
+        LOGGER.debug(f"{direction_string} {word!r}")
+    LOGGER.debug(f"{direction_string} EOS")
+
+
 class ApiProtocol:
     def __init__(self, transport: SocketTransport, encoding: str):
         self.transport = transport
         self.encoding = encoding
-
-    @staticmethod
-    def log(direction_string: str, *sentence: str) -> None:
-        for word in sentence:
-            LOGGER.debug(f"{direction_string} {word!r}")
-        LOGGER.debug(f"{direction_string} EOS")
 
     def writeSentence(self, cmd: str, *words: str) -> None:
         """
@@ -164,7 +163,7 @@ class ApiProtocol:
         :param words: Additional words.
         """
         encoded = encode_sentence(self.encoding, cmd, *words)
-        self.log("<---", cmd, *words)
+        log("<---", cmd, *words)
         self.transport.write(encoded)
 
     def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
@@ -174,7 +173,7 @@ class ApiProtocol:
         :return: Reply word, tuple with read words.
         """
         sentence = tuple(word for word in iter(self.readWord, ""))
-        self.log("--->", *sentence)
+        log("--->", *sentence)
         reply_word, words = sentence[0], sentence[1:]
         if reply_word == "!fatal":
             self.transport.close()
