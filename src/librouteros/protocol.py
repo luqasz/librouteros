@@ -84,7 +84,7 @@ def encode_length(length: int) -> bytes:
     :returns: Encoded length
     """
     if length < 0x80:
-        return length.to_bytes(1)
+        return length.to_bytes(1, API_BYTE_ORDER)  # type: ignore[arg-type]
     elif length < 0x4000:
         val = length | 0x8000
         return val.to_bytes(2, API_BYTE_ORDER)  # type: ignore[arg-type]
@@ -202,9 +202,6 @@ class AsyncApiProtocol:
         self.timeout = timeout
 
     async def writeSentence(self, cmd: str, *words: str) -> None:
-        await asyncio.wait_for(self.__writeSentence(cmd, *words), timeout=self.timeout)
-
-    async def __writeSentence(self, cmd: str, *words: str) -> None:
         """
         Write encoded sentence.
 
@@ -213,32 +210,29 @@ class AsyncApiProtocol:
         """
         encoded = encode_sentence(self.encoding, cmd, *words)
         log("<---", cmd, *words)
-        await self.transport.write(encoded)
+        async with asyncio.timeout(self.timeout):
+            await self.transport.write(encoded)
 
     async def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
-        return await asyncio.wait_for(self.__readSentence(), timeout=self.timeout)
-
-    async def __readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
         """
         Read every word until empty word (NULL byte) is received.
 
         :return: Reply word, tuple with read words.
         """
-        # sentence = tuple(word for word in iter(await self.readWord, ""))
-        temp_sentence = []
-        while True:
-            word = await self.readWord()
-            if word == "":
-                break
-            temp_sentence.append(word)
+        sentence = []
+        async with asyncio.timeout(self.timeout):
+            while True:
+                word = await self.readWord()
+                if word == "":
+                    break
+                sentence.append(word)
 
-        sentence = tuple(temp_sentence)
         log("--->", *sentence)
         reply_word, words = sentence[0], sentence[1:]
         if reply_word == "!fatal":
             await self.transport.close()
             raise FatalError(words[0])
-        return reply_word, words
+        return reply_word, tuple(words)
 
     async def readWord(self) -> str:
         byte = await self.transport.read(1)
