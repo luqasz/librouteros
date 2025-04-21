@@ -9,6 +9,8 @@ from librouteros.protocol import (
     encode_length,
     decode_length,
     determine_length,
+    encode_word,
+    encode_sentence,
 )
 from librouteros.connections import SocketTransport, AsyncSocketTransport
 from librouteros.exceptions import (
@@ -59,29 +61,28 @@ def test_determine_length_raises(bad_first_length_bytes):
     assert str(bad_first_length_bytes) in str(error.value)
 
 
-# @patch.object(Encoder, "encodeLength", return_value=b"")
-# def test_utf_8_word_encoding(self, enc_len_mock):
-#     """
-#     Assert that len is taken from bytes, not utf8 word itself.
-#
-#     len('ł') == 1
-#     'ł'.encode(encoding='UTF8') == 2
-#     """
-#     self.encoder.encoding = "utf-8"
-#     word = "ł"
-#     self.encoder.encodeWord(word)
-#     enc_len_mock.assert_called_once_with(len(word.encode(self.encoder.encoding)))
-#
-# @patch.object(Encoder, "encodeWord", return_value=b"")
-# def test_encodeSentence(self, encodeWord_mock):
-#     r"""
-#     Assert that:
-#         \x00 is appended to the sentence
-#         encodeWord is called == len(sentence)
-#     """
-#     encoded = self.encoder.encodeSentence("first", "second")
-#     assert encodeWord_mock.call_count == 2
-#     assert encoded[-1:] == b"\x00"
+@patch("librouteros.protocol.encode_length", return_value=b"")
+def test_utf_8_word_encoding(enc_len_mock):
+    """
+    Assert that len is taken from bytes, not utf8 word itself.
+
+    len('ł') == 1
+    len('ł'.encode(encoding='UTF8')) == 2
+    """
+    encode_word("ł", "UTF8")  # "ł" encodes in 2 bytes
+    enc_len_mock.assert_called_once_with(2)
+
+
+@patch("librouteros.protocol.encode_word", return_value=b"\xff")
+def test_encode_sentence(encode_word_mock):
+    r"""
+    Assert that:
+        \x00 is appended to the sentence
+        encodeWord is called == len(sentence)
+    """
+    encoded = encode_sentence("first", "second", encoding="UTF8")
+    assert encode_word_mock.call_count == 2
+    assert encoded[-1:] == b"\x00"
 
 
 class Test_ApiProtocol:
@@ -95,15 +96,16 @@ class Test_ApiProtocol:
             encoding="utf-8",
         )
 
-    @pytest.mark.asyncio
     @patch("librouteros.protocol.encode_sentence")
     async def test_writeSentence_calls_encodeSentence(self, encodeSentence_mock):
         self.protocol.writeSentence("/ip/address/print", "=key=value")
-        encodeSentence_mock.assert_called_once_with(self.protocol.encoding, "/ip/address/print", "=key=value")
+        encodeSentence_mock.assert_called_once_with("/ip/address/print", "=key=value", encoding=self.protocol.encoding)
 
-        # async
+    @pytest.mark.asyncio
+    @patch("librouteros.protocol.encode_sentence")
+    async def test_async_writeSentence_calls_encodeSentence(self, encodeSentence_mock):
         await self.async_protocol.writeSentence("/ip/address/print", "=key=value")
-        encodeSentence_mock.assert_called_with(self.async_protocol.encoding, "/ip/address/print", "=key=value")
+        encodeSentence_mock.assert_called_once_with("/ip/address/print", "=key=value", encoding=self.protocol.encoding)
 
     @pytest.mark.asyncio
     @patch("librouteros.protocol.encode_sentence")
@@ -116,7 +118,6 @@ class Test_ApiProtocol:
         await self.async_protocol.writeSentence("/ip/address/print", "=key=value")
         self.async_protocol.transport.write.assert_called_once_with(encodeSentence_mock.return_value)
 
-    @pytest.mark.asyncio
     @patch("librouteros.protocol.iter", return_value=("!fatal", "reason"))
     async def test_readSentence_raises_FatalError(self, iter_mock):
         """Assert that FatalError is raised with its reason."""

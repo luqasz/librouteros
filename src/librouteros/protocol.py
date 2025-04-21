@@ -52,20 +52,20 @@ def compose_word(key: str, value: typing.Any) -> str:
     return f"={key}={cast_to_api(value)}"
 
 
-def encode_sentence(encoding: str, *words: str) -> bytes:
+def encode_sentence(*words: str, encoding: str) -> bytes:
     """
     Encode given sentence in API format.
 
     :param words: Words to encode.
     :returns: Encoded sentence.
     """
-    encoded = b"".join(encode_word(encoding, word) for word in words)
+    encoded = b"".join(encode_word(word, encoding) for word in words)
     # append EOS (end of sentence) byte
     encoded += b"\x00"
     return encoded
 
 
-def encode_word(encoding: str, word: str) -> bytes:
+def encode_word(word: str, encoding: str) -> bytes:
     """
     Encode word in API format.
 
@@ -162,7 +162,7 @@ class ApiProtocol:
         :param cmd: Command word.
         :param words: Additional words.
         """
-        encoded = encode_sentence(self.encoding, cmd, *words)
+        encoded = encode_sentence(cmd, *words, encoding=self.encoding)
         log("<---", cmd, *words)
         self.transport.write(encoded)
 
@@ -208,7 +208,7 @@ class AsyncApiProtocol:
         :param cmd: Command word.
         :param words: Additional words.
         """
-        encoded = encode_sentence(self.encoding, cmd, *words)
+        encoded = encode_sentence(cmd, *words, encoding=self.encoding)
         log("<---", cmd, *words)
         async with asyncio.timeout(self.timeout):
             await self.transport.write(encoded)
