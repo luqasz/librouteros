@@ -221,10 +221,7 @@ class AsyncApiProtocol:
 
         async def inner():
             sentence = []
-            while True:
-                word = await self.readWord()
-                if word == "":
-                    break
+            while (word := await self.readWord()) != "":
                 sentence.append(word)
             return tuple(sentence)
 
