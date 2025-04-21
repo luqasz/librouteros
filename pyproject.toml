@@ -16,6 +16,7 @@ keywords = [
   "routeros",
   "api",
 ]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/luqasz/librouteros"
@@ -31,6 +32,7 @@ dev = [
   "pytest-asyncio>=0.24.0",
   "stamina>=25.1.0",
   "ipdb>=0.13.13",
+  "hypothesis>=6.131.6",
 ]
 
 [build-system]

@@ -2,6 +2,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch
+from hypothesis import given, strategies as st
 
 from librouteros.protocol import (
     ApiProtocol,
@@ -40,6 +41,12 @@ def test_decode_length_raises(bad_length_bytes):
     with pytest.raises(ProtocolError) as error:
         decode_length(bad_length_bytes)
     assert str(bad_length_bytes) in str(error.value)
+
+
+@given(st.integers(0, 0x10000000 - 1))
+def test_encode_decode_length(n):
+    encoded = encode_length(n)
+    assert decode_length(encoded) == n
 
 
 @pytest.mark.parametrize(
