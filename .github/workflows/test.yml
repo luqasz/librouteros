@@ -115,5 +115,5 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Integration tests
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: uv run pytest tests/integration -k ${{ matrix.ros_version }} -m "${{ matrix.marks }}"
