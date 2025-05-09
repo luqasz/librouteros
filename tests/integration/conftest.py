@@ -124,15 +124,9 @@ def routeros_vm(request):
 
 @pytest.fixture()
 def routeros_api_sync(request, routeros_vm):
-    try:
-        return connect(**routeros_vm("sync"))
-    except (socket.error, socket.timeout) as e:
-        pytest.xfail(f"Failed to connect {e}")
+    return connect(**routeros_vm("sync"))
 
 
 @pytest_asyncio.fixture()
 async def routeros_api_async(request, routeros_vm):
-    try:
-        return await async_connect(**routeros_vm("async"))
-    except (socket.error, socket.timeout) as e:
-        pytest.xfail(f"Failed to connect {e}")
+    return await async_connect(**routeros_vm("async"))
