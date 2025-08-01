@@ -12,7 +12,7 @@ Unencrypted
         password='abc',
         host='some.address.com',
         )
-    
+
     # For async version use async_connect
     api = await async_connect(
         username='admin',

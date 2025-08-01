@@ -209,13 +209,13 @@ class AsyncApi:
         await self.protocol.close()
 
     def path(self, *path: str):
-        return AyncPath(
+        return AsyncPath(
             path="",
             api=self,
         ).join(*path)
 
 
-class AyncPath:
+class AsyncPath:
     """Represents absolute command path."""
 
     def __init__(self, path: str, api: AsyncApi):
@@ -244,7 +244,7 @@ class AyncPath:
 
     def join(self, *path: str):
         """Join current path with one or more path strings."""
-        return AyncPath(
+        return AsyncPath(
             api=self.api,
             path=pjoin("/", self.path, *path).rstrip("/"),
         )

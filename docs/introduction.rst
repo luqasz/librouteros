@@ -15,7 +15,6 @@ Limitations
 -----------
 
 * No support for sentence tagging.
-* No asynchronous support for reading/writing
 
 Requirements
 ------------

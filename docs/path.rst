@@ -25,14 +25,14 @@ Get all
     # This also will work, as well as anything else you can do with iterables
     for item in interfaces:
         print(item)
-    
+
     # async version
     async for item in interfaces:
         print(item)
-    
+
     # or you can use list comprehension
     items = [item async for item in interfaces]
-    
+
 Add
 ---
 

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from unittest.mock import MagicMock
-from librouteros.api import Api, Path, AsyncApi, AyncPath
+from librouteros.api import Api, Path, AsyncApi, AsyncPath
 from librouteros.query import Query, AsyncQuery
 import pytest
 
@@ -18,7 +18,7 @@ def test_async_api_path_returns_AsyncPath():
     new = api.path("ip", "address")
     assert new.path == "/ip/address"
     assert new.api == api
-    assert isinstance(new, AyncPath)
+    assert isinstance(new, AsyncPath)
 
 
 class Test_Path:
@@ -27,7 +27,7 @@ class Test_Path:
             path="/interface",
             api=MagicMock(),
         )
-        self.async_path = AyncPath(
+        self.async_path = AsyncPath(
             path="/interface",
             api=MagicMock(),
         )
