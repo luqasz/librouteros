@@ -1,8 +1,10 @@
 # -*- coding: UTF-8 -*-
 from unittest.mock import MagicMock
-from librouteros.api import Api, Path, AsyncApi, AsyncPath
-from librouteros.query import Query, AsyncQuery
+
 import pytest
+
+from librouteros.api import Api, AsyncApi, AsyncPath, Path
+from librouteros.query import AsyncQuery, Query
 
 
 def test_api_path_returns_Path():

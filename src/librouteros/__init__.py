@@ -1,22 +1,22 @@
 # -*- coding: UTF-8 -*-
 
 import asyncio
-
-from socket import create_connection
 from collections import ChainMap
+from socket import create_connection
 
+from librouteros.api import Api, AsyncApi
+from librouteros.connections import AsyncSocketTransport, SocketTransport
 from librouteros.exceptions import (
     ConnectionClosed,
     FatalError,
 )
-from librouteros.connections import SocketTransport, AsyncSocketTransport
-from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 from librouteros.login import (
-    plain,
-    token,  # noqa: F401 BACK_COMP
     async_plain,
+    async_token,  # noqa F401
+    plain,
+    token,  # noqa F401
 )
-from librouteros.api import Api, AsyncApi
+from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 
 DEFAULTS = {
     "timeout": 10,

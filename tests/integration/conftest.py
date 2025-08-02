@@ -1,22 +1,22 @@
+import socket
 from os import (
     devnull,
 )
-from random import randint
-from subprocess import Popen, check_call, PIPE
-from tempfile import NamedTemporaryFile
-import socket
 from pathlib import Path
+from random import randint
+from subprocess import PIPE, Popen, check_call
+from tempfile import NamedTemporaryFile
 
 import pytest
 import pytest_asyncio
 import stamina
 
-from librouteros import connect, async_connect
+from librouteros import async_connect, connect
 from librouteros.login import (
-    plain,
-    token,
     async_plain,
     async_token,
+    plain,
+    token,
 )
 
 # Disable stamina WARNING  stamina:_logging.py:23 stamina.retry_scheduled
@@ -99,7 +99,7 @@ def routeros_vm(request):
     image = setup_qemu_disk(version)
     port, proc = setup_qemu_vm(image)
     request.addfinalizer(proc.kill)
-    request.addfinalizer(image.close)
+    request.addfinalizer(image.close)  # noqa PT021
     for attempt in stamina.retry_context(
         on=(socket.error, socket.timeout),
         wait_initial=1,

@@ -1,22 +1,23 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
-from socket import error as SOCKET_ERROR, timeout as SOCKET_TIMEOUT, socket
+import socket
+from asyncio import StreamReader, StreamWriter
 from unittest.mock import MagicMock
 
-from librouteros.connections import SocketTransport, AsyncSocketTransport
+import pytest
+
+from librouteros.connections import AsyncSocketTransport, SocketTransport
 from librouteros.exceptions import (
     ConnectionClosed,
 )
-from asyncio import StreamReader, StreamWriter
 
 
 class Test_SocketTransport:
     def setup_method(self):
-        self.transport = SocketTransport(sock=MagicMock(spec=socket))
+        self.transport = SocketTransport(sock=MagicMock(spec=socket.socket))
 
     def test_close_shutdown_exception(self):
-        self.transport.sock.shutdown.side_effect = SOCKET_ERROR
+        self.transport.sock.shutdown.side_effect = socket.error
         self.transport.close()
         self.transport.sock.close.assert_called_once_with()
 
@@ -41,7 +42,7 @@ class Test_SocketTransport:
         self.transport.sock.recv.side_effect = (b"retu", b"rne", b"d")
         assert self.transport.read(8) == b"returned"
 
-    @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
+    @pytest.mark.parametrize("exception", (socket.error, socket.timeout))
     def test_recv_raises_socket_errors(self, exception):
         self.transport.sock.recv.side_effect = exception
         with pytest.raises(exception):
@@ -82,7 +83,7 @@ class Test_AsyncSocketTransport:
         assert await self.transport.read(8) == b"returned"
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("exception", (SOCKET_ERROR, SOCKET_TIMEOUT))
+    @pytest.mark.parametrize("exception", (socket.error, socket.timeout))
     async def test_recv_raises_socket_errors(self, exception):
         self.transport.reader.read.side_effect = exception
         with pytest.raises(exception):

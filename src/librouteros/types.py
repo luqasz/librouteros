@@ -1,11 +1,11 @@
 # -*- coding: UTF-8 -*-
 
 from typing import (
+    Any,
+    AsyncGenerator,
     Dict,
     Iterator,
-    Any,
     List,
-    AsyncGenerator,
 )
 
 ReplyDict = Dict[str, Any]

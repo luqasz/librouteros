@@ -1,12 +1,14 @@
 # -*- coding: UTF-8 -*-
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from librouteros.query import (
-    Query,
-    Key,
     And,
-    Or,
     AsyncQuery,
+    Key,
+    Or,
+    Query,
 )
 
 
@@ -24,8 +26,8 @@ class Test_Query:
         )
 
     def test_after_init_query_is_empty_tuple(self):
-        assert self.query.query == tuple()
-        assert self.async_query.query == tuple()
+        assert self.query.query == ()
+        assert self.async_query.query == ()
 
     def test_where_returns_self(self):
         assert self.query.where() == self.query
@@ -90,7 +92,7 @@ class Test_Key:
         )
 
     @pytest.mark.parametrize(
-        "param, expected",
+        ("param", "expected"),
         (
             (True, "yes"),
             (False, "no"),
@@ -99,14 +101,14 @@ class Test_Key:
         ),
     )
     def test_eq(self, param, expected):
-        result = tuple(self.key == param)[0]
+        result = next(iter(self.key == param))
         assert result == "?=key_name={}".format(expected)
 
     def test_ne(self):
         assert tuple(self.key != 1) == ("?=key_name=1", "?#!")
 
     @pytest.mark.parametrize(
-        "param, expected",
+        ("param", "expected"),
         (
             (True, "yes"),
             (False, "no"),
@@ -115,11 +117,11 @@ class Test_Key:
         ),
     )
     def test_lt(self, param, expected):
-        result = tuple(self.key < param)[0]
+        result = next(iter(self.key < param))
         assert result == "?<key_name={}".format(expected)
 
     @pytest.mark.parametrize(
-        "param, expected",
+        ("param", "expected"),
         (
             (True, "yes"),
             (False, "no"),
@@ -128,7 +130,7 @@ class Test_Key:
         ),
     )
     def test_gt(self, param, expected):
-        result = tuple(self.key > param)[0]
+        result = next(iter(self.key > param))
         assert result == "?>key_name={}".format(expected)
 
 

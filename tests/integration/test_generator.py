@@ -14,7 +14,7 @@ def test_generator_ditch(routeros_api_sync):
         interface="ether1",
     )
     ips = api.path("ip", "address")
-    for ip in ips:
+    for _ in ips:
         break
 
     for item in api.path("/interface"):
@@ -34,7 +34,7 @@ async def test_generator_ditch_async(routeros_api_async):
         interface="ether1",
     )
     ips = api.path("ip", "address")
-    async for ip in ips:
+    async for _ in ips:
         break
 
     async for item in api.path("/interface"):

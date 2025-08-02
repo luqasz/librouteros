@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
-from socket import socket
-from librouteros.exceptions import ConnectionClosed
-
 from asyncio import StreamReader, StreamWriter
+from socket import socket
+
+from librouteros.exceptions import ConnectionClosed
 
 
 class SocketTransport:

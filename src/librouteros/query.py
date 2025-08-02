@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import typing
 from itertools import chain
+
 from librouteros.protocol import (
     cast_to_api,
 )
@@ -30,7 +31,7 @@ class Key:
     def __str__(self) -> str:
         return str(self.name)
 
-    def In(self, one, *elems):
+    def In(self, one, *elems):  # noqa: N802
         yield from self == one
         yield from chain.from_iterable(self == str(elem) for elem in elems)
         yield from ("?#|",) * len(elems)
@@ -41,7 +42,7 @@ class Query:
         self.path = path
         self.keys = keys
         self.api = api
-        self.query: typing.Tuple[str, ...] = tuple()
+        self.query: typing.Tuple[str, ...] = ()
 
     def where(self, *args: str):
         self.query = tuple(chain.from_iterable(args))
@@ -53,11 +54,11 @@ class Query:
         if len(self.keys) > 0:
             keys = ",".join(str(key) for key in self.keys)
             keys = f"=.proplist={keys}"
-            words = (keys,) + words
+            words = (keys, *words)
         return iter(self.api.rawCmd(cmd, *words))
 
 
-def And(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
+def And(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:  # noqa N802
     yield from left
     yield from right
     yield from chain.from_iterable(rest)
@@ -65,7 +66,7 @@ def And(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
     yield from ("?#&",) * len(rest)
 
 
-def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:
+def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:  # noqa N802
     yield from left
     yield from right
     yield from chain.from_iterable(rest)
@@ -78,7 +79,7 @@ class AsyncQuery:
         self.path = path
         self.keys = keys
         self.api = api
-        self.query: typing.Tuple[str, ...] = tuple()
+        self.query: typing.Tuple[str, ...] = ()
 
     def where(self, *args: str):
         self.query = tuple(chain.from_iterable(args))
@@ -90,7 +91,7 @@ class AsyncQuery:
         if len(self.keys) > 0:
             keys = ",".join(str(key) for key in self.keys)
             keys = f"=.proplist={keys}"
-            words = (keys,) + words
+            words = (keys, *words)
         return self.api.rawCmd(cmd, *words)
 
     def __iter__(self):

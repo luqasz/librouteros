@@ -2,20 +2,20 @@
 
 import typing
 from posixpath import join as pjoin
-from librouteros.exceptions import TrapError, MultiTrapError
+
+from librouteros import query
+from librouteros.exceptions import MultiTrapError, TrapError
 from librouteros.protocol import (
-    compose_word,
-    parse_word,
     ApiProtocol,
     AsyncApiProtocol,
+    compose_word,
+    parse_word,
 )
-from librouteros import query
-
 from librouteros.types import (
-    ReplyDict,
-    ResponseIter,
     AsyncResponseIter,
+    ReplyDict,
     Response,
+    ResponseIter,
 )
 
 
@@ -35,7 +35,7 @@ class Api:
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
-    def rawCmd(self, cmd: str, *words: str) -> ResponseIter:
+    def rawCmd(self, cmd: str, *words: str) -> ResponseIter:  # noqa N802
         """
         Call Api with given command and raw words.
         End user is responsible to properly format each api word argument.
@@ -45,7 +45,7 @@ class Api:
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
-    def readSentence(self) -> typing.Tuple[str, ReplyDict]:
+    def readSentence(self) -> typing.Tuple[str, ReplyDict]:  # noqa N802
         """
         Read one sentence and parse words.
 
@@ -54,7 +54,7 @@ class Api:
         reply_word, words = self.protocol.readSentence()
         return reply_word, dict(parse_word(word) for word in words)
 
-    def readResponse(self) -> Response:
+    def readResponse(self) -> Response:  # noqa N802
         """
         Yield each sentence untill !done is received.
 
@@ -133,7 +133,7 @@ class Path:
             "add",
             **kwargs,
         )
-        return tuple(ret)[0]["ret"]
+        return next(iter(ret))["ret"]
 
     def update(self, **kwargs: typing.Any) -> None:
         tuple(
@@ -162,7 +162,7 @@ class AsyncApi:
         for item in response:
             yield item
 
-    async def rawCmd(self, cmd: str, *words: str) -> AsyncResponseIter:
+    async def rawCmd(self, cmd: str, *words: str) -> AsyncResponseIter:  # noqa N802
         """
         Call Api with given command and raw words.
         End user is responsible to properly format each api word argument.
@@ -174,7 +174,7 @@ class AsyncApi:
         for item in response:
             yield item
 
-    async def readSentence(self) -> typing.Tuple[str, ReplyDict]:
+    async def readSentence(self) -> typing.Tuple[str, ReplyDict]:  # noqa N802
         """
         Read one sentence and parse words.
         """
@@ -182,7 +182,7 @@ class AsyncApi:
         reply_word, words = await self.protocol.readSentence()
         return reply_word, dict(parse_word(word) for word in words)
 
-    async def readResponse(self) -> Response:
+    async def readResponse(self) -> Response:  # noqa N802
         """
         Yield each sentence untill !done is received.
 
