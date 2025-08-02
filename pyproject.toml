@@ -68,3 +68,47 @@ asyncio_mode = "auto"
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.ruff.lint]
+extend-select = [
+  "A",
+  "ASYNC",
+  "BLE",
+  "B",
+  "C4",
+  "DTZ",
+  "EXE",
+  "E",
+  "F",
+  "I",
+  "LOG",
+  "N",
+  "PLE",
+  "PT",
+  "RUF",
+  "S",
+  "T20",
+  "W",
+]
+ignore = [
+]
+exclude = [
+  "docs/**/*.py",
+  "apicli.py",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+  "N801",
+  "N802",
+  "N803",
+  "S101",
+  "S603",
+  "S311",
+  "PT001",
+  "PT003",
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+parametrize-values-type = "tuple"
+parametrize-names-type = "tuple"

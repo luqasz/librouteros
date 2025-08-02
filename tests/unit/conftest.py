@@ -1,6 +1,7 @@
-import pytest
 from collections import namedtuple
 from struct import pack
+
+import pytest
 
 WordLength = namedtuple("WordLength", ("integer", "encoded"))
 WordPair = namedtuple("WordPair", ("word", "pair"))

@@ -1,22 +1,24 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
 from unittest.mock import MagicMock, patch
-from hypothesis import given, strategies as st
 
+import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+
+from librouteros.connections import AsyncSocketTransport, SocketTransport
+from librouteros.exceptions import (
+    FatalError,
+    ProtocolError,
+)
 from librouteros.protocol import (
     ApiProtocol,
     AsyncApiProtocol,
-    encode_length,
     decode_length,
     determine_length,
-    encode_word,
+    encode_length,
     encode_sentence,
-)
-from librouteros.connections import SocketTransport, AsyncSocketTransport
-from librouteros.exceptions import (
-    ProtocolError,
-    FatalError,
+    encode_word,
 )
 
 
@@ -50,7 +52,7 @@ def test_encode_decode_length(n):
 
 
 @pytest.mark.parametrize(
-    "length,expected",
+    ("length", "expected"),
     (
         (b"x", 0),  # 120
         (b"\xbf", 1),  # 191

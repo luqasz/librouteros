@@ -1,15 +1,17 @@
 # -*- coding: UTF-8 -*-
 import socket
-import pytest
 from unittest.mock import (
-    patch,
     Mock,
+    patch,
 )
+
+import pytest
+
 from librouteros import (
     DEFAULTS,
     Api,
-    connect,
     async_connect,
+    connect,
     create_transport,
 )
 from librouteros.exceptions import TrapError
@@ -25,7 +27,7 @@ def test_default_ssl_wrapper():
 
 
 @pytest.mark.parametrize(
-    "key, value",
+    ("key", "value"),
     (
         ("timeout", 10),
         ("port", 8728),
@@ -40,17 +42,15 @@ def test_defaults(key, value):
 
 
 def test_default_keys():
-    assert set(DEFAULTS.keys()) == set(
-        (
-            "timeout",
-            "port",
-            "saddr",
-            "subclass",
-            "encoding",
-            "login_method",
-            "ssl_wrapper",
-        )
-    )
+    assert set(DEFAULTS.keys()) == {
+        "timeout",
+        "port",
+        "saddr",
+        "subclass",
+        "encoding",
+        "login_method",
+        "ssl_wrapper",
+    }
 
 
 def test_password_encoding():
@@ -61,7 +61,7 @@ def test_password_encoding():
 def test_non_ascii_password_encoding():
     """Only ascii characters are allowed in password."""
     with pytest.raises(UnicodeEncodeError):
-        encode_password(token="259e0bc05acd6f46926dc2f809ed1bba", password="łą")
+        encode_password(token="259e0bc05acd6f46926dc2f809ed1bba", password="łą")  # noqa S106
 
 
 @patch("librouteros.create_transport")
@@ -83,12 +83,12 @@ async def test_async_connect_raises_when_failed_login(transport_mock):
 @patch("librouteros.create_connection")
 @patch("librouteros.SocketTransport")
 def test_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
-    kwargs = dict(
-        host="127.0.0.1",
-        port=22,
-        timeout=2,
-        saddr="",
-    )
+    kwargs = {
+        "host": "127.0.0.1",
+        "port": 22,
+        "timeout": 2,
+        "saddr": "",
+    }
     transport.side_effect = exc
     with pytest.raises(exc):
         create_transport(**kwargs)
@@ -99,12 +99,12 @@ def test_create_connection_does_not_wrap_socket_exceptions(create_connection, tr
 @patch("librouteros.create_connection")
 @patch("librouteros.SocketTransport")
 async def test_async_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
-    kwargs = dict(
-        host="127.0.0.1",
-        port=22,
-        timeout=2,
-        saddr="",
-    )
+    kwargs = {
+        "host": "127.0.0.1",
+        "port": 22,
+        "timeout": 2,
+        "saddr": "",
+    }
     transport.side_effect = exc
     with pytest.raises(exc):
         await create_transport(**kwargs)

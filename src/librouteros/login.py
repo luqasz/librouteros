@@ -1,15 +1,15 @@
 # -*- coding: UTF-8 -*-
 
 import typing
+from binascii import hexlify, unhexlify
 from hashlib import md5
-from binascii import unhexlify, hexlify
 
 
 def encode_password(token: str, password: str) -> str:
     token_bytes = token.encode("ascii", "strict")
     token_bytes = unhexlify(token)
     password_bytes = password.encode("ascii", "strict")
-    hasher = md5()
+    hasher = md5(usedforsecurity=False)
     hasher.update(b"\x00" + password_bytes + token_bytes)
     password_bytes = hexlify(hasher.digest())
     return "00" + password_bytes.decode("ascii", "strict")
@@ -18,7 +18,7 @@ def encode_password(token: str, password: str) -> str:
 def token(api: typing.Any, username: str, password: str) -> None:
     """Login using pre routeros 6.43 authorization method."""
     sentence = api("/login")
-    tok = tuple(sentence)[0]["ret"]
+    tok = next(iter(sentence))["ret"]
     encoded = encode_password(tok, password)
     tuple(api("/login", **{"name": username, "response": encoded}))
 

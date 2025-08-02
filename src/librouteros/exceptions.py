@@ -6,7 +6,8 @@ class LibRouterosError(Exception):
     """Base exception for all other."""
 
 
-class ConnectionClosed(LibRouterosError):
+# TODO append with Error
+class ConnectionClosed(LibRouterosError):  # noqa N818
     """Raised when connection have been closed."""
 
 

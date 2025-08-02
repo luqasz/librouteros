@@ -1,14 +1,14 @@
 # -*- coding: UTF-8 -*-
 
-import typing
-from logging import getLogger, NullHandler
-
-from librouteros.exceptions import (
-    ProtocolError,
-    FatalError,
-)
-from librouteros.connections import SocketTransport, AsyncSocketTransport
 import asyncio
+import typing
+from logging import NullHandler, getLogger
+
+from librouteros.connections import AsyncSocketTransport, SocketTransport
+from librouteros.exceptions import (
+    FatalError,
+    ProtocolError,
+)
 
 LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())
@@ -155,7 +155,7 @@ class ApiProtocol:
         self.transport = transport
         self.encoding = encoding
 
-    def writeSentence(self, cmd: str, *words: str) -> None:
+    def writeSentence(self, cmd: str, *words: str) -> None:  # noqa N802
         """
         Write encoded sentence.
 
@@ -166,7 +166,7 @@ class ApiProtocol:
         log("<---", cmd, *words)
         self.transport.write(encoded)
 
-    def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
+    def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:  # noqa N802
         """
         Read every word until empty word (NULL byte) is received.
 
@@ -180,7 +180,7 @@ class ApiProtocol:
             raise FatalError(words[0])
         return reply_word, words
 
-    def readWord(self) -> str:
+    def readWord(self) -> str:  # noqa N802
         byte = self.transport.read(1)
         # Early return check for null byte
         if byte == b"\x00":
@@ -201,7 +201,7 @@ class AsyncApiProtocol:
         self.encoding = encoding
         self.timeout = timeout
 
-    async def writeSentence(self, cmd: str, *words: str) -> None:
+    async def writeSentence(self, cmd: str, *words: str) -> None:  # noqa N802
         """
         Write encoded sentence.
 
@@ -212,7 +212,7 @@ class AsyncApiProtocol:
         log("<---", cmd, *words)
         await asyncio.wait_for(self.transport.write(encoded), self.timeout)
 
-    async def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:
+    async def readSentence(self) -> typing.Tuple[str, typing.Tuple[str, ...]]:  # noqa N802
         """
         Read every word until empty word (NULL byte) is received.
 
@@ -233,7 +233,7 @@ class AsyncApiProtocol:
             raise FatalError(words[0])
         return reply_word, tuple(words)
 
-    async def readWord(self) -> str:
+    async def readWord(self) -> str:  # noqa N802
         byte = await self.transport.read(1)
         # Early return check for null byte
         if byte == b"\x00":

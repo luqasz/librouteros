@@ -1,6 +1,7 @@
 import pytest
+
+from librouteros import async_connect, connect
 from librouteros.query import Key
-from librouteros import connect, async_connect
 from tests.integration.conftest import ROUTEROS_LOGIN_VMS
 
 pytestmark = pytest.mark.xfail
@@ -11,7 +12,7 @@ def test_login_sync(routeros_vm):
     params = routeros_vm("sync")
     api = connect(**params)
     data = api("/system/identity/print")
-    assert tuple(data)[0]["name"] == "MikroTik"
+    assert next(iter(data))["name"] == "MikroTik"
 
 
 @pytest.mark.parametrize("routeros_vm", ROUTEROS_LOGIN_VMS, indirect=True)
@@ -31,7 +32,7 @@ def test_query(routeros_api_sync):
         address=new_address,
         interface="ether1",
     )
-    created_id = tuple(result)[0]["ret"]
+    created_id = next(iter(result))["ret"]
 
     _id = Key(".id")
     address = Key("address")
@@ -93,7 +94,7 @@ def test_query_In_operator(routeros_api_sync, addresses):
 
     address = Key("address")
     query = addr_path.select(address).where(address.In(*addresses))
-    assert addresses == set(row["address"] for row in query)
+    assert addresses == {row["address"] for row in query}
 
 
 @pytest.mark.asyncio
@@ -112,7 +113,7 @@ async def test_query_In_operator_async(routeros_api_async, addresses):
 
     address = Key("address")
     result = [r async for r in addr_path.select(address).where(address.In(*addresses))]
-    assert addresses == set(row["address"] for row in result)
+    assert addresses == {row["address"] for row in result}
 
 
 def test_long_word(routeros_api_sync):
@@ -132,7 +133,7 @@ def test_long_word(routeros_api_sync):
         interface="ether1",
         comment=long_value,
     )
-    _id = tuple(data)[0]["ret"]
+    _id = next(iter(data))["ret"]
     for row in api("/ip/address/print"):
         if row[".id"] == _id:
             assert row["comment"] == long_value
