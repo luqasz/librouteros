@@ -14,9 +14,8 @@ jobs:
     name: Release
     needs:
       - test
-    runs-on: ubuntu-20.04
-    container:
-      image: lukaszkostka/librouteros:3.12
+    runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,6 +23,10 @@ jobs:
           lfs: false
           fetch-depth: 0
           fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -35,6 +38,4 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Publish
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_PASSWORD }}
         run: uv publish
