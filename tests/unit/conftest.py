@@ -46,3 +46,25 @@ def bad_first_length_bytes(request):
 def word_pair(request):
     """Words and key,value pairs used for casting from/to python/api in both directions."""
     return request.param
+
+
+@pytest.fixture(
+    params=(
+        (
+            ("!empty", {}),
+            ("!empty", {}),
+            ("!done", {}),
+        ),
+        (
+            ("!empty", {}),
+            ("!re", {}),
+            ("!done", {}),
+        ),
+        (
+            ("!re", {}),
+            ("!done", {}),
+        ),
+    )
+)
+def empty_response(request):
+    return request.param
