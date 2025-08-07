@@ -1,10 +1,12 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
 from unittest.mock import (
-    Mock,
     AsyncMock,
+    Mock,
 )
+
+import pytest
+
 from librouteros.api import (
     Api,
     AsyncApi,
