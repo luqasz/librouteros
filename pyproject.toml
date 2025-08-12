@@ -1,20 +1,20 @@
 [project]
 name = "librouteros"
 dynamic = [
-  "version",
+    "version",
 ]
 description = "Python implementation of MikroTik RouterOS API"
 authors = [
-  { name = "Łukasz Kostka", email = "lukasz.g.kostka@gmail.com" },
+    { name = "Łukasz Kostka", email = "lukasz.g.kostka@gmail.com" },
 ]
 license = "GPL-2.0-or-later"
 readme = "README.rst"
 license-files = ["LICENSE"]
 requires-python = ">=3.9.0"
 keywords = [
-  "mikrotik",
-  "routeros",
-  "api",
+    "mikrotik",
+    "routeros",
+    "api",
 ]
 dependencies = []
 
@@ -25,14 +25,14 @@ Documentation = "https://librouteros.readthedocs.io"
 
 [dependency-groups]
 dev = [
-  "pytest==8.*",
-  "pytest-xdist==3.*",
-  "mypy==1.*",
-  "ruff==0.*",
-  "pytest-asyncio>=0.24.0",
-  "stamina>=25.1.0",
-  "ipdb>=0.13.13",
-  "hypothesis>=6.131.6",
+    "pytest==8.*",
+    "pytest-xdist==3.*",
+    "mypy==1.*",
+    "ruff==0.*",
+    "pytest-asyncio>=0.24.0",
+    "stamina>=25.1.0",
+    "ipdb>=0.13.13",
+    "hypothesis>=6.131.6",
 ]
 
 [build-system]
@@ -49,9 +49,9 @@ raw-options = { git_describe_command = "git describe" }
 [tool.hatch.build.targets.sdist]
 ignore-vcs = false
 exclude = [
-  "/.github/*",
-  "/docs/*",
-  "/tests/*",
+    "/.github/*",
+    "/docs/*",
+    "/tests/*",
 ]
 
 [tool.ruff]
@@ -71,42 +71,42 @@ ignore_missing_imports = true
 
 [tool.ruff.lint]
 extend-select = [
-  "A",
-  "ASYNC",
-  "BLE",
-  "B",
-  "C4",
-  "DTZ",
-  "EXE",
-  "E",
-  "F",
-  "I",
-  "LOG",
-  "N",
-  "PLE",
-  "PT",
-  "RUF",
-  "S",
-  "T20",
-  "W",
+    "A",
+    "ASYNC",
+    "BLE",
+    "B",
+    "C4",
+    "DTZ",
+    "EXE",
+    "E",
+    "F",
+    "I",
+    "LOG",
+    "N",
+    "PLE",
+    "PT",
+    "RUF",
+    "S",
+    "T20",
+    "W",
 ]
 ignore = [
 ]
 exclude = [
-  "docs/**/*.py",
-  "apicli.py",
+    "docs/**/*.py",
+    "apicli.py",
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
-  "N801",
-  "N802",
-  "N803",
-  "S101",
-  "S603",
-  "S311",
-  "PT001",
-  "PT003",
+    "N801",
+    "N802",
+    "N803",
+    "S101",
+    "S603",
+    "S311",
+    "PT001",
+    "PT003",
 ]
 
 [tool.ruff.lint.flake8-pytest-style]
