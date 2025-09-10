@@ -23,11 +23,11 @@ Unencrypted
 Encrypted
 ---------
 
-Before connecting, ``api-ssl`` service on routeros must be enabled.
+Before connecting, ``api-ssl`` service must be enabled.
 For more information on how to generate certificates see
 `MikroTik wiki <https://wiki.mikrotik.com/wiki/Manual:Create_Certificates>`_.
 After that, create your default `SSLContext <https://docs.python.org/library/ssl.html#ssl.create_default_context>`_
-and fine tune for your needs. Code below allows connecting to API without ceritficate.
+and fine tune for your needs.
 
 .. code-block:: python
 
@@ -36,7 +36,7 @@ and fine tune for your needs. Code below allows connecting to API without ceritf
 
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
-    ctx.set_ciphers('ADH:@SECLEVEL=0')
+    ctx.verify_mode = ssl.CERT_NONE
     api = connect(
         username='admin',
         password='abc',
