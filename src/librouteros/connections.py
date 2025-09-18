@@ -22,10 +22,11 @@ class SocketTransport:
         Loop as long as every byte is read unless exception is raised.
         """
         data = bytearray()
-        while len(data) != length:
-            data += self.sock.recv((length - len(data)))
-            if not data:
+        while (to_read := length - len(data)) != 0:
+            got = self.sock.recv(to_read)
+            if not got:
                 raise ConnectionClosed("Connection unexpectedly closed.")
+            data += got
         return data
 
     def close(self) -> None:
@@ -51,12 +52,11 @@ class AsyncSocketTransport:
         Loop as long as every byte is read unless exception is raised.
         """
         data = bytearray()
-        while len(data) != length:
-            data += await self.reader.read((length - len(data)))
-            if not data:
+        while (to_read := length - len(data)) != 0:
+            got = await self.reader.read(to_read)
+            if not got:
                 raise ConnectionClosed("Connection unexpectedly closed.")
-
-        # print data for debugging
+            data += got
         return data
 
     async def close(self) -> None:
