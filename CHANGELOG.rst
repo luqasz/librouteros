@@ -2,6 +2,7 @@ UNRELEASED
 ----------
 
 * Drop Encoder, Decoder classes
+* Handle broken stream errors
 
 3.4.1
 ----------
