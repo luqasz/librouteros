@@ -2,7 +2,7 @@
 
 import socket
 from asyncio import StreamReader, StreamWriter
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 import pytest
 
@@ -33,14 +33,29 @@ class Test_SocketTransport:
         self.transport.sock.recv.return_value = b""
         with pytest.raises(ConnectionClosed):
             self.transport.read(3)
+        assert self.transport.sock.recv.call_args_list == [
+            call(3),
+        ]
+
+    def test_read_raises_when_broken_stream(self):
+        # Simulate broken stream after receiving 5 bytes
+        self.transport.sock.recv.side_effect = (b"valid", b"")
+        with pytest.raises(ConnectionClosed):
+            self.transport.read(8)
+        assert self.transport.sock.recv.call_args_list == [
+            call(8),
+            call(3),
+        ]
 
     def test_read_reads_full_length(self):
-        """
-        Check if read() reads all data, even when socket.recv()
-        needs to be called multiple times.
-        """
-        self.transport.sock.recv.side_effect = (b"retu", b"rne", b"d")
+        # Simulate fragmented stream of bytes
+        self.transport.sock.recv.side_effect = (b"retu", b"rne", b"d", b"other_data")
         assert self.transport.read(8) == b"returned"
+        assert self.transport.sock.recv.call_args_list == [
+            call(8),
+            call(4),
+            call(1),
+        ]
 
     @pytest.mark.parametrize("exception", (socket.error, socket.timeout))
     def test_recv_raises_socket_errors(self, exception):
@@ -72,15 +87,31 @@ class Test_AsyncSocketTransport:
         self.transport.reader.read.return_value = b""
         with pytest.raises(ConnectionClosed):
             await self.transport.read(3)
+        assert self.transport.reader.read.call_args_list == [
+            call(3),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_read_raises_when_broken_stream(self):
+        # Simulate broken stream after receiving 5 bytes
+        self.transport.reader.read.side_effect = (b"valid", b"")
+        with pytest.raises(ConnectionClosed):
+            await self.transport.read(8)
+        assert self.transport.reader.read.call_args_list == [
+            call(8),
+            call(3),
+        ]
 
     @pytest.mark.asyncio
     async def test_read_reads_full_length(self):
-        """
-        Check if read() reads all data, even when socket.recv()
-        needs to be called multiple times.
-        """
-        self.transport.reader.read.side_effect = (b"retu", b"rne", b"d")
+        # Simulate fragmented stream of bytes
+        self.transport.reader.read.side_effect = (b"retu", b"rne", b"d", b"other_data")
         assert await self.transport.read(8) == b"returned"
+        assert self.transport.reader.read.call_args_list == [
+            call(8),
+            call(4),
+            call(1),
+        ]
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("exception", (socket.error, socket.timeout))
