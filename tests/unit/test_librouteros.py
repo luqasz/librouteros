@@ -9,7 +9,9 @@ import pytest
 
 from librouteros import (
     DEFAULTS,
+    ASYNC_DEFAULTS,
     Api,
+    AsyncApi,
     async_connect,
     connect,
     create_transport,
@@ -18,12 +20,8 @@ from librouteros.exceptions import TrapError
 from librouteros.login import (
     encode_password,
     plain,
+    async_plain,
 )
-
-
-def test_default_ssl_wrapper():
-    """Assert that wrapper returns same object as it was called with."""
-    assert DEFAULTS["ssl_wrapper"](int) is int
 
 
 @pytest.mark.parametrize(
@@ -35,14 +33,43 @@ def test_default_ssl_wrapper():
         ("subclass", Api),
         ("encoding", "ASCII"),
         ("login_method", plain),
+        ("ssl_wrapper", None),
     ),
 )
 def test_defaults(key, value):
     assert DEFAULTS[key] == value
 
 
+@pytest.mark.parametrize(
+    ("key", "value"),
+    (
+        ("timeout", 10),
+        ("port", 8728),
+        ("saddr", ""),
+        ("subclass", AsyncApi),
+        ("encoding", "ASCII"),
+        ("login_method", async_plain),
+        ("ssl_wrapper", None),
+    ),
+)
+def test_async_defaults(key, value):
+    assert ASYNC_DEFAULTS[key] == value
+
+
 def test_default_keys():
     assert set(DEFAULTS.keys()) == {
+        "timeout",
+        "port",
+        "saddr",
+        "subclass",
+        "encoding",
+        "login_method",
+        "ssl_wrapper",
+    }
+
+
+def test_async_default_keys():
+    assert set(ASYNC_DEFAULTS.keys()) == {
         "timeout",
         "port",
         "saddr",
