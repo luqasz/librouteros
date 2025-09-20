@@ -96,7 +96,11 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
 
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
-    sock = create_connection((host, kwargs["port"]), kwargs["timeout"], (kwargs["saddr"], 0))
+    sock = create_connection(
+        (host, kwargs["port"]),
+        timeout=kwargs["timeout"],
+        source_address=(kwargs["saddr"], 0),
+    )
     if wrapper := kwargs["ssl_wrapper"]:
         sock = wrapper(sock)
     return SocketTransport(sock=sock)
@@ -108,6 +112,7 @@ async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
             host=host,
             port=kwargs["port"],
             ssl=kwargs["ssl_wrapper"],
+            local_addr=(kwargs["saddr"], 0),
         ),
         timeout=kwargs["timeout"],
     )
