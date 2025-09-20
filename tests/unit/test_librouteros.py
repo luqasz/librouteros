@@ -8,20 +8,20 @@ from unittest.mock import (
 import pytest
 
 from librouteros import (
-    DEFAULTS,
     ASYNC_DEFAULTS,
+    DEFAULTS,
     Api,
     AsyncApi,
     async_connect,
+    async_create_transport,
     connect,
     create_transport,
-    async_create_transport,
 )
 from librouteros.exceptions import TrapError
 from librouteros.login import (
+    async_plain,
     encode_password,
     plain,
-    async_plain,
 )
 
 
