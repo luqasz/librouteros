@@ -96,14 +96,22 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
 
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
-    sock = create_connection((host, kwargs["port"]), kwargs["timeout"], (kwargs["saddr"], 0))
+    sock = create_connection(
+        (host, kwargs["port"]),
+        timeout=kwargs["timeout"],
+        source_address=(kwargs["saddr"], 0),
+    )
     sock = kwargs["ssl_wrapper"](sock)
     return SocketTransport(sock=sock)
 
 
 async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
     reader, writer = await asyncio.wait_for(
-        asyncio.open_connection(host=host, port=kwargs["port"]),
+        asyncio.open_connection(
+            host=host,
+            port=kwargs["port"],
+            local_addr=(kwargs["saddr"], 0),
+        ),
         timeout=kwargs["timeout"],
     )
     return AsyncSocketTransport(reader=reader, writer=writer)

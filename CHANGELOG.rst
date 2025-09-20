@@ -1,6 +1,7 @@
 UNRELEASED
 ----------
 
+* Pass source address to async connect
 * Drop Encoder, Decoder classes
 * Handle broken stream errors
 

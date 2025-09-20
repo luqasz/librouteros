@@ -2,15 +2,18 @@
 import socket
 from unittest.mock import (
     Mock,
+    call,
     patch,
 )
 
 import pytest
 
 from librouteros import (
+    ASYNC_DEFAULTS,
     DEFAULTS,
     Api,
     async_connect,
+    async_create_transport,
     connect,
     create_transport,
 )
@@ -62,6 +65,30 @@ def test_non_ascii_password_encoding():
     """Only ascii characters are allowed in password."""
     with pytest.raises(UnicodeEncodeError):
         encode_password(token="259e0bc05acd6f46926dc2f809ed1bba", password="łą")  # noqa S106
+
+
+@patch("librouteros.create_connection")
+def test_create_transport_passes_src_addr(conn_mock):
+    params = DEFAULTS.copy()
+    create_transport(host="127.0.0.1", **params)
+    assert conn_mock.call_args == call(
+        ("127.0.0.1", params["port"]),
+        timeout=params["timeout"],
+        source_address=(params["saddr"], 0),
+    )
+
+
+@pytest.mark.asyncio
+@patch("librouteros.asyncio.open_connection")
+async def test_async_create_transport_passes_src_addr(conn_mock):
+    params = ASYNC_DEFAULTS.copy()
+    conn_mock.return_value = (Mock(), Mock())
+    await async_create_transport(host="127.0.0.1", **params)
+    assert conn_mock.call_args == call(
+        host="127.0.0.1",
+        port=params["port"],
+        local_addr=(params["saddr"], 0),
+    )
 
 
 @patch("librouteros.create_transport")
