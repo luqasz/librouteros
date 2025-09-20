@@ -3,6 +3,7 @@ UNRELEASED
 
 * Drop Encoder, Decoder classes
 * Handle broken stream errors
+* Pass SSLContext to async connect
 
 3.4.1
 ----------

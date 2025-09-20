@@ -15,6 +15,7 @@ from librouteros import (
     async_connect,
     connect,
     create_transport,
+    async_create_transport,
 )
 from librouteros.exceptions import TrapError
 from librouteros.login import (
@@ -135,3 +136,21 @@ async def test_async_create_connection_does_not_wrap_socket_exceptions(create_co
     transport.side_effect = exc
     with pytest.raises(exc):
         await create_transport(**kwargs)
+
+
+@patch("librouteros.create_connection")
+def test_crate_transport_calls_ssl_wrapper(connection_mock):
+    params = DEFAULTS.copy()
+    params["ssl_wrapper"] = Mock()
+    create_transport(host="127.0.0.1", **params)
+    params["ssl_wrapper"].assert_called_once_with(connection_mock.return_value)
+
+
+@pytest.mark.asyncio
+@patch("librouteros.asyncio.open_connection")
+async def test_async_crate_transport_passes_ssl_wrapper(connection_mock):
+    params = ASYNC_DEFAULTS.copy()
+    params["ssl_wrapper"] = Mock()
+    connection_mock.return_value = (Mock(), Mock())
+    await async_create_transport(host="127.0.0.1", **params)
+    assert connection_mock.call_args.kwargs["ssl"] == params["ssl_wrapper"]

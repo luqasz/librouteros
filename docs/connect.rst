@@ -56,6 +56,24 @@ use `partial <https://docs.python.org/3/library/functools.html#functools.partial
         server_hostname='some.address.com',
         )
 
+For async version, just pass `ssl.SSLContext` instance.
+
+.. code-block:: python
+
+    import ssl
+    from librouteros import async_connect
+
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    api = async_connect(
+        username='admin',
+        password='abc',
+        host='some.address.com',
+        ssl_wrapper=ctx,
+        port=8729
+        )
+
 Auth methods
 ------------
 
