@@ -57,7 +57,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749, upload-time = "2025-05-10T17:42:51.123Z" }
 wheels = [
@@ -84,16 +84,16 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.139.2"
+version = "6.140.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/56/8e/f408b1a6d9745bf02c3d56e0788c930add554eee6b88a39bba141e897ac4/hypothesis-6.139.2.tar.gz", hash = "sha256:2dc2ff36ea977a9cb7fb68f24a5dbf5d673b88a2e502212676eafe09b699f511", size = 466099, upload-time = "2025-09-18T03:29:15.855Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/4d/bc00079d02c6ffc014e9bcc0533f12b4f5e74b22698df01552c4e0dcf377/hypothesis-6.140.0.tar.gz", hash = "sha256:bf6f79f19bb4e262c33849739639d94f8656510261d50a9ab74f539bcec8b782", size = 466332, upload-time = "2025-09-22T03:43:16.972Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/81/4a85771072ae39064f114f23716e312771a42bfe3a089cba3da6697dd231/hypothesis-6.139.2-py3-none-any.whl", hash = "sha256:6f466780b7d1db074fb473af14e3111a5dd4fe36c47fcd776cd7c480ae0a02f2", size = 533752, upload-time = "2025-09-18T03:29:12.088Z" },
+    { url = "https://files.pythonhosted.org/packages/52/01/02849c14b948fdc5b7a6959c1f22ebeebc4002fd0f0db02f4a216353c114/hypothesis-6.140.0-py3-none-any.whl", hash = "sha256:ff251c41e4ffed6484720ffef68b31f705e62f50e22947f9f7ef1206b715f376", size = 534072, upload-time = "2025-09-22T03:43:13.951Z" },
 ]
 
 [[package]]
