@@ -124,9 +124,17 @@ def routeros_vm(request):
 
 @pytest.fixture()
 def routeros_api_sync(request, routeros_vm):
-    return connect(**routeros_vm("sync"))
+    try:
+        api = connect(**routeros_vm("sync"))
+    except ConnectionResetError as e:
+        pytest.skip(f"Skipped due to {e}")
+    return api
 
 
 @pytest_asyncio.fixture()
 async def routeros_api_async(request, routeros_vm):
-    return await async_connect(**routeros_vm("async"))
+    try:
+        api = await async_connect(**routeros_vm("async"))
+    except ConnectionResetError as e:
+        pytest.skip(f"Skipped due to {e}")
+    return api

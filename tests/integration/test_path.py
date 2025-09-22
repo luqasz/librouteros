@@ -27,7 +27,8 @@ def test_add_then_update(routeros_api_sync):
     new_id = ips.add(interface="ether1", address="192.168.1.1/24")
     ips.update(**{".id": new_id, "address": "172.16.1.1/24"})
     address = Key("address")
-    assert (ips.select(address).where(Key(".id") == new_id))[0]["address"] == "172.16.1.1/24"
+    result = tuple(ips.select(address).where(Key(".id") == new_id))
+    assert result[0]["address"] == "172.16.1.1/24"
 
 
 @pytest.mark.asyncio
@@ -36,4 +37,5 @@ async def test_add_then_update_async(routeros_api_async):
     new_id = await ips.add(interface="ether1", address="192.168.1.1/24")
     await ips.update(**{".id": new_id, "address": "172.16.1.1/24"})
     address = Key("address")
-    assert next(r async for r in ips.select(address).where(Key(".id") == new_id))["address"] == "172.16.1.1/24"
+    result = [r async for r in ips.select(address).where(Key(".id") == new_id)]
+    assert result[0]["address"] == "172.16.1.1/24"

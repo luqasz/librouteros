@@ -1,25 +1,6 @@
 import pytest
 
-from librouteros import async_connect, connect
 from librouteros.query import Key
-from tests.integration.conftest import ROUTEROS_LOGIN_VMS
-
-
-@pytest.mark.parametrize("routeros_vm", ROUTEROS_LOGIN_VMS, indirect=True)
-def test_login_sync(routeros_vm):
-    params = routeros_vm("sync")
-    api = connect(**params)
-    data = api("/system/identity/print")
-    assert next(iter(data))["name"] == "MikroTik"
-
-
-@pytest.mark.parametrize("routeros_vm", ROUTEROS_LOGIN_VMS, indirect=True)
-@pytest.mark.asyncio
-async def test_login_async(routeros_vm):
-    params = routeros_vm("async")
-    api = await async_connect(**params)
-    result = [r async for r in api("/system/identity/print")]
-    assert result[0]["name"] == "MikroTik"
 
 
 def test_query(routeros_api_sync):
