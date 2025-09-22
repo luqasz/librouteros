@@ -31,7 +31,7 @@ from librouteros.login import (
     (
         ("timeout", 10),
         ("port", 8728),
-        ("saddr", ""),
+        ("saddr", "0.0.0.0"),  # noqa: S104
         ("subclass", Api),
         ("encoding", "ASCII"),
         ("login_method", plain),
@@ -47,7 +47,7 @@ def test_defaults(key, value):
     (
         ("timeout", 10),
         ("port", 8728),
-        ("saddr", ""),
+        ("saddr", "0.0.0.0"),  # noqa: S104
         ("subclass", AsyncApi),
         ("encoding", "ASCII"),
         ("login_method", async_plain),

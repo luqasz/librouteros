@@ -21,7 +21,7 @@ from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 DEFAULTS = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "",
+    "saddr": "0.0.0.0",  # noqa: S104
     "subclass": Api,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -31,7 +31,7 @@ DEFAULTS = {
 ASYNC_DEFAULTS = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "",
+    "saddr": "0.0.0.0",  # noqa: S104
     "subclass": AsyncApi,
     "encoding": "ASCII",
     "ssl_wrapper": None,
