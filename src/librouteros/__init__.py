@@ -6,7 +6,6 @@ import re
 import shlex
 import signal
 import socket
-import subprocess
 from collections import ChainMap
 from socket import create_connection
 
@@ -136,7 +135,7 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
     #    # This more portable version should work on Windows
     #    s1_in = s1.makefile('rb', buffering=0)
     #    s1_out = s1.makefile('wb', buffering=0)
-    #    subprocess.Popen( # noqa: S603
+    #    subprocess.Popen(
     #            cmdline,
     #            stdin=s1_in,
     #            stdout=s1_out,
