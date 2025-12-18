@@ -151,7 +151,7 @@ def proxy_connect(hostport: tuple[str, int], proxy_cmd: str, ignore_intr: bool =
 
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
-    if kwargs["proxy_command"] is None:
+    if "proxy_command" not in kwargs or kwargs["proxy_command"] is None:
         sock = create_connection(
             (host, kwargs["port"]),
             timeout=kwargs["timeout"],
@@ -169,7 +169,7 @@ def create_transport(host: str, **kwargs) -> SocketTransport:
 
 
 async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
-    if kwargs["proxy_command"] is None:
+    if "proxy_command" not in kwargs or kwargs["proxy_command"] is None:
         reader, writer = await asyncio.wait_for(
             asyncio.open_connection(
                 host=host,
