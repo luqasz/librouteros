@@ -112,7 +112,7 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
     # mapping = {'%h': host, '%p': str(port) }
     # cmdline = shlex.split(re.sub(r'%[hp]',
     #                lambda m: mapping[m.group(0)], proxy_cmd))
-    proxy_cmd = proxy_cmd.replace("%p",str(port)).replace("%h",host)
+    proxy_cmd = proxy_cmd.replace("%p", str(port)).replace("%h", host)
     cmdline = shlex.split(proxy_cmd)
 
     s1, s2 = socket.socketpair()
@@ -128,9 +128,9 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
             os.dup2(fd, 0)
             os.dup2(fd, 1)
             if ignore_intr:
-              signal.signal(signal.SIGINT, signal.SIG_IGN)
+                signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-            os.execvp(cmdline[0], cmdline) # noqa: S606
+            os.execvp(cmdline[0], cmdline)  # noqa: S606
             exit(-1)  # Abort if we reach here!
     else:
         raise NotImplementedError("Requires a posix environment")
@@ -187,7 +187,7 @@ async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
         )
         # Wrap the socket in the asyncio loop...
         reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(sock = sock),
+            asyncio.open_connection(sock=sock),
             timeout=kwargs["timeout"],
         )
 
