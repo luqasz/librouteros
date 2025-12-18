@@ -7,7 +7,6 @@ import re
 import shlex
 import signal
 import socket
-from socket import create_connection
 import subprocess
 
 from librouteros.api import Api, AsyncApi
@@ -63,7 +62,7 @@ def connect(host: str, username: str, password: str, **kwargs) -> Api:
     :param subclass: Subclass of Api class. Defaults to Api class from library.
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
     :param login_method: Callable with login method.
-    :param proxy_command: String used for proxyed connections.  Understands %h and %p similar to openssh proxy_command option.
+    :param proxy_command: Command used for proxyed connections.  Use %h and %p for host and port.
     :param ignore_intr: Make proxy_command ignore INTR signals
     """
     arguments = ChainMap(kwargs, DEFAULTS)
@@ -93,7 +92,7 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
     :param subclass: Subclass of Api class. Defaults to Api class from library.
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
     :param login_method: Callable with login method.
-    :param proxy_command: String used for proxyed connections.  Understands %h and %p similar to openssh proxy_command option.
+    :param proxy_command: Command used for proxyed connections.  Use %h and %p for host and port.
     :param ignore_intr: Make proxy_command ignore INTR signals
     """
     arguments = ChainMap(kwargs, ASYNC_DEFAULTS)
@@ -126,22 +125,22 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
             fd = s1.fileno()
             os.dup2(fd, 0)
             os.dup2(fd, 1)
-            if ignore_intr: signal.signal(signal.SIGINT, signal.SIG_IGN)
+            if ignore_intr:
+              signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-            os.execvp(cmdline[0], cmdline)
+            os.execvp(cmdline[0], cmdline) # noqa
             exit(-1)  # Abort if we reach here!
     else:
         # This more portable version should work on Windows
-        ic(cmdline)
         s1_in = s1.makefile('rb', buffering=0)
         s1_out = s1.makefile('wb', buffering=0)
-        proc = subprocess.Popen(
+        subprocess.Popen(
                 cmdline,
                 stdin=s1_in,
                 stdout=s1_out,
                 stderr=subprocess.DEVNULL,
                 creationflags=subprocess.CREATE_NO_WINDOW if ignore_intr else 0
-            )
+            ) # noqa
 
     # Close our copies of s1; keep s2 for communication
     s1.close()
@@ -149,7 +148,7 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
     if kwargs['proxy_command'] is None:
-        sock = create_connection(
+        sock = socket.create_connection(
             (host, kwargs["port"]),
             timeout=kwargs["timeout"],
             source_address=(kwargs["saddr"], 0),
