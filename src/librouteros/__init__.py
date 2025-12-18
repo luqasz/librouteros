@@ -132,16 +132,17 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
             os.execvp(cmdline[0], cmdline) # noqa: S606
             exit(-1)  # Abort if we reach here!
     else:
-        # This more portable version should work on Windows
-        s1_in = s1.makefile('rb', buffering=0)
-        s1_out = s1.makefile('wb', buffering=0)
-        subprocess.Popen( # noqa: S603
-                cmdline,
-                stdin=s1_in,
-                stdout=s1_out,
-                stderr=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NO_WINDOW if ignore_intr else 0
-            )
+        raise NotImplementedError('Requires a posix environment')
+    #    # This more portable version should work on Windows
+    #    s1_in = s1.makefile('rb', buffering=0)
+    #    s1_out = s1.makefile('wb', buffering=0)
+    #    subprocess.Popen( # noqa: S603
+    #            cmdline,
+    #            stdin=s1_in,
+    #            stdout=s1_out,
+    #            stderr=subprocess.DEVNULL,
+    #            creationflags=subprocess.CREATE_NO_WINDOW if ignore_intr else 0
+    #        )
 
     # Close our copies of s1; keep s2 for communication
     s1.close()
