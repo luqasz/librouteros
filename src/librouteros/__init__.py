@@ -107,7 +107,7 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
         raise
 
 
-def proxy_connect(hostport: tuple[str,int], proxy_cmd: str, ignore_intr: bool = False) -> socket.socket:
+def proxy_connect(hostport: tuple[str, int], proxy_cmd: str, ignore_intr: bool = False) -> socket.socket:
     host, port = hostport
     # mapping = {'%h': host, '%p': str(port) }
     # cmdline = shlex.split(re.sub(r'%[hp]',
