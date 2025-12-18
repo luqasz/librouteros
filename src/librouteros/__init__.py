@@ -1,14 +1,14 @@
 # -*- coding: UTF-8 -*-
 
 import asyncio
-from collections import ChainMap
 import os
 import re
 import shlex
 import signal
 import socket
-from socket import create_connection
 import subprocess
+from collections import ChainMap
+from socket import create_connection
 
 from librouteros.api import Api, AsyncApi
 from librouteros.connections import AsyncSocketTransport, SocketTransport
