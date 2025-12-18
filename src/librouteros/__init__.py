@@ -2,7 +2,6 @@
 
 import asyncio
 import os
-import re
 import shlex
 import signal
 import socket
@@ -110,9 +109,12 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
 
 def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = False) -> socket.socket:
     host,port = hostport
-    mapping = {'%h': host, '%p': str(port) }
-    cmdline = shlex.split(re.sub(r'%[hp]',
-                    lambda m: mapping[m.group(0)], proxy_cmd))
+    #mapping = {'%h': host, '%p': str(port) }
+    #cmdline = shlex.split(re.sub(r'%[hp]',
+    #                lambda m: mapping[m.group(0)], proxy_cmd))
+    proxy_cmd = proxy_cmd.replace('%p',str(port)).replace('%h',host)
+    cmdline = shlex.split(proxy_cmd)
+
     s1, s2 = socket.socketpair()
 
     if os.name == 'posix':
