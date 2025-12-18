@@ -30,8 +30,8 @@ DEFAULTS = {
     "encoding": "ASCII",
     "ssl_wrapper": None,
     "login_method": plain,
-    'proxy_command': None,
-    'ignore_intr': False,
+    "proxy_command": None,
+    "ignore_intr": False,
 }
 
 ASYNC_DEFAULTS = {
@@ -42,8 +42,8 @@ ASYNC_DEFAULTS = {
     "encoding": "ASCII",
     "ssl_wrapper": None,
     "login_method": async_plain,
-    'proxy_command': None,
-    'ignore_intr': False,
+    "proxy_command": None,
+    "ignore_intr": False,
 }
 
 
@@ -108,16 +108,16 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
 
 
 def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = False) -> socket.socket:
-    host,port = hostport
-    #mapping = {'%h': host, '%p': str(port) }
-    #cmdline = shlex.split(re.sub(r'%[hp]',
+    host, port = hostport
+    # mapping = {'%h': host, '%p': str(port) }
+    # cmdline = shlex.split(re.sub(r'%[hp]',
     #                lambda m: mapping[m.group(0)], proxy_cmd))
-    proxy_cmd = proxy_cmd.replace('%p',str(port)).replace('%h',host)
+    proxy_cmd = proxy_cmd.replace("%p",str(port)).replace("%h",host)
     cmdline = shlex.split(proxy_cmd)
 
     s1, s2 = socket.socketpair()
 
-    if os.name == 'posix':
+    if os.name == "posix":
         # This is very Linux oriented, and done at a fairly low level
         # Should have less overhead.
         pid = os.fork()
@@ -133,7 +133,7 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
             os.execvp(cmdline[0], cmdline) # noqa: S606
             exit(-1)  # Abort if we reach here!
     else:
-        raise NotImplementedError('Requires a posix environment')
+        raise NotImplementedError("Requires a posix environment")
     #    # This more portable version should work on Windows
     #    s1_in = s1.makefile('rb', buffering=0)
     #    s1_out = s1.makefile('wb', buffering=0)
@@ -149,8 +149,9 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
     s1.close()
     return s2
 
+
 def create_transport(host: str, **kwargs) -> SocketTransport:
-    if kwargs['proxy_command'] is None:
+    if kwargs["proxy_command"] is None:
         sock = create_connection(
             (host, kwargs["port"]),
             timeout=kwargs["timeout"],
@@ -158,9 +159,9 @@ def create_transport(host: str, **kwargs) -> SocketTransport:
         )
     else:
         sock = proxy_connect(
-                (host, kwargs["port"]),
-                kwargs['proxy_command'],
-                kwargs['ignore_intr'],
+            (host, kwargs["port"]),
+            kwargs["proxy_command"],
+            kwargs["ignore_intr"],
         )
     if wrapper := kwargs["ssl_wrapper"]:
         sock = wrapper(sock)
@@ -168,26 +169,26 @@ def create_transport(host: str, **kwargs) -> SocketTransport:
 
 
 async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
-    if kwargs['proxy_command'] is None:
+    if kwargs["proxy_command"] is None:
         reader, writer = await asyncio.wait_for(
-          asyncio.open_connection(
-              host=host,
-              port=kwargs["port"],
-              ssl=kwargs["ssl_wrapper"],
-              local_addr=(kwargs["saddr"], 0),
-          ),
-          timeout=kwargs["timeout"],
+            asyncio.open_connection(
+                host=host,
+                port=kwargs["port"],
+                ssl=kwargs["ssl_wrapper"],
+                local_addr=(kwargs["saddr"], 0),
+            ),
+            timeout=kwargs["timeout"],
         )
     else:
         sock = proxy_connect(
-                (host, kwargs["port"]),
-                kwargs['proxy_command'],
-                kwargs['ignore_intr'],
+            (host, kwargs["port"]),
+            kwargs["proxy_command"],
+            kwargs["ignore_intr"],
         )
         # Wrap the socket in the asyncio loop...
         reader, writer = await asyncio.wait_for(
-          asyncio.open_connection(sock = sock),
-          timeout=kwargs["timeout"],
+            asyncio.open_connection(sock = sock),
+            timeout=kwargs["timeout"],
         )
 
     return AsyncSocketTransport(reader=reader, writer=writer)
