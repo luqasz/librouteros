@@ -7,6 +7,7 @@ import re
 import shlex
 import signal
 import socket
+from socket import create_connection
 import subprocess
 
 from librouteros.api import Api, AsyncApi
@@ -128,19 +129,19 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
             if ignore_intr:
               signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-            os.execvp(cmdline[0], cmdline) # noqa
+            os.execvp(cmdline[0], cmdline) # noqa: S606
             exit(-1)  # Abort if we reach here!
     else:
         # This more portable version should work on Windows
         s1_in = s1.makefile('rb', buffering=0)
         s1_out = s1.makefile('wb', buffering=0)
-        subprocess.Popen(
+        subprocess.Popen( # noqa: S603
                 cmdline,
                 stdin=s1_in,
                 stdout=s1_out,
                 stderr=subprocess.DEVNULL,
                 creationflags=subprocess.CREATE_NO_WINDOW if ignore_intr else 0
-            ) # noqa
+            )
 
     # Close our copies of s1; keep s2 for communication
     s1.close()
@@ -148,7 +149,7 @@ def proxy_connect(hostport:tuple[str,int], proxy_cmd:str, ignore_intr:bool = Fal
 
 def create_transport(host: str, **kwargs) -> SocketTransport:
     if kwargs['proxy_command'] is None:
-        sock = socket.create_connection(
+        sock = create_connection(
             (host, kwargs["port"]),
             timeout=kwargs["timeout"],
             source_address=(kwargs["saddr"], 0),
