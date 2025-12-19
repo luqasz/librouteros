@@ -68,7 +68,6 @@ def test_default_keys():
         "login_method",
         "ssl_wrapper",
         "proxy_command",
-        "ignore_intr",
     }
 
 
@@ -82,7 +81,6 @@ def test_async_default_keys():
         "login_method",
         "ssl_wrapper",
         "proxy_command",
-        "ignore_intr",
     }
 
 

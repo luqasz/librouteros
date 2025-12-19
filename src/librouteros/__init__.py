@@ -31,7 +31,6 @@ DEFAULTS = {
     "ssl_wrapper": None,
     "login_method": plain,
     "proxy_command": None,
-    "ignore_intr": False,
 }
 
 ASYNC_DEFAULTS = {
@@ -43,7 +42,6 @@ ASYNC_DEFAULTS = {
     "ssl_wrapper": None,
     "login_method": async_plain,
     "proxy_command": None,
-    "ignore_intr": False,
 }
 
 
@@ -62,7 +60,6 @@ def connect(host: str, username: str, password: str, **kwargs) -> Api:
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
     :param login_method: Callable with login method.
     :param proxy_command: Command used for proxyed connections.  Use %h and %p for host and port.
-    :param ignore_intr: Make proxy_command ignore INTR signals
     """
     arguments = ChainMap(kwargs, DEFAULTS)
     transport = create_transport(host, **arguments)
@@ -92,7 +89,6 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
     :param login_method: Callable with login method.
     :param proxy_command: Command used for proxyed connections.  Use %h and %p for host and port.
-    :param ignore_intr: Make proxy_command ignore INTR signals
     """
     arguments = ChainMap(kwargs, ASYNC_DEFAULTS)
     transport = await async_create_transport(host, **arguments)
@@ -107,7 +103,7 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
         raise
 
 
-def proxy_connect(hostport: tuple[str, int], proxy_cmd: str, ignore_intr: bool = False) -> socket.socket:
+def proxy_connect(hostport: tuple[str, int], proxy_cmd: str) -> socket.socket:
     host, port = hostport
     # mapping = {'%h': host, '%p': str(port) }
     # cmdline = shlex.split(re.sub(r'%[hp]',
@@ -127,8 +123,6 @@ def proxy_connect(hostport: tuple[str, int], proxy_cmd: str, ignore_intr: bool =
             fd = s1.fileno()
             os.dup2(fd, 0)
             os.dup2(fd, 1)
-            if ignore_intr:
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
 
             os.execvp(cmdline[0], cmdline)  # noqa: S606
             exit(-1)  # Abort if we reach here!
@@ -142,7 +136,6 @@ def proxy_connect(hostport: tuple[str, int], proxy_cmd: str, ignore_intr: bool =
     #            stdin=s1_in,
     #            stdout=s1_out,
     #            stderr=subprocess.DEVNULL,
-    #            creationflags=subprocess.CREATE_NO_WINDOW if ignore_intr else 0
     #        )
 
     # Close our copies of s1; keep s2 for communication
@@ -161,7 +154,6 @@ def create_transport(host: str, **kwargs) -> SocketTransport:
         sock = proxy_connect(
             (host, kwargs["port"]),
             kwargs["proxy_command"],
-            kwargs["ignore_intr"],
         )
     if wrapper := kwargs["ssl_wrapper"]:
         sock = wrapper(sock)
@@ -183,7 +175,6 @@ async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
         sock = proxy_connect(
             (host, kwargs["port"]),
             kwargs["proxy_command"],
-            kwargs["ignore_intr"],
         )
         # Wrap the socket in the asyncio loop...
         reader, writer = await asyncio.wait_for(
