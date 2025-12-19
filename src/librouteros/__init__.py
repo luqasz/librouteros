@@ -3,7 +3,6 @@
 import asyncio
 import os
 import shlex
-import signal
 import socket
 from collections import ChainMap
 from socket import create_connection
