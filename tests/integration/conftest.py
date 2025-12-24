@@ -1,4 +1,5 @@
 import socket
+import ssl
 from os import (
     devnull,
 )
@@ -43,6 +44,10 @@ ROUTEROS_VMS = {
 # Routeros vms which differ in login methods.
 ROUTEROS_LOGIN_VMS = ("7.18.2", "6.33.3")
 
+# Proxy command strings
+PROXY_NETCAT = "nc -N %h %p"
+PROXY_SSH = "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -W  %h:%p localhost"
+
 
 def setup_qemu_disk(version):
     """Create a temporary disk image backed by original one."""
@@ -75,7 +80,7 @@ def setup_qemu_vm(disk_image):
         "-hda",
         disk_image.name,
         "-net",
-        "user,hostfwd=tcp::{}-:8728".format(port),
+        "user,hostfwd=tcp::{}-:8728,hostfwd=tcp::{}-:8729".format(port, port + 1),
         "-net",
         "nic,model=virtio",
         "-cpu",
@@ -131,10 +136,72 @@ def routeros_api_sync(request, routeros_vm):
     return api
 
 
+@pytest.fixture()
+def routeros_api_sync_netcat(request, routeros_vm):
+    params = routeros_vm("sync")
+    params["proxy_command"] = PROXY_NETCAT
+    api = connect(**params)
+    return api
+
+
+@pytest.fixture()
+def routeros_api_sync_ssh(request, routeros_vm):
+    params = routeros_vm("sync")
+    params["proxy_command"] = PROXY_SSH
+    api = connect(**params)
+    return api
+
+
+@pytest.fixture()
+def routeros_api_ssl_netcat(request, routeros_vm):
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.set_ciphers("ADH:@SECLEVEL=0")
+
+    params = routeros_vm("sync")
+    params["proxy_command"] = PROXY_NETCAT
+    params["ssl_wrapper"] = ctx.wrap_socket
+    params["port"] = params["port"] + 1
+
+    api = connect(**params)
+    return api
+
+
+@pytest.fixture()
+def routeros_api_ssl_ssh(request, routeros_vm):
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.set_ciphers("ADH:@SECLEVEL=0")
+
+    params = routeros_vm("sync")
+    params["proxy_command"] = PROXY_SSH
+    params["ssl_wrapper"] = ctx.wrap_socket
+    params["port"] = params["port"] + 1
+
+    api = connect(**params)
+    return api
+
+
 @pytest_asyncio.fixture()
 async def routeros_api_async(request, routeros_vm):
     try:
         api = await async_connect(**routeros_vm("async"))
     except ConnectionResetError as e:
         pytest.skip(f"Skipped due to {e}")
+    return api
+
+
+@pytest_asyncio.fixture()
+async def routeros_api_async_netcat(request, routeros_vm):
+    params = routeros_vm("async")
+    params["proxy_command"] = PROXY_NETCAT
+    api = await async_connect(**params)
+    return api
+
+
+@pytest_asyncio.fixture()
+async def routeros_api_async_ssh(request, routeros_vm):
+    params = routeros_vm("async")
+    params["proxy_command"] = PROXY_SSH
+    api = await async_connect(**params)
     return api

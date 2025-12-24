@@ -104,41 +104,36 @@ async def async_connect(host: str, username: str, password: str, **kwargs) -> As
 
 def proxy_connect(hostport: tuple[str, int], proxy_cmd: str) -> socket.socket:
     host, port = hostport
-    # mapping = {'%h': host, '%p': str(port) }
-    # cmdline = shlex.split(re.sub(r'%[hp]',
-    #                lambda m: mapping[m.group(0)], proxy_cmd))
     proxy_cmd = proxy_cmd.replace("%p", str(port)).replace("%h", host)
     cmdline = shlex.split(proxy_cmd)
 
     s1, s2 = socket.socketpair()
 
-    if os.name == "posix":
-        # This is very Linux oriented, and done at a fairly low level
-        # Should have less overhead.
+    if os.name != "posix":
+        raise NotImplementedError("Requires a posix environment")
+
+    # This is very Linux oriented, and done at a fairly low level
+    # Should have less overhead.
+    pid = os.fork()
+    if pid == 0:
+        # Child runs the proxy command
+        s2.close()
+        fd = s1.fileno()
+        os.dup2(fd, 0)
+        os.dup2(fd, 1)
+
+        # We re-fork to lose connection to parent!
         pid = os.fork()
         if pid == 0:
-            # Child runs the proxy command
-            s2.close()
-            fd = s1.fileno()
-            os.dup2(fd, 0)
-            os.dup2(fd, 1)
-
             os.execvp(cmdline[0], cmdline)  # noqa: S606
             exit(-1)  # Abort if we reach here!
-    else:
-        raise NotImplementedError("Requires a posix environment")
-    #    # This more portable version should work on Windows
-    #    s1_in = s1.makefile('rb', buffering=0)
-    #    s1_out = s1.makefile('wb', buffering=0)
-    #    subprocess.Popen(
-    #            cmdline,
-    #            stdin=s1_in,
-    #            stdout=s1_out,
-    #            stderr=subprocess.DEVNULL,
-    #        )
+        else:
+            os._exit(0)  # Exit like this because we do not need any clean-ups!
 
     # Close our copies of s1; keep s2 for communication
     s1.close()
+    os.waitpid(pid, 0)  # Make sure we leave no zombies around...
+
     return s2
 
 
@@ -170,6 +165,7 @@ async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
             ),
             timeout=kwargs["timeout"],
         )
+        return AsyncSocketTransport(reader=reader, writer=writer)
     else:
         sock = proxy_connect(
             (host, kwargs["port"]),
@@ -180,5 +176,4 @@ async def async_create_transport(host: str, **kwargs) -> AsyncSocketTransport:
             asyncio.open_connection(sock=sock),
             timeout=kwargs["timeout"],
         )
-
-    return AsyncSocketTransport(reader=reader, writer=writer)
+        return AsyncSocketTransport(reader=reader, writer=writer)

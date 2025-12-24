@@ -36,6 +36,7 @@ from librouteros.login import (
         ("encoding", "ASCII"),
         ("login_method", plain),
         ("ssl_wrapper", None),
+        ("proxy_command", None),
     ),
 )
 def test_defaults(key, value):
@@ -52,6 +53,7 @@ def test_defaults(key, value):
         ("encoding", "ASCII"),
         ("login_method", async_plain),
         ("ssl_wrapper", None),
+        ("proxy_command", None),
     ),
 )
 def test_async_defaults(key, value):
@@ -180,3 +182,26 @@ async def test_async_create_connection_does_not_wrap_socket_exceptions(create_co
     transport.side_effect = exc
     with pytest.raises(exc):
         await create_transport(**kwargs)
+
+
+@patch("librouteros.proxy_connect")
+def test_create_transport_handles_proxy_command(conn_mock):
+    params = DEFAULTS.copy()
+    params["proxy_command"] = "sleep 60"
+    conn_mock.return_value = (Mock(), Mock())
+    create_transport(host="127.0.0.1", **params)
+    assert conn_mock.call_args == call(
+        ("127.0.0.1", params["port"]),
+        params["proxy_command"],
+    )
+
+
+@pytest.mark.asyncio
+@patch("librouteros.asyncio.open_connection")
+async def test_async_create_transport_handles_proxy_command(conn_mock):
+    params = ASYNC_DEFAULTS.copy()
+    params["proxy_command"] = "sleep 60"
+    conn_mock.return_value = (Mock(), Mock())
+    await async_create_transport(host="127.0.0.1", **params)
+    _, kwargs = conn_mock.call_args
+    assert isinstance(kwargs["sock"], socket.socket)
