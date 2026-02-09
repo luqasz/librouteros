@@ -1,6 +1,7 @@
 UNRELEASED
 ----------
 
+* Fix 'cmd' in kwargs collision
 * Pass source address to async connect
 * Drop Encoder, Decoder classes
 * Handle broken stream errors
