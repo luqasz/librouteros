@@ -1,4 +1,4 @@
-UNRELEASED
+3.4.2
 ----------
 
 * Fix 'cmd' in kwargs collision
