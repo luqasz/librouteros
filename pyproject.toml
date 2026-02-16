@@ -1,6 +1,6 @@
 [project]
 name = "librouteros"
-version = "3.4.2"
+version = "3.4.3"
 description = "Python implementation of MikroTik RouterOS API"
 authors = [
     { name = "Łukasz Kostka", email = "lukasz.g.kostka@gmail.com" },

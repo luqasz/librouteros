@@ -23,7 +23,7 @@ class Api:
     def __init__(self, protocol: ApiProtocol):
         self.protocol = protocol
 
-    def __call__(self, cmd: str, /, **kwargs: typing.Any) -> ResponseIter:
+    def __call__(self, cmd: str, **kwargs: typing.Any) -> ResponseIter:
         """
         Call Api with given command.
         Yield each row.
@@ -106,7 +106,7 @@ class Path:
     def __iter__(self) -> ResponseIter:
         yield from self("print")
 
-    def __call__(self, cmd: str, /, **kwargs: typing.Any) -> ResponseIter:
+    def __call__(self, cmd: str, **kwargs: typing.Any) -> ResponseIter:
         yield from self.api(
             self.join(cmd).path,
             **kwargs,
@@ -148,7 +148,7 @@ class AsyncApi:
     def __init__(self, protocol: AsyncApiProtocol):
         self.protocol = protocol
 
-    async def __call__(self, cmd: str, /, **kwargs: typing.Any) -> AsyncResponseIter:
+    async def __call__(self, cmd: str, **kwargs: typing.Any) -> AsyncResponseIter:
         """
         Call Api with given command.
         Yield each row.
@@ -235,7 +235,7 @@ class AsyncPath:
         async for response in self("print"):
             yield response
 
-    async def __call__(self, cmd: str, /, **kwargs: typing.Any) -> AsyncResponseIter:
+    async def __call__(self, cmd: str, **kwargs: typing.Any) -> AsyncResponseIter:
         async for response in self.api(
             self.join(cmd).path,
             **kwargs,

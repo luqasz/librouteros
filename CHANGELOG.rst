@@ -1,3 +1,8 @@
+3.4.3
+----------
+
+* Remove Fix 'cmd' in kwargs collision. Breaks backwards compatibility.
+
 3.4.2
 ----------
 
