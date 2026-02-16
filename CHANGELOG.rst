@@ -1,3 +1,8 @@
+4.0.0
+----------
+
+* Fix 'cmd' in kwargs collision
+
 3.4.3
 ----------
 

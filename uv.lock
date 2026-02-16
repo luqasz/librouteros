@@ -222,7 +222,7 @@ wheels = [
 
 [[package]]
 name = "librouteros"
-version = "3.4.3"
+version = "4.0.0"
 source = { editable = "." }
 
 [package.dev-dependencies]
