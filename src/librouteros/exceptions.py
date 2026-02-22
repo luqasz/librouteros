@@ -1,6 +1,4 @@
 # -*- coding: UTF-8 -*-
-import typing
-
 
 class LibRouterosError(Exception):
     """Base exception for all other."""
@@ -27,7 +25,7 @@ class TrapError(ProtocolError):
     :param str message: Error message.
     """
 
-    def __init__(self, message: str, category: typing.Union[None, int] = None):
+    def __init__(self, message: str, category: int | None = None) -> None:
         self.category = category
         self.message = message
         super().__init__()

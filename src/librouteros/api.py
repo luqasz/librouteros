@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
 
-import typing
-from posixpath import join as pjoin
+from __future__ import annotations
 
-from librouteros import query
+from collections.abc import Generator
+from posixpath import join as pjoin
+from typing import TYPE_CHECKING
+
 from librouteros.exceptions import MultiTrapError, TrapError
 from librouteros.protocol import (
     ApiProtocol,
@@ -16,14 +18,18 @@ from librouteros.types import (
     ReplyDict,
     Response,
     ResponseIter,
+    ROSType,
 )
+
+if TYPE_CHECKING:
+    from librouteros.query import AsyncQuery, Key, Query
 
 
 class Api:
-    def __init__(self, protocol: ApiProtocol):
-        self.protocol = protocol
+    def __init__(self, protocol: ApiProtocol) -> None:
+        self.protocol: ApiProtocol = protocol
 
-    def __call__(self, cmd: str, /, **kwargs: typing.Any) -> ResponseIter:
+    def __call__(self, cmd: str, /, **kwargs: ROSType) -> ResponseIter:
         """
         Call Api with given command.
         Yield each row.
@@ -31,7 +37,7 @@ class Api:
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
         """
-        words = (compose_word(key, value) for key, value in kwargs.items())
+        words: Generator[str] = (compose_word(key, value) for key, value in kwargs.items())
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
@@ -45,7 +51,7 @@ class Api:
         self.protocol.writeSentence(cmd, *words)
         yield from self.readResponse()
 
-    def readSentence(self) -> typing.Tuple[str, ReplyDict]:  # noqa N802
+    def readSentence(self) -> tuple[str, ReplyDict]:  # noqa N802
         """
         Read one sentence and parse words.
 
@@ -61,13 +67,13 @@ class Api:
         :throws TrapError: If one !trap is received.
         :throws MultiTrapError: If > 1 !trap is received.
         """
-        traps = []
-        reply_word = None
-        response = []
+        traps: list[TrapError] = []
+        reply_word: str | None = None
+        response: Response = []
         while reply_word != "!done":
             reply_word, words = self.readSentence()
             if reply_word == "!trap":
-                traps.append(TrapError(**words))
+                traps.append(TrapError(**words))  # type: ignore ; must be correct types
             elif reply_word in ("!re", "!done") and words:
                 response.append(words)
 
@@ -80,7 +86,7 @@ class Api:
     def close(self) -> None:
         self.protocol.close()
 
-    def path(self, *path: str):
+    def path(self, *path: str) -> "Path":
         return Path(
             path="",
             api=self,
@@ -90,12 +96,12 @@ class Api:
 class Path:
     """Represents absolute command path."""
 
-    def __init__(self, path: str, api: Api):
-        self.path = path
-        self.api = api
+    def __init__(self, path: str, api: Api) -> None:
+        self.path: str = path
+        self.api: Api = api
 
-    def select(self, *keys: query.Key) -> query.Query:
-        return query.Query(path=self, keys=keys, api=self.api)
+    def select(self, *keys: Key) -> Query:
+        return Query(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:
         return self.path
@@ -106,13 +112,13 @@ class Path:
     def __iter__(self) -> ResponseIter:
         yield from self("print")
 
-    def __call__(self, cmd: str, /, **kwargs: typing.Any) -> ResponseIter:
+    def __call__(self, cmd: str, /, **kwargs: ROSType) -> ResponseIter:
         yield from self.api(
             self.join(cmd).path,
             **kwargs,
         )
 
-    def join(self, *path: str):
+    def join(self, *path: str) -> "Path":
         """Join current path with one or more path strings."""
         return Path(
             api=self.api,
@@ -120,7 +126,7 @@ class Path:
         )
 
     def remove(self, *ids: str) -> None:
-        joined = ",".join(ids)
+        joined: str = ",".join(ids)
         tuple(
             self(
                 "remove",
@@ -128,14 +134,14 @@ class Path:
             )
         )
 
-    def add(self, **kwargs: typing.Any) -> str:
-        ret = self(
+    def add(self, **kwargs: ROSType) -> str:
+        ret: ResponseIter = self(
             "add",
             **kwargs,
         )
-        return next(iter(ret))["ret"]
+        return str(next(iter(ret))["ret"])
 
-    def update(self, **kwargs: typing.Any) -> None:
+    def update(self, **kwargs: ROSType) -> None:
         tuple(
             self(
                 "set",
@@ -145,10 +151,10 @@ class Path:
 
 
 class AsyncApi:
-    def __init__(self, protocol: AsyncApiProtocol):
-        self.protocol = protocol
+    def __init__(self, protocol: AsyncApiProtocol) -> None:
+        self.protocol: AsyncApiProtocol = protocol
 
-    async def __call__(self, cmd: str, /, **kwargs: typing.Any) -> AsyncResponseIter:
+    async def __call__(self, cmd: str, /, **kwargs: ROSType) -> AsyncResponseIter:
         """
         Call Api with given command.
         Yield each row.
@@ -156,9 +162,9 @@ class AsyncApi:
         :param cmd: Command word. eg. /ip/address/print
         :param kwargs: Dictionary with optional arguments.
         """
-        words = (compose_word(key, value) for key, value in kwargs.items())
+        words: Generator[str] = (compose_word(key, value) for key, value in kwargs.items())
         await self.protocol.writeSentence(cmd, *words)
-        response = await self.readResponse()
+        response: Response = await self.readResponse()
         for item in response:
             yield item
 
@@ -170,11 +176,11 @@ class AsyncApi:
         :param args: Iterable with optional plain api arguments.
         """
         await self.protocol.writeSentence(cmd, *words)
-        response = await self.readResponse()
+        response: Response = await self.readResponse()
         for item in response:
             yield item
 
-    async def readSentence(self) -> typing.Tuple[str, ReplyDict]:  # noqa N802
+    async def readSentence(self) -> tuple[str, ReplyDict]:  # noqa N802
         """
         Read one sentence and parse words.
         """
@@ -189,13 +195,13 @@ class AsyncApi:
         :throws TrapError: If one !trap is received.
         :throws MultiTrapError: If > 1 !trap is received.
         """
-        traps = []
-        reply_word = None
-        response = []
+        traps: list[TrapError] = []
+        reply_word: str | None = None
+        response: Response = []
         while reply_word != "!done":
             reply_word, words = await self.readSentence()
             if reply_word == "!trap":
-                traps.append(TrapError(**words))
+                traps.append(TrapError(**words))  # type: ignore ; must be correct types
             elif reply_word in ("!re", "!done") and words:
                 response.append(words)
 
@@ -208,7 +214,7 @@ class AsyncApi:
     async def close(self) -> None:
         await self.protocol.close()
 
-    def path(self, *path: str):
+    def path(self, *path: str) -> "AsyncPath":
         return AsyncPath(
             path="",
             api=self,
@@ -218,12 +224,12 @@ class AsyncApi:
 class AsyncPath:
     """Represents absolute command path."""
 
-    def __init__(self, path: str, api: AsyncApi):
-        self.path = path
-        self.api = api
+    def __init__(self, path: str, api: AsyncApi) -> None:
+        self.path: str = path
+        self.api: AsyncApi = api
 
-    def select(self, *keys: query.Key) -> query.AsyncQuery:
-        return query.AsyncQuery(path=self, keys=keys, api=self.api)
+    def select(self, *keys: Key) -> AsyncQuery:
+        return AsyncQuery(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:
         return self.path
@@ -235,14 +241,14 @@ class AsyncPath:
         async for response in self("print"):
             yield response
 
-    async def __call__(self, cmd: str, /, **kwargs: typing.Any) -> AsyncResponseIter:
+    async def __call__(self, cmd: str, /, **kwargs: ROSType) -> AsyncResponseIter:
         async for response in self.api(
             self.join(cmd).path,
             **kwargs,
         ):
             yield response
 
-    def join(self, *path: str):
+    def join(self, *path: str) -> "AsyncPath":
         """Join current path with one or more path strings."""
         return AsyncPath(
             api=self.api,
@@ -250,7 +256,7 @@ class AsyncPath:
         )
 
     async def remove(self, *ids: str) -> None:
-        joined = ",".join(ids)
+        joined: str = ",".join(ids)
         [
             response
             async for response in self(
@@ -259,17 +265,17 @@ class AsyncPath:
             )
         ]
 
-    async def add(self, **kwargs: typing.Any) -> str:
-        response = [
+    async def add(self, **kwargs: ROSType) -> str:
+        response: Response = [
             response
             async for response in self(
                 "add",
                 **kwargs,
             )
         ]
-        return response[0]["ret"]
+        return str(response[0]["ret"])
 
-    async def update(self, **kwargs: typing.Any) -> None:
+    async def update(self, **kwargs: ROSType) -> None:
         [
             response
             async for response in self(
