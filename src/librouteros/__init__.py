@@ -3,6 +3,7 @@
 import asyncio
 from collections.abc import Awaitable, Callable
 from socket import create_connection, socket
+from ssl import SSLContext
 from typing import TypedDict
 
 from librouteros.api import Api, AsyncApi
@@ -32,7 +33,7 @@ class AsyncConnectKwargs(TypedDict, total=False):
     saddr: str
     subclass: type[AsyncApi]
     encoding: str
-    ssl_wrapper: Callable[[socket], socket] | None
+    ssl_wrapper: SSLContext | None
     login_method: Callable[[AsyncApi, str, str], Awaitable[None]]
 
 DEFAULTS: ConnectKwargs = {
@@ -80,7 +81,7 @@ def connect(
     :param port: Destination port to be used. Defaults to 8728.
     :param saddr: Source address to bind to.
     :param subclass: Subclass of Api class. Defaults to Api class from library.
-    :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
+    :param ssl_wrapper: Callable (e.g. ssl.SSLContext.wrap_socket()) to wrap socket with.
     :param login_method: Callable with login method.
     """
     transport: SocketTransport = create_transport(host, port, ssl_wrapper, saddr, timeout)
@@ -105,7 +106,7 @@ async def async_connect(
     saddr: str = ASYNC_DEFAULTS["saddr"],
     subclass: type[AsyncApi] = ASYNC_DEFAULTS["subclass"],
     encoding: str = ASYNC_DEFAULTS["encoding"],
-    ssl_wrapper: Callable[[socket], socket] | None = ASYNC_DEFAULTS["ssl_wrapper"],
+    ssl_wrapper: SSLContext | None = ASYNC_DEFAULTS["ssl_wrapper"],
     login_method: Callable[[AsyncApi, str, str], Awaitable[None]] = ASYNC_DEFAULTS["login_method"],
 ) -> AsyncApi:
     """
@@ -119,7 +120,7 @@ async def async_connect(
     :param port: Destination port to be used. Defaults to 8728.
     :param saddr: Source address to bind to.
     :param subclass: Subclass of AsyncApi class. Defaults to AsyncApi class from library.
-    :param ssl_wrapper: Callable (e.g. ssl.SSLContext instance) to wrap socket with.
+    :param ssl_wrapper: ssl.SSLContext instance to wrap socket with.
     :param login_method: Coroutine with login method.
     """
     transport: AsyncSocketTransport = await async_create_transport(
@@ -158,7 +159,7 @@ def create_transport(
 async def async_create_transport(
     host: str,
     port: int,
-    ssl_wrapper: Callable[[socket], socket] | None,
+    ssl_wrapper: SSLContext | None,
     saddr: str,
     timeout: float,  # noqa A002
 ) -> AsyncSocketTransport:
