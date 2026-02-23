@@ -8,7 +8,7 @@ from librouteros.exceptions import ConnectionClosed
 
 class SocketTransport:
     def __init__(self, sock: socket) -> None:
-        self.sock = sock
+        self.sock: socket = sock
 
     def write(self, data: bytes) -> None:
         """
@@ -36,8 +36,8 @@ class SocketTransport:
 
 class AsyncSocketTransport:
     def __init__(self, reader: StreamReader, writer: StreamWriter) -> None:
-        self.reader = reader
-        self.writer = writer
+        self.reader: StreamReader = reader
+        self.writer: StreamWriter = writer
 
     async def write(self, data: bytes) -> None:
         """

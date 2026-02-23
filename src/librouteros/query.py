@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 from itertools import chain
 from typing import TYPE_CHECKING
 
@@ -23,23 +23,23 @@ class Key:
     def __init__(self, name: str) -> None:
         self.name: str = name
 
-    def __eq__(self, other) -> Iterator[str]:  # type: ignore ; magic method
+    def __eq__(self, other) -> QueryGen:  # type: ignore ; magic method
         yield f"?={self}={cast_to_api(other)}"
 
-    def __ne__(self, other) -> Iterator[str]:  # type: ignore ; magic method
+    def __ne__(self, other) -> QueryGen:  # type: ignore ; magic method
         yield from self == other
         yield "?#!"
 
-    def __lt__(self, other) -> Iterator[str]:
+    def __lt__(self, other) -> QueryGen:
         yield f"?<{self}={cast_to_api(other)}"
 
-    def __gt__(self, other) -> Iterator[str]:
+    def __gt__(self, other) -> QueryGen:
         yield f"?>{self}={cast_to_api(other)}"
 
     def __str__(self) -> str:
-        return str(self.name)
+        return self.name
 
-    def In(self, one, *elems) -> Iterator[str]:  # noqa: N802
+    def In(self, one, *elems) -> QueryGen:  # noqa N802
         yield from self == one
         yield from chain.from_iterable(self == str(elem) for elem in elems)
         yield from ("?#|",) * len(elems)
@@ -52,7 +52,7 @@ class Query:
         self.api: Api = api
         self.query: tuple[str, ...] = ()
 
-    def where(self, *args: str) -> "Query":
+    def where(self, *args: str | QueryGen) -> "Query":
         self.query = tuple(chain.from_iterable(args))
         return self
 
@@ -89,7 +89,7 @@ class AsyncQuery:
         self.api: AsyncApi = api
         self.query: tuple[str, ...] = ()
 
-    def where(self, *args: str) -> "AsyncQuery":
+    def where(self, *args: str | QueryGen) -> "AsyncQuery":
         self.query = tuple(chain.from_iterable(args))
         return self
 

@@ -26,8 +26,8 @@ class TrapError(ProtocolError):
     """
 
     def __init__(self, message: str, category: int | None = None) -> None:
-        self.category = category
-        self.message = message
+        self.category: int | None = category
+        self.message: str = message
         super().__init__()
 
     def __str__(self) -> str:

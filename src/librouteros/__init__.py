@@ -38,7 +38,7 @@ class AsyncConnectKwargs(TypedDict, total=False):
 DEFAULTS: ConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "0.0.0.0",  # noqa: S104
+    "saddr": "0.0.0.0",  # noqa S104
     "subclass": Api,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -48,7 +48,7 @@ DEFAULTS: ConnectKwargs = {
 ASYNC_DEFAULTS: AsyncConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "0.0.0.0",  # noqa: S104
+    "saddr": "0.0.0.0",  # noqa S104
     "subclass": AsyncApi,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -100,7 +100,7 @@ async def async_connect(
     username: str,
     password: str,
     *,
-    timeout: float = ASYNC_DEFAULTS["timeout"],
+    timeout: float = ASYNC_DEFAULTS["timeout"],  # noqa A002
     port: int = ASYNC_DEFAULTS["port"],
     saddr: str = ASYNC_DEFAULTS["saddr"],
     subclass: type[AsyncApi] = ASYNC_DEFAULTS["subclass"],
@@ -160,7 +160,7 @@ async def async_create_transport(
     port: int,
     ssl_wrapper: Callable[[socket], socket] | None,
     saddr: str,
-    timeout: float,
+    timeout: float,  # noqa A002
 ) -> AsyncSocketTransport:
     reader, writer = await asyncio.wait_for(
         asyncio.open_connection(

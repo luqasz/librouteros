@@ -39,7 +39,7 @@ def cast_to_api(value: ROSType) -> str:
     """Cast python equivalent to API."""
     mapping: dict[ROSType, str] = {True: "yes", False: "no"}
     # Required because 1 == True, 0 == False
-    if type(value) == int:  # noqa: E721
+    if type(value) == int:  # noqa E721
         return str(value)
     return mapping.get(value, str(value))
 
