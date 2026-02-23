@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from posixpath import join as pjoin
-from typing import TYPE_CHECKING
 
 from librouteros.exceptions import MultiTrapError, TrapError
 from librouteros.protocol import (
@@ -13,6 +12,7 @@ from librouteros.protocol import (
     compose_word,
     parse_word,
 )
+from librouteros.query import AsyncQuery, Key, Query
 from librouteros.types import (
     AsyncResponseIter,
     ReplyDict,
@@ -20,9 +20,6 @@ from librouteros.types import (
     ResponseIter,
     ROSType,
 )
-
-if TYPE_CHECKING:
-    from librouteros.query import AsyncQuery, Key, Query
 
 
 class Api:
