@@ -27,6 +27,7 @@ from librouteros.login import (
 
 TRANSPORT_PARAMS = ("timeout", "port", "saddr", "ssl_wrapper")
 
+
 @pytest.mark.parametrize(
     ("key", "value"),
     (
