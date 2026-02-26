@@ -86,7 +86,9 @@ def connect(
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext.wrap_socket()) to wrap socket with.
     :param login_method: Callable with login method.
     """
-    transport: SocketTransport = create_transport(host, port, ssl_wrapper, saddr, timeout)
+    transport: SocketTransport = create_transport(
+        host=host, port=port, saddr=saddr, timeout=timeout, ssl_wrapper=ssl_wrapper
+    )
     protocol: ApiProtocol = ApiProtocol(transport=transport, encoding=encoding)
     api: Api = subclass(protocol=protocol)
 
@@ -125,7 +127,9 @@ async def async_connect(
     :param ssl_wrapper: ssl.SSLContext instance to wrap socket with.
     :param login_method: Coroutine with login method.
     """
-    transport: AsyncSocketTransport = await async_create_transport(host, port, ssl_wrapper, saddr, timeout)
+    transport: AsyncSocketTransport = await async_create_transport(
+        host=host, port=port, saddr=saddr, timeout=timeout, ssl_wrapper=ssl_wrapper
+    )
     protocol: AsyncApiProtocol = AsyncApiProtocol(transport=transport, encoding=encoding, timeout=timeout)
     api: AsyncApi = subclass(protocol=protocol)
 
@@ -139,10 +143,11 @@ async def async_connect(
 
 def create_transport(
     host: str,
+    *,
     port: int,
-    ssl_wrapper: Callable[[socket], socket] | None,
     saddr: str,
     timeout: float,
+    ssl_wrapper: Callable[[socket], socket] | None = None,
 ) -> SocketTransport:
     sock: socket = create_connection(
         (host, port),
@@ -156,10 +161,11 @@ def create_transport(
 
 async def async_create_transport(
     host: str,
+    *,
     port: int,
-    ssl_wrapper: SSLContext | None,
     saddr: str,
     timeout: float,
+    ssl_wrapper: SSLContext | None = None,
 ) -> AsyncSocketTransport:
     reader, writer = await asyncio.wait_for(
         asyncio.open_connection(
