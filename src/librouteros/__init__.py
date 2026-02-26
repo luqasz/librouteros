@@ -19,7 +19,7 @@ from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 
 
 class ConnectKwargs(TypedDict, total=False):
-    timeout: int
+    timeout: float
     port: int
     saddr: str
     subclass: type[Api]
@@ -28,7 +28,7 @@ class ConnectKwargs(TypedDict, total=False):
     login_method: Callable[[Api, str, str], None]
 
 class AsyncConnectKwargs(TypedDict, total=False):
-    timeout: int
+    timeout: float
     port: int
     saddr: str
     subclass: type[AsyncApi]
@@ -101,7 +101,7 @@ async def async_connect(
     username: str,
     password: str,
     *,
-    timeout: float = ASYNC_DEFAULTS["timeout"],  # noqa A002
+    timeout: float = ASYNC_DEFAULTS["timeout"],
     port: int = ASYNC_DEFAULTS["port"],
     saddr: str = ASYNC_DEFAULTS["saddr"],
     subclass: type[AsyncApi] = ASYNC_DEFAULTS["subclass"],
@@ -161,7 +161,7 @@ async def async_create_transport(
     port: int,
     ssl_wrapper: SSLContext | None,
     saddr: str,
-    timeout: float,  # noqa A002
+    timeout: float,
 ) -> AsyncSocketTransport:
     reader, writer = await asyncio.wait_for(
         asyncio.open_connection(
