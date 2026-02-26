@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+
 class LibRouterosError(Exception):
     """Base exception for all other."""
 

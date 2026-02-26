@@ -27,6 +27,7 @@ class ConnectKwargs(TypedDict, total=False):
     ssl_wrapper: Callable[[socket], socket] | None
     login_method: Callable[[Api, str, str], None]
 
+
 class AsyncConnectKwargs(TypedDict, total=False):
     timeout: float
     port: int
@@ -35,6 +36,7 @@ class AsyncConnectKwargs(TypedDict, total=False):
     encoding: str
     ssl_wrapper: SSLContext | None
     login_method: Callable[[AsyncApi, str, str], Awaitable[None]]
+
 
 DEFAULTS: ConnectKwargs = {
     "timeout": 10,
@@ -123,12 +125,8 @@ async def async_connect(
     :param ssl_wrapper: ssl.SSLContext instance to wrap socket with.
     :param login_method: Coroutine with login method.
     """
-    transport: AsyncSocketTransport = await async_create_transport(
-        host, port, ssl_wrapper, saddr, timeout
-    )
-    protocol: AsyncApiProtocol = AsyncApiProtocol(
-        transport=transport, encoding=encoding, timeout=timeout
-    )
+    transport: AsyncSocketTransport = await async_create_transport(host, port, ssl_wrapper, saddr, timeout)
+    protocol: AsyncApiProtocol = AsyncApiProtocol(transport=transport, encoding=encoding, timeout=timeout)
     api: AsyncApi = subclass(protocol=protocol)
 
     try:
