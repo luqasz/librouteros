@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import annotations
+
 import asyncio
 from collections.abc import Awaitable, Callable
 from socket import create_connection, socket

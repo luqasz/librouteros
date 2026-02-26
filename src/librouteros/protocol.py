@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import annotations
+
 import asyncio
 from logging import NullHandler, getLogger
 from typing import Final, Literal

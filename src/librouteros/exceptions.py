@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import annotations
+
 
 class LibRouterosError(Exception):
     """Base exception for all other."""
