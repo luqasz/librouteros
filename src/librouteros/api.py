@@ -70,7 +70,7 @@ class Api:
         while reply_word != "!done":
             reply_word, words = self.readSentence()
             if reply_word == "!trap":
-                traps.append(TrapError(**words))  # type: ignore ; must be correct types
+                traps.append(TrapError(**words))  # type: ignore[call-arg]  # must be correct types
             elif reply_word in ("!re", "!done") and words:
                 response.append(words)
 
@@ -198,7 +198,7 @@ class AsyncApi:
         while reply_word != "!done":
             reply_word, words = await self.readSentence()
             if reply_word == "!trap":
-                traps.append(TrapError(**words))  # type: ignore ; must be correct types
+                traps.append(TrapError(**words))  # type: ignore[call-arg]  # must be correct types
             elif reply_word in ("!re", "!done") and words:
                 response.append(words)
 

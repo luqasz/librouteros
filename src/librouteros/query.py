@@ -23,10 +23,10 @@ class Key:
     def __init__(self, name: str) -> None:
         self.name: str = name
 
-    def __eq__(self, other) -> QueryGen:  # type: ignore ; magic method
+    def __eq__(self, other) -> QueryGen:  # type: ignore[override]  # magic method
         yield f"?={self}={cast_to_api(other)}"
 
-    def __ne__(self, other) -> QueryGen:  # type: ignore ; magic method
+    def __ne__(self, other) -> QueryGen:  # type: ignore[override]  # magic method
         yield from self == other
         yield "?#!"
 
@@ -62,7 +62,7 @@ class Query:
         if len(self.keys) > 0:
             keys: str = ",".join(str(key) for key in self.keys)
             keys = f"=.proplist={keys}"
-            words: tuple[str, ...] = (keys, *words)
+            words = (keys, *words)
         return iter(self.api.rawCmd(cmd, *words))
 
 
@@ -99,7 +99,7 @@ class AsyncQuery:
         if len(self.keys) > 0:
             keys: str = ",".join(str(key) for key in self.keys)
             keys = f"=.proplist={keys}"
-            words: tuple[str, ...] = (keys, *words)
+            words = (keys, *words)
         return self.api.rawCmd(cmd, *words)
 
     def __iter__(self) -> None:
