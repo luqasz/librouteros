@@ -83,7 +83,7 @@ class Api:
     def close(self) -> None:
         self.protocol.close()
 
-    def path(self, *path: str) -> "Path":
+    def path(self, *path: str) -> Path:
         return Path(
             path="",
             api=self,
@@ -115,7 +115,7 @@ class Path:
             **kwargs,
         )
 
-    def join(self, *path: str) -> "Path":
+    def join(self, *path: str) -> Path:
         """Join current path with one or more path strings."""
         return Path(
             api=self.api,
@@ -211,7 +211,7 @@ class AsyncApi:
     async def close(self) -> None:
         await self.protocol.close()
 
-    def path(self, *path: str) -> "AsyncPath":
+    def path(self, *path: str) -> AsyncPath:
         return AsyncPath(
             path="",
             api=self,
@@ -245,7 +245,7 @@ class AsyncPath:
         ):
             yield response
 
-    def join(self, *path: str) -> "AsyncPath":
+    def join(self, *path: str) -> AsyncPath:
         """Join current path with one or more path strings."""
         return AsyncPath(
             api=self.api,

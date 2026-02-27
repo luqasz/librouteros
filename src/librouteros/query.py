@@ -52,7 +52,7 @@ class Query:
         self.api: Api = api
         self.query: tuple[str, ...] = ()
 
-    def where(self, *args: str | QueryGen) -> "Query":
+    def where(self, *args: str | QueryGen) -> Query:
         self.query = tuple(chain.from_iterable(args))
         return self
 
@@ -89,7 +89,7 @@ class AsyncQuery:
         self.api: AsyncApi = api
         self.query: tuple[str, ...] = ()
 
-    def where(self, *args: str | QueryGen) -> "AsyncQuery":
+    def where(self, *args: str | QueryGen) -> AsyncQuery:
         self.query = tuple(chain.from_iterable(args))
         return self
 
