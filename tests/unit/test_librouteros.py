@@ -25,6 +25,8 @@ from librouteros.login import (
     plain,
 )
 
+TRANSPORT_PARAMS = ("timeout", "port", "saddr", "ssl_wrapper")
+
 
 @pytest.mark.parametrize(
     ("key", "value"),
@@ -95,7 +97,7 @@ def test_non_ascii_password_encoding():
 
 @patch("librouteros.create_connection")
 def test_create_transport_passes_src_addr(conn_mock):
-    params = DEFAULTS.copy()
+    params = {k: v for k, v in DEFAULTS.items() if k in TRANSPORT_PARAMS}
     create_transport(host="127.0.0.1", **params)
     assert conn_mock.call_args == call(
         ("127.0.0.1", params["port"]),
@@ -107,7 +109,7 @@ def test_create_transport_passes_src_addr(conn_mock):
 @pytest.mark.asyncio
 @patch("librouteros.asyncio.open_connection")
 async def test_async_create_transport_passes_src_addr(conn_mock):
-    params = ASYNC_DEFAULTS.copy()
+    params = {k: v for k, v in ASYNC_DEFAULTS.items() if k in TRANSPORT_PARAMS}
     conn_mock.return_value = (Mock(), Mock())
     await async_create_transport(host="127.0.0.1", **params)
     assert conn_mock.call_args == call(
@@ -120,7 +122,7 @@ async def test_async_create_transport_passes_src_addr(conn_mock):
 
 @patch("librouteros.create_connection")
 def test_crate_transport_calls_ssl_wrapper(connection_mock):
-    params = DEFAULTS.copy()
+    params = {k: v for k, v in DEFAULTS.items() if k in TRANSPORT_PARAMS}
     params["ssl_wrapper"] = Mock()
     transport = create_transport(host="127.0.0.1", **params)
     params["ssl_wrapper"].assert_called_once_with(connection_mock.return_value)
@@ -129,7 +131,7 @@ def test_crate_transport_calls_ssl_wrapper(connection_mock):
 
 @patch("librouteros.create_connection")
 def test_crate_transport_does_not_call_ssl_wrapper(connection_mock):
-    params = DEFAULTS.copy()
+    params = {k: v for k, v in DEFAULTS.items() if k in TRANSPORT_PARAMS}
     transport = create_transport(host="127.0.0.1", **params)
     assert transport.sock == connection_mock.return_value
 

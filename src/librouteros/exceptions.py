@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
-import typing
+
+from __future__ import annotations
 
 
 class LibRouterosError(Exception):
@@ -27,9 +28,9 @@ class TrapError(ProtocolError):
     :param str message: Error message.
     """
 
-    def __init__(self, message: str, category: typing.Union[None, int] = None):
-        self.category = category
-        self.message = message
+    def __init__(self, message: str, category: int | None = None) -> None:
+        self.category: int | None = category
+        self.message: str = message
         super().__init__()
 
     def __str__(self) -> str:

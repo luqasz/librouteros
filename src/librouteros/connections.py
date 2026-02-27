@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+
 from asyncio import StreamReader, StreamWriter
 from socket import socket
 
@@ -6,8 +7,8 @@ from librouteros.exceptions import ConnectionClosed
 
 
 class SocketTransport:
-    def __init__(self, sock: socket):
-        self.sock = sock
+    def __init__(self, sock: socket) -> None:
+        self.sock: socket = sock
 
     def write(self, data: bytes) -> None:
         """
@@ -21,22 +22,22 @@ class SocketTransport:
         Read as many bytes from socket as specified in length.
         Loop as long as every byte is read unless exception is raised.
         """
-        data = bytearray()
+        data: bytearray = bytearray()
         while (to_read := length - len(data)) != 0:
-            got = self.sock.recv(to_read)
+            got: bytes = self.sock.recv(to_read)
             if not got:
                 raise ConnectionClosed("Connection unexpectedly closed.")
             data += got
-        return data
+        return bytes(data)
 
     def close(self) -> None:
         self.sock.close()
 
 
 class AsyncSocketTransport:
-    def __init__(self, reader: StreamReader, writer: StreamWriter):
-        self.reader = reader
-        self.writer = writer
+    def __init__(self, reader: StreamReader, writer: StreamWriter) -> None:
+        self.reader: StreamReader = reader
+        self.writer: StreamWriter = writer
 
     async def write(self, data: bytes) -> None:
         """
@@ -51,13 +52,13 @@ class AsyncSocketTransport:
         Read as many bytes from socket as specified in length.
         Loop as long as every byte is read unless exception is raised.
         """
-        data = bytearray()
+        data: bytearray = bytearray()
         while (to_read := length - len(data)) != 0:
-            got = await self.reader.read(to_read)
+            got: bytes = await self.reader.read(to_read)
             if not got:
                 raise ConnectionClosed("Connection unexpectedly closed.")
             data += got
-        return data
+        return bytes(data)
 
     async def close(self) -> None:
         self.writer.close()
