@@ -43,7 +43,7 @@ class AsyncConnectKwargs(TypedDict, total=False):
 DEFAULTS: ConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "",  # noqa S104
+    "saddr": "",
     "subclass": Api,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -53,7 +53,7 @@ DEFAULTS: ConnectKwargs = {
 ASYNC_DEFAULTS: AsyncConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "",  # noqa S104
+    "saddr": "",
     "subclass": AsyncApi,
     "encoding": "ASCII",
     "ssl_wrapper": None,
