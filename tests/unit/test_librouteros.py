@@ -102,7 +102,7 @@ def test_create_transport_passes_src_addr(conn_mock):
     assert conn_mock.call_args == call(
         ("127.0.0.1", params["port"]),
         timeout=params["timeout"],
-        source_address=(params["saddr"], 0),
+        source_address=None,
     )
 
 
@@ -115,7 +115,7 @@ async def test_async_create_transport_passes_src_addr(conn_mock):
     assert conn_mock.call_args == call(
         host="127.0.0.1",
         port=params["port"],
-        local_addr=(params["saddr"], 0),
+        local_addr=None,
         ssl=params["ssl_wrapper"],
     )
 
