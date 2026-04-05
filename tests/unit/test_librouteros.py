@@ -33,7 +33,7 @@ TRANSPORT_PARAMS = ("timeout", "port", "saddr", "ssl_wrapper")
     (
         ("timeout", 10),
         ("port", 8728),
-        ("saddr", ""),
+        ("saddr", None),
         ("subclass", Api),
         ("encoding", "ASCII"),
         ("login_method", plain),
@@ -49,7 +49,7 @@ def test_defaults(key, value):
     (
         ("timeout", 10),
         ("port", 8728),
-        ("saddr", ""),
+        ("saddr", None),
         ("subclass", AsyncApi),
         ("encoding", "ASCII"),
         ("login_method", async_plain),

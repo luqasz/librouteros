@@ -43,7 +43,7 @@ class AsyncConnectKwargs(TypedDict, total=False):
 DEFAULTS: ConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "",
+    "saddr": None,
     "subclass": Api,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -53,7 +53,7 @@ DEFAULTS: ConnectKwargs = {
 ASYNC_DEFAULTS: AsyncConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "",
+    "saddr": None,
     "subclass": AsyncApi,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -68,7 +68,7 @@ def connect(
     *,
     timeout: float = DEFAULTS["timeout"],
     port: int = DEFAULTS["port"],
-    saddr: str = DEFAULTS["saddr"],
+    saddr: str | None = DEFAULTS["saddr"],
     subclass: type[Api] = DEFAULTS["subclass"],
     encoding: str = DEFAULTS["encoding"],
     ssl_wrapper: Callable[[socket], socket] | None = DEFAULTS["ssl_wrapper"],
