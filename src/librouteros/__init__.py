@@ -154,7 +154,7 @@ def create_transport(
     sock: socket = create_connection(
         (host, port),
         timeout=timeout,
-        source_address=(saddr, 0),
+        source_address=(saddr, 0) if saddr is not None else None,
     )
     if ssl_wrapper:
         sock = ssl_wrapper(sock)
@@ -174,7 +174,7 @@ async def async_create_transport(
             host=host,
             port=port,
             ssl=ssl_wrapper,
-            local_addr=(saddr, 0),
+            local_addr=(saddr, 0) if saddr is not None else None,
         ),
         timeout=timeout,
     )
