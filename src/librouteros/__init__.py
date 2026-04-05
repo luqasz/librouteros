@@ -23,7 +23,7 @@ from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 class ConnectKwargs(TypedDict, total=False):
     timeout: float
     port: int
-    saddr: str
+    saddr: str | None
     subclass: type[Api]
     encoding: str
     ssl_wrapper: Callable[[socket], socket] | None
@@ -33,7 +33,7 @@ class ConnectKwargs(TypedDict, total=False):
 class AsyncConnectKwargs(TypedDict, total=False):
     timeout: float
     port: int
-    saddr: str
+    saddr: str | None
     subclass: type[AsyncApi]
     encoding: str
     ssl_wrapper: SSLContext | None
@@ -109,7 +109,7 @@ async def async_connect(
     *,
     timeout: float = ASYNC_DEFAULTS["timeout"],
     port: int = ASYNC_DEFAULTS["port"],
-    saddr: str = ASYNC_DEFAULTS["saddr"],
+    saddr: str | None = ASYNC_DEFAULTS["saddr"],
     subclass: type[AsyncApi] = ASYNC_DEFAULTS["subclass"],
     encoding: str = ASYNC_DEFAULTS["encoding"],
     ssl_wrapper: SSLContext | None = ASYNC_DEFAULTS["ssl_wrapper"],
@@ -147,7 +147,7 @@ def create_transport(
     host: str,
     *,
     port: int,
-    saddr: str,
+    saddr: str | None,
     timeout: float,
     ssl_wrapper: Callable[[socket], socket] | None = None,
 ) -> SocketTransport:
@@ -165,7 +165,7 @@ async def async_create_transport(
     host: str,
     *,
     port: int,
-    saddr: str,
+    saddr: str | None,
     timeout: float,
     ssl_wrapper: SSLContext | None = None,
 ) -> AsyncSocketTransport:
