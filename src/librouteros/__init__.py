@@ -23,7 +23,7 @@ from librouteros.protocol import ApiProtocol, AsyncApiProtocol
 class ConnectKwargs(TypedDict, total=False):
     timeout: float
     port: int
-    saddr: str
+    saddr: str | None
     subclass: type[Api]
     encoding: str
     ssl_wrapper: Callable[[socket], socket] | None
@@ -33,7 +33,7 @@ class ConnectKwargs(TypedDict, total=False):
 class AsyncConnectKwargs(TypedDict, total=False):
     timeout: float
     port: int
-    saddr: str
+    saddr: str | None
     subclass: type[AsyncApi]
     encoding: str
     ssl_wrapper: SSLContext | None
@@ -43,7 +43,7 @@ class AsyncConnectKwargs(TypedDict, total=False):
 DEFAULTS: ConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "0.0.0.0",  # noqa S104
+    "saddr": None,
     "subclass": Api,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -53,7 +53,7 @@ DEFAULTS: ConnectKwargs = {
 ASYNC_DEFAULTS: AsyncConnectKwargs = {
     "timeout": 10,
     "port": 8728,
-    "saddr": "0.0.0.0",  # noqa S104
+    "saddr": None,
     "subclass": AsyncApi,
     "encoding": "ASCII",
     "ssl_wrapper": None,
@@ -68,7 +68,7 @@ def connect(
     *,
     timeout: float = DEFAULTS["timeout"],
     port: int = DEFAULTS["port"],
-    saddr: str = DEFAULTS["saddr"],
+    saddr: str | None = DEFAULTS["saddr"],
     subclass: type[Api] = DEFAULTS["subclass"],
     encoding: str = DEFAULTS["encoding"],
     ssl_wrapper: Callable[[socket], socket] | None = DEFAULTS["ssl_wrapper"],
@@ -109,7 +109,7 @@ async def async_connect(
     *,
     timeout: float = ASYNC_DEFAULTS["timeout"],
     port: int = ASYNC_DEFAULTS["port"],
-    saddr: str = ASYNC_DEFAULTS["saddr"],
+    saddr: str | None = ASYNC_DEFAULTS["saddr"],
     subclass: type[AsyncApi] = ASYNC_DEFAULTS["subclass"],
     encoding: str = ASYNC_DEFAULTS["encoding"],
     ssl_wrapper: SSLContext | None = ASYNC_DEFAULTS["ssl_wrapper"],
@@ -147,14 +147,14 @@ def create_transport(
     host: str,
     *,
     port: int,
-    saddr: str,
+    saddr: str | None,
     timeout: float,
     ssl_wrapper: Callable[[socket], socket] | None = None,
 ) -> SocketTransport:
     sock: socket = create_connection(
         (host, port),
         timeout=timeout,
-        source_address=(saddr, 0),
+        source_address=(saddr, 0) if saddr is not None else None,
     )
     if ssl_wrapper:
         sock = ssl_wrapper(sock)
@@ -165,7 +165,7 @@ async def async_create_transport(
     host: str,
     *,
     port: int,
-    saddr: str,
+    saddr: str | None,
     timeout: float,
     ssl_wrapper: SSLContext | None = None,
 ) -> AsyncSocketTransport:
@@ -174,7 +174,7 @@ async def async_create_transport(
             host=host,
             port=port,
             ssl=ssl_wrapper,
-            local_addr=(saddr, 0),
+            local_addr=(saddr, 0) if saddr is not None else None,
         ),
         timeout=timeout,
     )
