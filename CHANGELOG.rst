@@ -1,3 +1,8 @@
+4.0.1
+----------
+
+* fix: handle IPv6 correctly when saddr is not specified (#366)
+
 4.0.0
 ----------
 
