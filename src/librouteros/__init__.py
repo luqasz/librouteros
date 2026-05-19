@@ -85,6 +85,7 @@ def connect(
     :param port: Destination port to be used. Defaults to 8728.
     :param saddr: Source address to bind to.
     :param subclass: Subclass of Api class. Defaults to Api class from library.
+    :param encoding: String encoding to use.
     :param ssl_wrapper: Callable (e.g. ssl.SSLContext.wrap_socket()) to wrap socket with.
     :param login_method: Callable with login method.
     """
@@ -126,6 +127,7 @@ async def async_connect(
     :param port: Destination port to be used. Defaults to 8728.
     :param saddr: Source address to bind to.
     :param subclass: Subclass of AsyncApi class. Defaults to AsyncApi class from library.
+    :param encoding: String encoding to use.
     :param ssl_wrapper: ssl.SSLContext instance to wrap socket with.
     :param login_method: Coroutine with login method.
     """

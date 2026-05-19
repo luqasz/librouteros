@@ -31,6 +31,7 @@ dev = [
     "stamina>=25.1.0",
     "ipdb>=0.13.13",
     "hypothesis>=6.131.6",
+    "sphinx>=7.4.7",
 ]
 
 [build-system]

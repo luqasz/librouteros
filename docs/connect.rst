@@ -98,3 +98,18 @@ By default library will use plain text method. You can force library to use toke
 .. note::
 
     Library will not try auto login with different auth methods.
+
+String encoding
+---------------
+
+By default, library uses ``ASCII`` encoding. It ignores any encode/decode errors. You can provide
+different encoding with ``encoding`` param to both ``connect`` and ``async_connect`` functions.
+
+.. code-block:: python
+
+    api = connect(
+        username='admin',
+        password='abc',
+        host='some.address.com',
+        encoding='UTF-8',
+        )
