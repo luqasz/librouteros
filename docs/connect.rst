@@ -97,4 +97,4 @@ By default library will use plain text method. You can force library to use toke
 
 .. note::
 
-    Library will not try different methods untill it will log in.
+    Library will not try auto login with different auth methods.
