@@ -32,6 +32,7 @@ dev = [
     "ipdb>=0.13.13",
     "hypothesis>=6.131.6",
     "sphinx>=8.1.0",
+    "uv>=0.11.16",
 ]
 
 [build-system]
