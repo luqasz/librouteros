@@ -2,6 +2,7 @@
 ----------
 
 * Drop python 3.9 support
+* Fix parse_word edge case
 
 4.0.1
 ----------
