@@ -32,7 +32,9 @@ def parse_word(word: str) -> tuple[str, ROSType]:
     mapping: dict[str, bool] = {"yes": True, "true": True, "no": False, "false": False}
     _, key, value = word.split("=", 2)
     try:
-        ros_value: ROSType = int(value)
+        as_int = int(value)
+        # Keep int only if str cast gives original value, else preserve string ("00" -> "00").
+        ros_value: ROSType = as_int if str(as_int) == value else value
     except ValueError:
         ros_value = mapping.get(value, value)
     return (key, ros_value)

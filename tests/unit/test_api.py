@@ -38,6 +38,20 @@ def test_parse_word(word_pair):
     assert parse_word(word_pair.word) == word_pair.pair
 
 
+@pytest.mark.parametrize(
+    ("word", "pair"),
+    (
+        ("=name=00", ("name", "00")),
+        ("=name=000", ("name", "000")),
+        ("=name=0000", ("name", "0000")),
+        ("=name=007", ("name", "007")),
+    ),
+)
+def test_parse_word_preserves_leading_zeros(word, pair):
+    """Names like '00', '000', '0000' must stay strings, should not become int 0."""
+    assert parse_word(word) == pair
+
+
 def test_compose_word(word_pair):
     assert compose_word(*word_pair.pair) == word_pair.word
 
