@@ -32,6 +32,7 @@ Python implementation of `routeros api <http://wiki.mikrotik.com/wiki/API>`_. Th
     connect
     path
     query
+    config
     api_analysis
     license
     contributing

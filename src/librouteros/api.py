@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from posixpath import join as pjoin
 
+from librouteros.config import AsyncConfig, Config
 from librouteros.exceptions import MultiTrapError, TrapError
 from librouteros.protocol import (
     ApiProtocol,
@@ -88,6 +89,10 @@ class Api:
             path="",
             api=self,
         ).join(*path)
+
+    def config(self) -> Config:
+        """Return a configuration management helper bound to this Api."""
+        return Config(api=self)
 
 
 class Path:
@@ -216,6 +221,10 @@ class AsyncApi:
             path="",
             api=self,
         ).join(*path)
+
+    def config(self) -> AsyncConfig:
+        """Return an async configuration management helper bound to this AsyncApi."""
+        return AsyncConfig(api=self)
 
 
 class AsyncPath:

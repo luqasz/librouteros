@@ -1,3 +1,10 @@
+Unreleased
+----------
+
+* Add configuration management (``Config``/``AsyncConfig``, ``api.config()``):
+  export, import/merge, validate, compare, backup, a scheduler-based rollback
+  safety net and reset-based replace. RouterOS 7.x, binary API only (no SSH).
+
 4.1.1
 ----------
 

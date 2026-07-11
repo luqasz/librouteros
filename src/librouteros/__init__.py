@@ -9,6 +9,11 @@ from ssl import SSLContext
 from typing import TypedDict
 
 from librouteros.api import Api, AsyncApi
+from librouteros.config import (
+    AsyncConfig,  # noqa F401
+    Config,  # noqa F401
+    compare,  # noqa F401
+)
 from librouteros.connections import AsyncSocketTransport, SocketTransport
 from librouteros.exceptions import ConnectionClosed, FatalError
 from librouteros.login import (
