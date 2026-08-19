@@ -1,5 +1,5 @@
-Unreleased
-----------
+4.2.0
+-----
 
 * Add configuration management (``Config``/``AsyncConfig``, ``api.config()``):
   export, import/merge, validate, compare, backup, a scheduler-based rollback
