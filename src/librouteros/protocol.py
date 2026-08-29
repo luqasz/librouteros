@@ -250,4 +250,5 @@ class AsyncApiProtocol:
         return word.decode(encoding=self.encoding, errors="ignore")
 
     async def close(self) -> None:
-        await self.transport.close()
+        # Timeout guard so an unresponsive peer cannot make close() hang
+        await asyncio.wait_for(self.transport.close(), self.timeout)

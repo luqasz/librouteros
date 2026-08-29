@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+import asyncio
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -166,3 +167,15 @@ class Test_ApiProtocol:
         # async
         await self.async_protocol.close()
         self.async_protocol.transport.close.assert_called_once_with()
+
+    @pytest.mark.asyncio
+    async def test_async_close_times_out_on_hung_teardown(self):
+        """A hung teardown must not block forever - wait_for raises TimeoutError."""
+
+        async def hang():
+            await asyncio.sleep(3600)
+
+        self.async_protocol.timeout = 0.01
+        self.async_protocol.transport.close.side_effect = hang
+        with pytest.raises(asyncio.TimeoutError):
+            await self.async_protocol.close()
