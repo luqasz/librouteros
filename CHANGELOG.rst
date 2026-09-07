@@ -1,3 +1,8 @@
+4.2.1
+-----
+
+* Prevent ``AsyncApiProtocol.close()`` from hanging.
+
 4.2.0
 -----
 
