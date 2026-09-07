@@ -3,7 +3,7 @@
 from collections.abc import AsyncGenerator, Iterator
 from typing import Union
 
-ROSType = Union[str, int, bool]
+ROSType = Union[str, int, bool]  # noqa: UP007
 ReplyDict = dict[str, ROSType]
 ResponseIter = Iterator[ReplyDict]
 AsyncResponseIter = AsyncGenerator[ReplyDict]

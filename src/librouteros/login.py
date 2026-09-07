@@ -22,16 +22,16 @@ def token(api: Api, username: str, password: str) -> None:
     sentence: ResponseIter = api("/login")
     tok: str = str(next(iter(sentence))["ret"])
     encoded: str = encode_password(tok, password)
-    tuple(api("/login", **{"name": username, "response": encoded}))
+    tuple(api("/login", name=username, response=encoded))
 
 
 def plain(api: Api, username: str, password: str) -> None:
     """Login using post routeros 6.43 authorization method."""
-    tuple(api("/login", **{"name": username, "password": password}))
+    tuple(api("/login", name=username, password=password))
 
 
 async def async_plain(api: AsyncApi, username: str, password: str) -> None:
-    [response async for response in api("/login", **{"name": username, "password": password})]
+    [response async for response in api("/login", name=username, password=password)]
 
 
 async def async_token(api: AsyncApi, username: str, password: str) -> None:
@@ -39,4 +39,4 @@ async def async_token(api: AsyncApi, username: str, password: str) -> None:
     sentence: list[ReplyDict] = [response async for response in api("/login")]
     tok: str = str(sentence[0]["ret"])
     encoded: str = encode_password(tok, password)
-    [response async for response in api("/login", **{"name": username, "response": encoded})]
+    [response async for response in api("/login", name=username, response=encoded)]

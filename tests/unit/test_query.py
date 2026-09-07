@@ -102,7 +102,7 @@ class Test_Key:
     )
     def test_eq(self, param, expected):
         result = next(iter(self.key == param))
-        assert result == "?=key_name={}".format(expected)
+        assert result == f"?=key_name={expected}"
 
     def test_ne(self):
         assert tuple(self.key != 1) == ("?=key_name=1", "?#!")
@@ -118,7 +118,7 @@ class Test_Key:
     )
     def test_lt(self, param, expected):
         result = next(iter(self.key < param))
-        assert result == "?<key_name={}".format(expected)
+        assert result == f"?<key_name={expected}"
 
     @pytest.mark.parametrize(
         ("param", "expected"),
@@ -131,7 +131,7 @@ class Test_Key:
     )
     def test_gt(self, param, expected):
         result = next(iter(self.key > param))
-        assert result == "?>key_name={}".format(expected)
+        assert result == f"?>key_name={expected}"
 
 
 def test_And():
