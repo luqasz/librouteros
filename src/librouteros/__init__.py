@@ -15,7 +15,6 @@ from librouteros.config import (
     compare,  # noqa F401
 )
 from librouteros.connections import AsyncSocketTransport, SocketTransport
-from librouteros.exceptions import ConnectionClosed, FatalError
 from librouteros.login import (
     async_plain,
     async_token,  # noqa F401
@@ -100,12 +99,14 @@ def connect(
     protocol: ApiProtocol = ApiProtocol(transport=transport, encoding=encoding)
     api: Api = subclass(protocol=protocol)
 
+    logged_in = False
     try:
         login_method(api, username, password)
+        logged_in = True
         return api
-    except (ConnectionClosed, FatalError):
-        transport.close()
-        raise
+    finally:
+        if not logged_in:
+            transport.close()
 
 
 async def async_connect(
@@ -142,12 +143,14 @@ async def async_connect(
     protocol: AsyncApiProtocol = AsyncApiProtocol(transport=transport, encoding=encoding, timeout=timeout)
     api: AsyncApi = subclass(protocol=protocol)
 
+    logged_in = False
     try:
         await login_method(api, username, password)
+        logged_in = True
         return api
-    except (ConnectionClosed, FatalError):
-        await transport.close()
-        raise
+    finally:
+        if not logged_in:
+            await transport.close()
 
 
 def create_transport(
