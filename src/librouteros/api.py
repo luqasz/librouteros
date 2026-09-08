@@ -137,11 +137,11 @@ class Path:
         )
 
     def add(self, **kwargs: ROSType) -> str:
-        ret: ResponseIter = self(
-            "add",
-            **kwargs,
-        )
-        return str(next(iter(ret))["ret"])
+        rows = tuple(self("add", **kwargs))
+        # Not every RouterOS version returns =ret= for an add (e.g. /file/add on
+        # RouterOS older than ~7.13 returns nothing), so fall back to an empty id
+        # instead of raising StopIteration.
+        return str(rows[0]["ret"]) if rows and "ret" in rows[0] else ""
 
     def update(self, **kwargs: ROSType) -> None:
         tuple(
@@ -272,14 +272,9 @@ class AsyncPath:
         ]
 
     async def add(self, **kwargs: ROSType) -> str:
-        response: Response = [
-            response
-            async for response in self(
-                "add",
-                **kwargs,
-            )
-        ]
-        return str(response[0]["ret"])
+        rows: Response = [row async for row in self("add", **kwargs)]
+        # See sync Path.add: some RouterOS versions omit =ret= on an add.
+        return str(rows[0]["ret"]) if rows and "ret" in rows[0] else ""
 
     async def update(self, **kwargs: ROSType) -> None:
         [
