@@ -50,6 +50,21 @@ _READ_CHUNK = 32768
 _READ_RETRIES = 6
 _READ_RETRY_DELAY = 0.2
 
+
+def parse_version(version: str) -> tuple[int, ...]:
+    """Parse a RouterOS version string such as ``"7.16rc1 (testing)"`` into ``(7, 16)``."""
+    digits = re.compile(r"\d+")
+
+    def gen():
+        for part in version.split("."):
+            match = digits.match(part)
+            if match is None:
+                break
+            yield int(match.group())
+
+    return tuple(gen())
+
+
 # Marks the rollback scheduler as ours so a user job that happens to share the reserved
 # name is not mistaken for it (and never removed by cancel_rollback).
 ROLLBACK_COMMENT = "librouteros rollback dead man switch"
@@ -215,7 +230,7 @@ class Config:
 
     def _version(self) -> tuple[int, ...]:
         version = next(iter(self.api("/system/resource/print")))["version"]
-        return tuple(int(part) for part in str(version).split()[0].split("."))
+        return parse_version(str(version))
 
     def _file_contents(self, name: str) -> str:
         rows = tuple(self.api.path("file").select(_SIZE, _CONTENTS).where(_NAME == name))
@@ -513,7 +528,7 @@ class AsyncConfig:
 
     async def _version(self) -> tuple[int, ...]:
         rows = [row async for row in self.api("/system/resource/print")]
-        return tuple(int(part) for part in str(rows[0]["version"]).split()[0].split("."))
+        return parse_version(str(rows[0]["version"]))
 
     async def _file_contents(self, name: str) -> str:
         rows = [row async for row in self.api.path("file").select(_SIZE, _CONTENTS).where(_NAME == name)]
