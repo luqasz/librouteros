@@ -50,6 +50,22 @@ _READ_CHUNK = 32768
 _READ_RETRIES = 6
 _READ_RETRY_DELAY = 0.2
 
+# Leading integer of a version component. RouterOS testing builds tag the component
+# (e.g. "7.16rc1"), which a plain int() would choke on.
+_VERSION_PART = re.compile(r"\d+")
+
+
+def parse_version(version: str) -> tuple[int, ...]:
+    """Parse a RouterOS version string such as ``"7.16rc1 (testing)"`` into ``(7, 16)``."""
+    parts: list[int] = []
+    for part in version.split()[0].split("."):
+        match = _VERSION_PART.match(part)
+        if match is None:
+            break
+        parts.append(int(match.group()))
+    return tuple(parts)
+
+
 # Marks the rollback scheduler as ours so a user job that happens to share the reserved
 # name is not mistaken for it (and never removed by cancel_rollback).
 ROLLBACK_COMMENT = "librouteros rollback dead man switch"
@@ -215,7 +231,7 @@ class Config:
 
     def _version(self) -> tuple[int, ...]:
         version = next(iter(self.api("/system/resource/print")))["version"]
-        return tuple(int(part) for part in str(version).split()[0].split("."))
+        return parse_version(str(version))
 
     def _file_contents(self, name: str) -> str:
         rows = tuple(self.api.path("file").select(_SIZE, _CONTENTS).where(_NAME == name))
@@ -234,11 +250,11 @@ class Config:
         parts: list[str] = []
         offset = 0
         while offset < size:
-            data = self._read_chunk(name, offset)
-            if not data:
-                break
-            parts.append(data)
-            offset += len(data)
+            parts.append(self._read_chunk(name, offset))
+            # /file/read serves at most _READ_CHUNK bytes per call. Advance by the byte
+            # count requested, not len(str): under a multibyte encoding the two diverge and
+            # advancing by the shorter string length would re-read overlapping data.
+            offset += min(_READ_CHUNK, size - offset)
         return "".join(parts)
 
     def _read_chunk(self, name: str, offset: int) -> str:
@@ -513,7 +529,7 @@ class AsyncConfig:
 
     async def _version(self) -> tuple[int, ...]:
         rows = [row async for row in self.api("/system/resource/print")]
-        return tuple(int(part) for part in str(rows[0]["version"]).split()[0].split("."))
+        return parse_version(str(rows[0]["version"]))
 
     async def _file_contents(self, name: str) -> str:
         rows = [row async for row in self.api.path("file").select(_SIZE, _CONTENTS).where(_NAME == name)]
@@ -531,11 +547,11 @@ class AsyncConfig:
         parts: list[str] = []
         offset = 0
         while offset < size:
-            data = await self._read_chunk(name, offset)
-            if not data:
-                break
-            parts.append(data)
-            offset += len(data)
+            parts.append(await self._read_chunk(name, offset))
+            # /file/read serves at most _READ_CHUNK bytes per call. Advance by the byte
+            # count requested, not len(str): under a multibyte encoding the two diverge and
+            # advancing by the shorter string length would re-read overlapping data.
+            offset += min(_READ_CHUNK, size - offset)
         return "".join(parts)
 
     async def _read_chunk(self, name: str, offset: int) -> str:

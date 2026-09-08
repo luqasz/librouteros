@@ -10,6 +10,7 @@ import pytest
 
 from librouteros.api import Api, AsyncApi, Path
 from librouteros.config import (
+    _READ_CHUNK,
     EXPORT_FILE,
     IMPORT_FILE,
     ROLLBACK_COMMENT,
@@ -22,6 +23,7 @@ from librouteros.config import (
     export_args,
     export_command,
     import_args,
+    parse_version,
     reset_args,
     ros_quote,
     scheduler_args,
@@ -415,6 +417,53 @@ def test_file_contents_large_file_pre_7_13_raises():
     )
     with pytest.raises(NotImplementedError, match=r"7\.13"):
         Config(api=fake)._file_contents("big.rsc")
+
+
+@pytest.mark.parametrize(
+    ("version", "expected"),
+    (
+        ("7.21.5 (stable)", (7, 21, 5)),
+        ("6.49.21 (long-term)", (6, 49, 21)),
+        ("7.16rc1 (testing)", (7, 16)),
+        ("7.16beta2", (7, 16)),
+        ("7.13", (7, 13)),
+    ),
+)
+def test_parse_version(version, expected):
+    # Testing/RC builds tag the version component (e.g. "7.16rc1"); a plain int() would crash.
+    assert parse_version(version) == expected
+
+
+def test_file_contents_large_file_on_testing_build():
+    # The large-file path calls _version(); on a testing build it must not crash (was ValueError).
+    big = "".join(f"line {i}\n" for i in range(20000))  # > _READ_CHUNK bytes
+    fake = FilteringFake(
+        {"/file/print": [{".id": "*1", "name": "big.rsc", "size": len(big)}]},
+        blobs={"big.rsc": big},
+        version="7.16rc1 (testing)",
+    )
+    assert Config(api=fake)._file_contents("big.rsc") == big
+
+
+def test_file_read_advances_by_bytes_not_str_length():
+    # /file/read offsets are device byte offsets. Under a multibyte encoding a chunk decodes
+    # to fewer chars than its byte length, so advancing by len(str) would re-read overlapping
+    # data. _file_read must advance by the byte count requested instead.
+    class ByteOffsetFake:
+        def __init__(self, size):
+            self.size = size
+            self.offsets = []
+
+        def __call__(self, cmd, **kwargs):
+            assert cmd == "/file/read"
+            self.offsets.append(kwargs["offset"])
+            nbytes = min(kwargs["chunk-size"], self.size - kwargs["offset"])
+            return iter([{"data": "u" * (nbytes // 2)}])  # half as many chars as bytes
+
+    size = _READ_CHUNK * 3 + 100
+    fake = ByteOffsetFake(size)
+    Config(api=fake)._file_read("big.rsc", size)
+    assert fake.offsets == list(range(0, size, _READ_CHUNK))
 
 
 def test_backup_exists():
