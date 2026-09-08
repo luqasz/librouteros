@@ -22,7 +22,7 @@ from librouteros.login import (
 # Disable stamina WARNING  stamina:_logging.py:23 stamina.retry_scheduled
 stamina.instrumentation.set_on_retry_hooks([])
 
-DEV_NULL = open(devnull, "w")
+DEV_NULL = open(devnull, "w")  # noqa: SIM115
 
 # All routeros vms which can be launched.
 ROUTEROS_VMS = {
@@ -46,7 +46,7 @@ ROUTEROS_LOGIN_VMS = ("7.18.2", "6.33.3")
 
 def setup_qemu_disk(version):
     """Create a temporary disk image backed by original one."""
-    img = NamedTemporaryFile()
+    img = NamedTemporaryFile()  # noqa: SIM115
     # Path to backing image must be absolute or relative to new image
     backing_img = Path().joinpath(f"images/routeros_{version}.qcow2").absolute()
     cmd = [
@@ -75,7 +75,7 @@ def setup_qemu_vm(disk_image):
         "-hda",
         disk_image.name,
         "-net",
-        "user,hostfwd=tcp::{}-:8728".format(port),
+        f"user,hostfwd=tcp::{port}-:8728",
         "-net",
         "nic,model=virtio",
         "-cpu",
@@ -85,7 +85,7 @@ def setup_qemu_vm(disk_image):
     ]
     proc = Popen(cmd, stdout=DEV_NULL, stderr=PIPE, close_fds=True)
     if proc.poll() is not None and proc.poll() != 0:
-        raise pytest.fail("Failed to execute qemu {}".format(proc.stderr.read()))
+        raise pytest.fail(f"Failed to execute qemu {proc.stderr.read()}")
     return port, proc
 
 

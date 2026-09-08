@@ -16,8 +16,8 @@ def test_generator_ditch(routeros_api_sync):
         break
 
     for item in api.path("/interface"):
-        assert "mtu" in item.keys()
-        assert "mac-address" in item.keys()
+        assert "mtu" in item
+        assert "mac-address" in item
 
 
 @pytest.mark.asyncio
@@ -36,5 +36,5 @@ async def test_generator_ditch_async(routeros_api_async):
         break
 
     async for item in api.path("/interface"):
-        assert "mtu" in item.keys()
-        assert "mac-address" in item.keys()
+        assert "mtu" in item
+        assert "mac-address" in item

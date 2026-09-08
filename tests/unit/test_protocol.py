@@ -147,7 +147,7 @@ class Test_ApiProtocol:
 
     @pytest.mark.asyncio
     async def test_decoding_ignores_character_errors(self):
-        word = b"\x11\xfb\x95" + "łąć".encode("utf-8")
+        word = b"\x11\xfb\x95" + "łąć".encode()
         with pytest.raises(UnicodeDecodeError):
             word.decode()
         length = encode_length(len(word))

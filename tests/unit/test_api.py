@@ -76,7 +76,7 @@ def test_api_call_kwargs_colison():
     Is not raised.
     """
     api = Api(protocol=Mock())
-    api("/ip/address/print", **{"cmd": 123})
+    api("/ip/address/print", cmd=123)
 
 
 def test_async_api_call_kwargs_colison():
@@ -86,7 +86,7 @@ def test_async_api_call_kwargs_colison():
     Is not raised.
     """
     api = AsyncApi(protocol=Mock())
-    api("/ip/address/print", **{"cmd": 123})
+    api("/ip/address/print", cmd=123)
 
 
 def test_api_path_call_kwargs_colison():
@@ -97,7 +97,7 @@ def test_api_path_call_kwargs_colison():
     """
     api = Api(protocol=Mock())
     path = api.path("/ip/address")
-    path("print", **{"cmd": 123})
+    path("print", cmd=123)
 
 
 def test_async_api_path_call_kwargs_colison():
@@ -108,4 +108,4 @@ def test_async_api_path_call_kwargs_colison():
     """
     api = AsyncApi(protocol=Mock())
     path = api.path("/ip/address")
-    path("print", **{"cmd": 123})
+    path("print", cmd=123)

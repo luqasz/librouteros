@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from logging import NullHandler, getLogger
-from typing import Final, Literal
+from typing import Final
 
 from librouteros.connections import AsyncSocketTransport, SocketTransport
 from librouteros.exceptions import (
@@ -17,7 +17,7 @@ LOGGER = getLogger("librouteros")
 LOGGER.addHandler(NullHandler())
 
 # big is network byte order
-API_BYTE_ORDER: Final[Literal["big"]] = "big"
+API_BYTE_ORDER: Final = "big"
 
 
 def parse_word(word: str) -> tuple[str, ROSType]:
