@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import socket
 from unittest.mock import (
+    AsyncMock,
     Mock,
     call,
     patch,
@@ -149,6 +150,38 @@ async def test_async_connect_raises_when_failed_login(transport_mock):
     failed = Mock(name="failed", side_effect=TrapError(message="failed to login"))
     with pytest.raises(TrapError):
         await async_connect(host="127.0.0.1", username="admin", password="", login_method=failed)
+
+
+@patch("librouteros.create_transport")
+def test_connect_closes_transport_on_failed_login(transport_mock):
+    # A failed login must not leak the open socket.
+    failed = Mock(name="failed", side_effect=TrapError(message="failed to login"))
+    with pytest.raises(TrapError):
+        connect(host="127.0.0.1", username="admin", password="", login_method=failed)
+    transport_mock.return_value.close.assert_called_once_with()
+
+
+@patch("librouteros.create_transport")
+def test_connect_does_not_close_transport_on_success(transport_mock):
+    # A successful login keeps the transport open for the returned Api.
+    connect(host="127.0.0.1", username="admin", password="", login_method=Mock(name="ok"))
+    transport_mock.return_value.close.assert_not_called()
+
+
+@pytest.mark.asyncio
+@patch("librouteros.async_create_transport")
+async def test_async_connect_closes_transport_on_failed_login(transport_mock):
+    failed = Mock(name="failed", side_effect=TrapError(message="failed to login"))
+    with pytest.raises(TrapError):
+        await async_connect(host="127.0.0.1", username="admin", password="", login_method=failed)
+    transport_mock.return_value.close.assert_awaited_once_with()
+
+
+@pytest.mark.asyncio
+@patch("librouteros.async_create_transport")
+async def test_async_connect_does_not_close_transport_on_success(transport_mock):
+    await async_connect(host="127.0.0.1", username="admin", password="", login_method=AsyncMock(name="ok"))
+    transport_mock.return_value.close.assert_not_awaited()
 
 
 @pytest.mark.parametrize("exc", (socket.error, socket.timeout))

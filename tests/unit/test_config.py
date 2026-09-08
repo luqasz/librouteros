@@ -10,6 +10,7 @@ import pytest
 
 from librouteros.api import Api, AsyncApi, Path
 from librouteros.config import (
+    _READ_CHUNK,
     EXPORT_FILE,
     IMPORT_FILE,
     ROLLBACK_COMMENT,
@@ -442,6 +443,27 @@ def test_file_contents_large_file_on_testing_build():
         version="7.16rc1 (testing)",
     )
     assert Config(api=fake)._file_contents("big.rsc") == big
+
+
+def test_file_read_advances_by_bytes_not_str_length():
+    # /file/read offsets are device byte offsets. Under a multibyte encoding a chunk decodes
+    # to fewer chars than its byte length, so advancing by len(str) would re-read overlapping
+    # data. _file_read must advance by the byte count requested instead.
+    class ByteOffsetFake:
+        def __init__(self, size):
+            self.size = size
+            self.offsets = []
+
+        def __call__(self, cmd, **kwargs):
+            assert cmd == "/file/read"
+            self.offsets.append(kwargs["offset"])
+            nbytes = min(kwargs["chunk-size"], self.size - kwargs["offset"])
+            return iter([{"data": "u" * (nbytes // 2)}])  # half as many chars as bytes
+
+    size = _READ_CHUNK * 3 + 100
+    fake = ByteOffsetFake(size)
+    Config(api=fake)._file_read("big.rsc", size)
+    assert fake.offsets == list(range(0, size, _READ_CHUNK))
 
 
 def test_backup_exists():
