@@ -234,11 +234,11 @@ class Config:
         parts: list[str] = []
         offset = 0
         while offset < size:
-            data = self._read_chunk(name, offset)
-            if not data:
-                break
-            parts.append(data)
-            offset += len(data)
+            parts.append(self._read_chunk(name, offset))
+            # /file/read serves at most _READ_CHUNK bytes per call. Advance by the byte
+            # count requested, not len(str): under a multibyte encoding the two diverge and
+            # advancing by the shorter string length would re-read overlapping data.
+            offset += min(_READ_CHUNK, size - offset)
         return "".join(parts)
 
     def _read_chunk(self, name: str, offset: int) -> str:
@@ -531,11 +531,11 @@ class AsyncConfig:
         parts: list[str] = []
         offset = 0
         while offset < size:
-            data = await self._read_chunk(name, offset)
-            if not data:
-                break
-            parts.append(data)
-            offset += len(data)
+            parts.append(await self._read_chunk(name, offset))
+            # /file/read serves at most _READ_CHUNK bytes per call. Advance by the byte
+            # count requested, not len(str): under a multibyte encoding the two diverge and
+            # advancing by the shorter string length would re-read overlapping data.
+            offset += min(_READ_CHUNK, size - offset)
         return "".join(parts)
 
     async def _read_chunk(self, name: str, offset: int) -> str:
