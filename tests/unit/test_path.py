@@ -99,6 +99,21 @@ class Test_Path:
         assert new_id == "*1"
 
     @pytest.mark.asyncio
+    async def test_add_without_ret_returns_empty(self):
+        # Some RouterOS versions return no =ret= for an add (e.g. /file/add on RouterOS
+        # older than ~7.13), so add() must return "" instead of raising StopIteration
+        # (sync) / IndexError (async).
+        self.path.api.return_value = ()
+        assert self.path.add(name="x") == ""
+
+        async def mock_api(*args, **kwargs):
+            for item in ():  # pragma: no cover - empty async response
+                yield item
+
+        self.async_path.api.side_effect = mock_api
+        assert await self.async_path.add(name="x") == ""
+
+    @pytest.mark.asyncio
     async def test_update(self):
         args = {"name": "wan", ".id": "*1"}
         self.path.update(**args)
