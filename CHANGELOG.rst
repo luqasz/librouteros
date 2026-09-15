@@ -1,3 +1,12 @@
+4.2.2
+-----
+
+* Parse RouterOS version strings
+* Close the transport when login fails in connect()
+* Fix file-read offset advancing
+* Return an empty id from Path.add when RouterOS omits =ret=
+* Close the transport when login fails in connect()
+
 4.2.1
 -----
 
