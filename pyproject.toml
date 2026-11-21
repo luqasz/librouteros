@@ -32,7 +32,7 @@ dev = [
     "hypothesis>=6.131.6",
     "sphinx>=8.1.0",
     "uv>=0.11.16",
-    "ty>=0.0.95",
+    "ty>=0.0.107",
 ]
 
 [build-system]
@@ -106,4 +106,4 @@ parametrize-names-type = "tuple"
 [tool.ty.rules]
 missing-type-argument = "error"
 possibly-unresolved-reference = "warn"
-unsound-return-statement = "error"
+unsound-return = "error"
