@@ -67,12 +67,6 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
-        ros_version:
-          - "7.18.2"
-          - "6.33.3"
-        marks:
-          - "not asyncio"
-          - "asyncio"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -120,4 +114,7 @@ jobs:
 
       - name: Integration tests
         timeout-minutes: 10
-        run: uv run pytest tests/integration -k ${{ matrix.ros_version }} -m "${{ matrix.marks }}"
+        run: >
+          uv run pytest tests/integration
+          -n auto
+          --durations=0
