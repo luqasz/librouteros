@@ -98,7 +98,7 @@ jobs:
       - name: Install packages
         run: >
           sudo apt-get install -y --no-install-recommends --no-install-suggests
-          qemu-system-i386
+          qemu-system-x86
           qemu-utils
 
       - uses: actions/setup-python@v6
