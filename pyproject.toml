@@ -25,7 +25,6 @@ Documentation = "https://librouteros.readthedocs.io"
 dev = [
     "pytest==9.*",
     "pytest-xdist==3.*",
-    "mypy==2.*",
     "ruff==0.*",
     "pytest-asyncio>=0.24.0",
     "stamina>=25.1.0",
@@ -33,6 +32,7 @@ dev = [
     "hypothesis>=6.131.6",
     "sphinx>=8.1.0",
     "uv>=0.11.16",
+    "ty>=0.0.107",
 ]
 
 [build-system]
@@ -54,11 +54,10 @@ addopts = "-ra"
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 
-[tool.mypy]
-ignore_missing_imports = true
-
 [tool.ruff.lint]
 extend-select = [
+    "ANN",
+    "PYI",
     "A",
     "ASYNC",
     "BLE",
@@ -79,6 +78,7 @@ extend-select = [
     "W",
 ]
 ignore = [
+    "ANN204",
 ]
 exclude = [
     "docs/**/*.py",
@@ -95,8 +95,15 @@ exclude = [
     "S311",
     "PT001",
     "PT003",
+    "ANN",
+    "PYI",
 ]
 
 [tool.ruff.lint.flake8-pytest-style]
 parametrize-values-type = "tuple"
 parametrize-names-type = "tuple"
+
+[tool.ty.rules]
+missing-type-argument = "error"
+possibly-unresolved-reference = "warn"
+unsound-return = "error"
