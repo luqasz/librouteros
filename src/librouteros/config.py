@@ -17,6 +17,7 @@ from __future__ import annotations
 import asyncio
 import difflib
 import re
+from collections.abc import Generator
 from logging import getLogger
 from posixpath import join as pjoin
 from time import sleep
@@ -55,7 +56,7 @@ def parse_version(version: str) -> tuple[int, ...]:
     """Parse a RouterOS version string such as ``"7.16rc1 (testing)"`` into ``(7, 16)``."""
     digits = re.compile(r"\d+")
 
-    def gen():
+    def gen() -> Generator[int, None, None]:
         for part in version.split("."):
             match = digits.match(part)
             if match is None:
@@ -387,7 +388,7 @@ class Config:
         The running configuration is exported automatically. Extra keyword arguments
         are forwarded to :meth:`export` (e.g. ``show_sensitive=True``).
         """
-        running = self.export(**export_kwargs)  # type: ignore[arg-type]
+        running = self.export(**export_kwargs)  # ty: ignore[invalid-argument-type]
         return compare(running, candidate, context=context)
 
     def backup_save(
@@ -645,7 +646,7 @@ class AsyncConfig:
 
     async def compare(self, candidate: str, *, context: int = 3, **export_kwargs: bool | str | None) -> str:
         """See :meth:`Config.compare`."""
-        running = await self.export(**export_kwargs)  # type: ignore[arg-type]
+        running = await self.export(**export_kwargs)  # ty: ignore[invalid-argument-type]
         return compare(running, candidate, context=context)
 
     async def backup_save(

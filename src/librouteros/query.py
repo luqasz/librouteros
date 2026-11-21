@@ -23,10 +23,10 @@ class Key:
     def __init__(self, name: str) -> None:
         self.name: str = name
 
-    def __eq__(self, other) -> QueryGen:  # type: ignore[override]  # magic method
+    def __eq__(self, other) -> QueryGen:  # ty: ignore[invalid-method-override]
         yield f"?={self}={cast_to_api(other)}"
 
-    def __ne__(self, other) -> QueryGen:  # type: ignore[override]  # magic method
+    def __ne__(self, other) -> QueryGen:  # ty: ignore[invalid-method-override]
         yield from self == other
         yield "?#!"
 
@@ -39,7 +39,7 @@ class Key:
     def __str__(self) -> str:
         return self.name
 
-    def In(self, one, *elems) -> QueryGen:  # noqa N802
+    def In(self, one, *elems) -> QueryGen:  # noqa: N802
         yield from self == one
         yield from chain.from_iterable(self == str(elem) for elem in elems)
         yield from ("?#|",) * len(elems)
