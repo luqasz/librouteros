@@ -69,12 +69,6 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
-        ros_version:
-          - "7.18.2"
-          - "6.33.3"
-        marks:
-          - "not asyncio"
-          - "asyncio"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -83,11 +77,18 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+
       - name: Create docker image
         run: docker create --name images lukaszkostka/librouteros_images:latest /dev/null
 
       - name: Move vm images
-        run: docker cp images:/opt/routeros_${{ matrix.ros_version }}.qcow2 $GITHUB_WORKSPACE/images/
+        run: docker cp images:/opt/. $GITHUB_WORKSPACE/images/
 
       - name: Remove docker image
         run: docker rm images
@@ -115,4 +116,7 @@ jobs:
 
       - name: Integration tests
         timeout-minutes: 10
-        run: uv run pytest tests/integration -k ${{ matrix.ros_version }} -m "${{ matrix.marks }}"
+        run: >
+          uv run pytest tests/integration
+          -n auto
+          --durations=0

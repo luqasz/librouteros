@@ -81,7 +81,7 @@ def setup_qemu_vm(disk_image):
         "-cpu",
         "max",
         "-accel",
-        "tcg",
+        "kvm",
     ]
     proc = Popen(cmd, stdout=DEV_NULL, stderr=PIPE, close_fds=True)
     if proc.poll() is not None and proc.poll() != 0:
