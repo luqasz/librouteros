@@ -86,7 +86,7 @@ jobs:
         run: docker create --name images lukaszkostka/librouteros_images:latest /dev/null
 
       - name: Move vm images
-        run: docker cp images:/opt/routeros_${{ matrix.ros_version }}.qcow2 $GITHUB_WORKSPACE/images/
+        run: docker cp images:/opt/. $GITHUB_WORKSPACE/images/
 
       - name: Remove docker image
         run: docker rm images
