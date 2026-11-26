@@ -102,7 +102,7 @@ class Path:
         self.path: str = path
         self.api: Api = api
 
-    def select(self, *keys: Key) -> Query:
+    def select(self, *keys: Key | str) -> Query:
         return Query(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:
@@ -234,7 +234,7 @@ class AsyncPath:
         self.path: str = path
         self.api: AsyncApi = api
 
-    def select(self, *keys: Key) -> AsyncQuery:
+    def select(self, *keys: Key | str) -> AsyncQuery:
         return AsyncQuery(path=self, keys=keys, api=self.api)
 
     def __str__(self) -> str:

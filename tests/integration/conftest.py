@@ -85,7 +85,7 @@ def setup_qemu_vm(disk_image):
     ]
     proc = Popen(cmd, stdout=DEV_NULL, stderr=PIPE, close_fds=True)
     if proc.poll() is not None and proc.poll() != 0:
-        raise pytest.fail(f"Failed to execute qemu {proc.stderr.read()}")
+        raise pytest.fail(f"Failed to execute qemu {proc.stderr}")
     return port, proc
 
 

@@ -98,42 +98,60 @@ def test_non_ascii_password_encoding():
 
 @patch("librouteros.create_connection")
 def test_create_transport_passes_src_addr(conn_mock):
-    params = {k: v for k, v in DEFAULTS.items() if k in TRANSPORT_PARAMS}
-    create_transport(host="127.0.0.1", **params)
+    create_transport(
+        host="127.0.0.1",
+        port=234,
+        saddr="1.1.1.1",
+        timeout=20,
+    )
     assert conn_mock.call_args == call(
-        ("127.0.0.1", params["port"]),
-        timeout=params["timeout"],
-        source_address=None,
+        ("127.0.0.1", 234),
+        timeout=20,
+        source_address=("1.1.1.1", 0),
     )
 
 
 @pytest.mark.asyncio
 @patch("librouteros.asyncio.open_connection")
 async def test_async_create_transport_passes_src_addr(conn_mock):
-    params = {k: v for k, v in ASYNC_DEFAULTS.items() if k in TRANSPORT_PARAMS}
     conn_mock.return_value = (Mock(), Mock())
-    await async_create_transport(host="127.0.0.1", **params)
+    await async_create_transport(
+        host="127.0.0.1",
+        port=234,
+        saddr="1.1.1.1",
+        timeout=20,
+    )
     assert conn_mock.call_args == call(
         host="127.0.0.1",
-        port=params["port"],
-        local_addr=None,
-        ssl=params["ssl_wrapper"],
+        port=234,
+        local_addr=("1.1.1.1", 0),
+        ssl=None,
     )
 
 
 @patch("librouteros.create_connection")
 def test_crate_transport_calls_ssl_wrapper(connection_mock):
-    params = {k: v for k, v in DEFAULTS.items() if k in TRANSPORT_PARAMS}
-    params["ssl_wrapper"] = Mock()
-    transport = create_transport(host="127.0.0.1", **params)
-    params["ssl_wrapper"].assert_called_once_with(connection_mock.return_value)
-    assert transport.sock == params["ssl_wrapper"].return_value
+    ssl_wrapper = Mock()
+    transport = create_transport(
+        host="127.0.0.1",
+        port=234,
+        saddr="1.1.1.1",
+        timeout=20,
+        ssl_wrapper=ssl_wrapper,
+    )
+    ssl_wrapper.assert_called_once_with(connection_mock.return_value)
+    assert transport.sock == ssl_wrapper.return_value
 
 
 @patch("librouteros.create_connection")
 def test_crate_transport_does_not_call_ssl_wrapper(connection_mock):
-    params = {k: v for k, v in DEFAULTS.items() if k in TRANSPORT_PARAMS}
-    transport = create_transport(host="127.0.0.1", **params)
+    transport = create_transport(
+        host="127.0.0.1",
+        port=234,
+        saddr="1.1.1.1",
+        timeout=20,
+        ssl_wrapper=None,
+    )
     assert transport.sock == connection_mock.return_value
 
 
@@ -186,30 +204,26 @@ async def test_async_connect_does_not_close_transport_on_success(transport_mock)
 
 @pytest.mark.parametrize("exc", (socket.error, socket.timeout))
 @patch("librouteros.create_connection")
-@patch("librouteros.SocketTransport")
-def test_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
-    kwargs = {
-        "host": "127.0.0.1",
-        "port": 22,
-        "timeout": 2,
-        "saddr": "",
-    }
-    transport.side_effect = exc
+def test_create_connection_does_not_wrap_socket_exceptions(conn, exc):
+    conn.side_effect = exc
     with pytest.raises(exc):
-        create_transport(**kwargs)
+        create_transport(
+            host="127.0.0.1",
+            port=234,
+            timeout=2,
+            saddr=None,
+        )
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("exc", (socket.error, socket.timeout))
-@patch("librouteros.create_connection")
-@patch("librouteros.SocketTransport")
-async def test_async_create_connection_does_not_wrap_socket_exceptions(create_connection, transport, exc):
-    kwargs = {
-        "host": "127.0.0.1",
-        "port": 22,
-        "timeout": 2,
-        "saddr": "",
-    }
-    transport.side_effect = exc
+@patch("librouteros.asyncio.open_connection")
+async def test_async_create_connection_does_not_wrap_socket_exceptions(conn, exc):
+    conn.side_effect = exc
     with pytest.raises(exc):
-        await create_transport(**kwargs)
+        await async_create_transport(
+            host="127.0.0.1",
+            port=234,
+            timeout=2,
+            saddr=None,
+        )

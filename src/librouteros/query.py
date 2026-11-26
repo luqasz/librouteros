@@ -46,10 +46,10 @@ class Key:
 
 
 class Query:
-    def __init__(self, path: Path, keys: Sequence[Key], api: Api) -> None:
-        self.path: Path = path
-        self.keys: Sequence[Key] = keys
-        self.api: Api = api
+    def __init__(self, path: Path, keys: Sequence[Key] | Sequence[str], api: Api) -> None:
+        self.path = path
+        self.keys = keys
+        self.api = api
         self.query: tuple[str, ...] = ()
 
     def where(self, *args: str | QueryGen) -> Query:
@@ -83,10 +83,10 @@ def Or(left: QueryGen, right: QueryGen, *rest: QueryGen) -> QueryGen:  # noqa N8
 
 
 class AsyncQuery:
-    def __init__(self, path: AsyncPath, keys: Sequence[Key], api: AsyncApi) -> None:
-        self.path: AsyncPath = path
-        self.keys: Sequence[Key] = keys
-        self.api: AsyncApi = api
+    def __init__(self, path: AsyncPath, keys: Sequence[Key] | Sequence[str], api: AsyncApi) -> None:
+        self.path = path
+        self.keys = keys
+        self.api = api
         self.query: tuple[str, ...] = ()
 
     def where(self, *args: str | QueryGen) -> AsyncQuery:
