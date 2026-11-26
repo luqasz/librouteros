@@ -89,6 +89,17 @@ def setup_qemu_vm(disk_image):
     return port, proc
 
 
+def sock_wait(host, port):
+    for attempt in stamina.retry_context(
+        on=(socket.error, socket.timeout),
+        wait_initial=1,
+        timeout=90,
+    ):
+        with attempt:
+            sock = socket.create_connection((host, port), 1, ("", 0))
+            sock.close()
+
+
 @pytest.fixture(params=ROUTEROS_VMS.keys())
 def routeros_vm(request):
     """
@@ -100,21 +111,14 @@ def routeros_vm(request):
     port, proc = setup_qemu_vm(image)
     request.addfinalizer(proc.kill)
     request.addfinalizer(image.close)  # noqa PT021
-    for attempt in stamina.retry_context(
-        on=(socket.error, socket.timeout),
-        wait_initial=1,
-        timeout=90,
-    ):
-        with attempt:
-            sock = socket.create_connection((host, port), 1, ("", 0))
-            sock.close()
+    sock_wait(host, port)
 
     def params(ltype):
         return {
             "host": host,
             "port": port,
             "login_method": ROUTEROS_VMS[version][ltype],
-            "timeout": 90,
+            "timeout": 60,
             "username": ROUTEROS_VMS[version]["username"],
             "password": ROUTEROS_VMS[version]["password"],
         }
@@ -123,18 +127,14 @@ def routeros_vm(request):
 
 
 @pytest.fixture()
-def routeros_api_sync(request, routeros_vm):
-    try:
-        api = connect(**routeros_vm("sync"))
-    except ConnectionResetError as e:
-        pytest.skip(f"Skipped due to {e}")
+def routeros_api_sync(routeros_vm):
+    args = routeros_vm("sync")
+    api = connect(**args)
     return api
 
 
 @pytest_asyncio.fixture()
-async def routeros_api_async(request, routeros_vm):
-    try:
-        api = await async_connect(**routeros_vm("async"))
-    except ConnectionResetError as e:
-        pytest.skip(f"Skipped due to {e}")
+async def routeros_api_async(routeros_vm):
+    args = routeros_vm("async")
+    api = await async_connect(**args)
     return api
